@@ -1,0 +1,30 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Output files (generated; not source)
+output_files/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Node (if ever added)
+node_modules/

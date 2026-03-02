@@ -1,0 +1,37 @@
+{
+    "lead_id": "60eaa3f2-695a-40f7-b81e-2eee39ac9eb8",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "Italy",
+      "region": [
+        "Sicily"
+      ],
+      "boatType": "monohull",
+      "size": "41-45",
+      "cabins": 3,
+      "budget": "3-5k",
+      "dates": {
+        "start": "2026-06-29",
+        "end": "2026-06-29"
+      },
+      "contact": {
+        "name": "Jane Hare",
+        "email": "cjanehare@gmail.com",
+        "phone": "+15482886480"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-03-01T20:18:08.374Z",
+    "geo": {
+      "ip": "99.251.3.59",
+      "countryCode": "CA",
+      "source": "header"
+    }
+   }

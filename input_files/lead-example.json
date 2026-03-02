@@ -1,0 +1,25 @@
+{
+  "lead_id": "a749d405-3efa-4055-8868-701f0baed59e",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "none",
+    "country": "Spain",
+    "region": ["Costa Brava"],
+    "boatType": "catamaran",
+    "size": "41-45",
+    "crewServices": {
+      "chef": true,
+      "provisioning": true
+    },
+    "cabins": 3,
+    "budget": "3-5k",
+    "dates": {
+      "start": "2026-06-24"
+    }
+  },
+  "contact": {
+    "name": "Keerthana",
+    "email": "shashikala4356@gmail.com",
+    "phone": "+44 7920 184945"
+  }
+}

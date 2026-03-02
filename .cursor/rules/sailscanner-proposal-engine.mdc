@@ -1,0 +1,55 @@
+---
+description: SailScanner Proposal Engine — WordPress plugin standards, REST API, security, and UI
+alwaysApply: true
+---
+
+# SailScanner Proposal Engine
+
+## CORE PRINCIPLES
+- Make minimal changes; extend existing plugins/scripts.
+- Separate concerns: proposals (sales artifacts) are ss_proposal; yacht picks in proposals are ss_proposal_yacht. Do not register or modify yacht_charter (managed elsewhere, SEO-indexed). Woo remains for Trips/commerce.
+- Security first: capability checks, strict REST validation, escape all output.
+- No leakage: never render provider/operator names or MMK/NauSYS hosted URLs on front-end.
+
+## WORDPRESS/PLUGIN STANDARDS
+- Keep all new code in a dedicated plugin folder; do not modify theme files.
+- Use plugin template loader (template_include) for ss_proposal and ss_proposal_yacht templates only.
+- Add noindex/nofollow via meta tag AND X-Robots-Tag header on proposal and ss_proposal_yacht pages only.
+- Exclude ss_proposal and ss_proposal_yacht from sitemap/search/archives (Yoast/RankMath hooks if present).
+- Avoid heavy dependencies; WordPress core only.
+
+## REST API REQUIREMENTS
+- Reuse existing HMAC auth from sailscanner-rest-endpoints-extended.php exactly.
+- Do not add a second auth system.
+- Validate/sanitize payloads:
+  - required: ss_yacht_data (array of yacht objects) for proposal create
+  - max yachts per proposal = 25
+  - sanitize strings; allow limited HTML with wp_kses_post
+- Use clear HTTP status codes (400/401/403/500).
+## DATA INTEGRITY
+- Proposal yacht picks are stored as ss_proposal_yacht posts (created from ss_yacht_data on proposal create).
+- Re-running the same import may create new proposal/yacht posts; idempotency is by proposal token if needed.
+- Never store or render provider/operator URLs on front-end.
+
+## TEMPLATE/UI REQUIREMENTS
+- Proposal single template: portal-style layout with **sidebar on the LEFT**. Sidebar must be **fixed (sticky)** on desktop; on mobile show it at the top (or as collapsible sections at top).
+- Include a **"How it works"** section on the proposal template with clear steps explaining the process (e.g. review your options → shortlist → get in touch → we confirm).
+- Yacht picks rendered as cards with anchor links and WhatsApp CTA (prefilled message).
+- Use accessible markup and visible focus states.
+- Keep CSS lightweight and scoped to proposal/yacht templates.
+
+## LOGGING & DEBUG
+- Add SAILSCANNER_PROPOSALS_DEBUG constant.
+- Log non-sensitive operational info only; never log PII in plain text.
+
+## PERFORMANCE
+- Do not sideload images in v1; store and render remote URLs.
+- Avoid expensive meta queries on every page load; cache token lookups if needed.
+- Limit REST payload size and request frequency.
+
+## DELIVERABLE HYGIENE
+- Provide README notes:
+  - how to call endpoints
+  - how to run python importer
+  - how to rotate HMAC secrets/keys
+- Add basic sanity handling: missing/invalid token -> 404 or friendly expired message.

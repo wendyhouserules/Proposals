@@ -1,0 +1,27 @@
+{
+  "yachts": [
+    {
+      "external_id": "test:first-yacht-001",
+      "source_system": "mmk",
+      "display_name": "Test Yacht 42",
+      "cabins": 3,
+      "berths": 6,
+      "length_m": 12.5,
+      "year": 2022,
+      "base_name": "Marina Test",
+      "country": "Greece",
+      "images_json": ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800"],
+      "highlights_json": ["Spacious cockpit", "Full galley", "Bimini shade"]
+    }
+  ],
+  "intro_html": "<p>Hi, here are your charter options for your requested dates. We've picked a few yachts that match your requirements.</p>",
+  "itinerary_html": "<p><strong>Sample week:</strong> Day 1–2 base area, Day 3–4 island hop, Day 5–7 return. We can tailor this to your preferences.</p>",
+  "notes_html": "<p>Contact us to confirm availability and next steps. This proposal is valid for 14 days.</p>",
+  "contact_whatsapp": "",
+  "contact_email": "",
+  "requirements": {
+    "Charter type": "Bareboat",
+    "Dates": "July 2025",
+    "Guests": "4"
+  }
+}

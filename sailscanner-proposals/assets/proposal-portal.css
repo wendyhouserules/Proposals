@@ -1,0 +1,1187 @@
+/**
+ * SailScanner Proposals — portal and yacht template styles.
+ * Scoped to .ss-proposal-portal and .ss-yacht-single. Lightweight, no theme override.
+ */
+
+/* ---- Proposal header: title + meta strip ---- */
+.ss-proposal-header {
+	background: #fff;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+	padding: 2rem 1rem 1.75rem;
+}
+
+.ss-proposal-header-inner {
+	max-width: 1280px;
+	margin: 0 auto;
+}
+
+.ss-proposal-header-title-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+.ss-proposal-header-doc-icon {
+	font-size: 2.25rem;
+	color: #12305c;
+	flex-shrink: 0;
+	margin-top: 0.15rem;
+}
+
+.ss-proposal-header-title-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.ss-proposal-header-title {
+	font-size: 1.65rem;
+	font-weight: 700;
+	color: #12305c;
+	margin: 0 0 0.25rem 0;
+	line-height: 1.25;
+}
+
+.ss-proposal-header-subtitle {
+	font-size: 0.95rem;
+	color: #6b7280;
+	margin: 0;
+}
+
+.ss-proposal-header-divider {
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.09);
+	margin: 1.25rem 0;
+}
+
+.ss-proposal-header-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem 2.5rem;
+}
+
+.ss-proposal-header-meta-item {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.ss-proposal-header-meta-icon {
+	font-size: 1.2rem;
+	color: #6b7280;
+	flex-shrink: 0;
+}
+
+.ss-proposal-header-meta-body {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.3;
+}
+
+.ss-proposal-header-meta-label {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #9ca3af;
+	font-weight: 600;
+}
+
+.ss-proposal-header-meta-value {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #111827;
+}
+
+.ss-proposal-header-meta-email {
+	font-weight: 400;
+	color: #6b7280;
+	font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+	.ss-proposal-header-title {
+		font-size: 1.3rem;
+	}
+
+	.ss-proposal-header-meta {
+		gap: 1rem 1.5rem;
+	}
+}
+
+/* ---- Proposal portal layout: sidebar LEFT on desktop; at TOP on mobile ---- */
+.ss-proposal-portal .ss-proposal-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-areas: "sidebar" "main";
+	gap: 2rem;
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 1.5rem 1rem;
+}
+
+.ss-proposal-portal .ss-proposal-sidebar {
+	grid-area: sidebar;
+}
+
+.ss-proposal-portal .ss-proposal-main {
+	grid-area: main;
+	min-width: 0;
+}
+
+@media (min-width: 992px) {
+	.ss-proposal-portal .ss-proposal-layout {
+		grid-template-columns: 320px 1fr;
+		grid-template-areas: "sidebar main";
+		align-items: start;
+	}
+	.ss-proposal-portal .ss-proposal-sidebar {
+		position: sticky;
+		top: 1.5rem;
+	}
+}
+
+.ss-proposal-portal .ss-proposal-section {
+	margin-bottom: 2.5rem;
+}
+
+.ss-proposal-portal .ss-proposal-section-hr {
+	border: 0;
+	height: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	margin: 2rem 0;
+}
+
+/* Shared card style (matches site-wide cards) */
+.ss-proposal-portal .ss-proposal-card,
+.ss-proposal-portal .ss-proposal-yacht-card,
+.ss-proposal-portal .ss-proposal-itinerary-card,
+.ss-proposal-portal .ss-proposal-how-step {
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	border-radius: 12px;
+	position: relative;
+	box-shadow: 0px 0px 30px 3px rgba(0, 0, 0, 0.17);
+	transition: 0.3s;
+}
+
+.ss-proposal-portal .ss-proposal-card:hover,
+.ss-proposal-portal .ss-proposal-yacht-card:hover,
+.ss-proposal-portal .ss-proposal-itinerary-card:hover,
+.ss-proposal-portal .ss-proposal-how-step:hover {
+	transform: translateY(-3px);
+	box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.2);
+}
+
+.ss-proposal-portal .ss-proposal-card {
+	padding: 1.25rem;
+}
+
+.ss-proposal-portal .ss-proposal-requirements-block {
+	background: #fff;
+}
+
+/* Requirements grid (lead.answers) with icons */
+.ss-proposal-reqs-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.5rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+	.ss-proposal-reqs-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.ss-proposal-reqs-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	font-size: 0.95rem;
+}
+
+.ss-proposal-reqs-icon {
+	color: #12305c;
+	flex-shrink: 0;
+}
+
+.ss-proposal-reqs-label {
+	font-weight: 600;
+	color: #374151;
+	min-width: 6rem;
+}
+
+.ss-proposal-reqs-value {
+	color: #111827;
+	text-transform: capitalize;
+}
+
+.ss-proposal-portal .ss-proposal-notes-inline {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ss-proposal-portal .ss-proposal-h2 {
+	font-size: 1.5rem;
+	margin: 0 0 1rem 0;
+	font-weight: 700;
+}
+
+.ss-proposal-portal .ss-proposal-card-hr {
+	margin: 1.5rem 0;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ss-proposal-portal .ss-proposal-content {
+	line-height: 1.6;
+}
+
+.ss-proposal-portal .ss-proposal-content p {
+	margin: 0 0 0.75em 0;
+}
+
+/* ---- Yacht cards ---- */
+.ss-proposal-yacht-cards {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.ss-proposal-yacht-card {
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+/* ---- Yacht gallery (ecommerce product-style) ---- */
+.ss-proposal-yacht-gallery {
+	background: #f0f4f8;
+}
+
+.ss-proposal-yacht-gallery-main {
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	position: relative;
+	background: #e5e7eb;
+}
+
+.ss-proposal-yacht-gallery-main .ss-proposal-gallery-main-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: opacity 0.2s ease;
+}
+
+.ss-proposal-yacht-gallery-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	background: #e5e7eb;
+}
+
+.ss-proposal-yacht-gallery-placeholder .material-symbols-outlined {
+	font-size: 5rem;
+	color: #9ca3af;
+}
+
+.ss-proposal-yacht-gallery-thumbs {
+	display: flex;
+	gap: 0.4rem;
+	padding: 0.5rem;
+	overflow-x: auto;
+	background: #f8fafc;
+	border-top: 1px solid rgba(0, 0, 0, 0.07);
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.ss-proposal-yacht-gallery-thumbs::-webkit-scrollbar {
+	height: 4px;
+}
+
+.ss-proposal-yacht-gallery-thumbs::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.ss-proposal-yacht-gallery-thumbs::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.15);
+	border-radius: 2px;
+}
+
+.ss-proposal-yacht-gallery-thumb {
+	flex: 0 0 88px;
+	height: 62px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #e5e7eb;
+	cursor: pointer;
+	opacity: 0.65;
+	transition: opacity 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.ss-proposal-yacht-gallery-thumb:hover {
+	opacity: 1;
+	transform: translateY(-2px);
+}
+
+.ss-proposal-yacht-gallery-thumb.is-active {
+	opacity: 1;
+	border-color: #12305c;
+}
+
+.ss-proposal-yacht-gallery-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ss-proposal-yacht-card-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #e5e7eb;
+}
+
+.ss-proposal-yacht-card-placeholder .material-symbols-outlined {
+	font-size: 4rem;
+	color: #9ca3af;
+}
+
+/* Yacht card: specs box (email-style) */
+.ss-proposal-yacht-specs-box {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.5rem 1rem;
+	padding: 0.75rem 1rem;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	font-size: 0.9rem;
+}
+
+.ss-proposal-yacht-spec-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	text-align: center;
+}
+
+.ss-proposal-yacht-spec-label {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.ss-proposal-yacht-spec-value {
+	font-weight: 700;
+	color: #12305c;
+}
+
+.ss-proposal-yacht-base {
+	margin: 0.5rem 0 0 0;
+	font-size: 0.9rem;
+	color: #374151;
+}
+
+/* Equipment pills (email-style) */
+.ss-proposal-yacht-equipment {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 0.5rem;
+	margin: 0.5rem 0 0 0;
+}
+
+.ss-proposal-yacht-pill {
+	display: inline-block;
+	background: #12305c;
+	color: #fff;
+	font-size: 0.75rem;
+	line-height: 1;
+	border-radius: 999px;
+	padding: 0.4rem 0.65rem;
+}
+
+.ss-proposal-yacht-card-body {
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.ss-proposal-yacht-card-title {
+	font-size: 1.25rem;
+	margin: 0;
+	font-weight: 700;
+}
+
+.ss-proposal-yacht-card-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.ss-proposal-yacht-card-title a:focus {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.ss-proposal-yacht-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.9rem;
+	opacity: 0.9;
+}
+
+.ss-proposal-yacht-highlights {
+	margin: 0 0 0.5rem 0;
+	padding-left: 1.25rem;
+	font-size: 0.9rem;
+}
+
+.ss-proposal-yacht-ctas {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding-top: 0.5rem;
+}
+
+/* ---- Buttons ---- */
+.ss-proposal-btn {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+	font-size: 0.9rem;
+	border: 2px solid transparent;
+	cursor: pointer;
+}
+
+.ss-proposal-btn:focus {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.ss-proposal-btn-primary {
+	background: #12305c;
+	color: #fff;
+	border-color: #12305c;
+}
+
+.ss-proposal-btn-primary:hover,
+.ss-proposal-btn-primary:focus {
+	background: #0f2849;
+	border-color: #0f2849;
+	color: #fff;
+}
+
+.ss-proposal-btn-outline {
+	border-color: rgba(0, 0, 0, 0.2);
+	background: transparent;
+	color: inherit;
+}
+
+.ss-proposal-btn-whatsapp {
+	background: #25d366;
+	color: #fff;
+	border-color: #25d366;
+}
+
+.ss-proposal-btn-whatsapp:hover,
+.ss-proposal-btn-whatsapp:focus {
+	background: #20bd5a;
+	border-color: #20bd5a;
+	color: #fff;
+}
+
+.ss-proposal-link {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.ss-proposal-link:focus {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+/* ---- Material Symbols (Google Fonts) ---- */
+.material-symbols-outlined {
+	font-family: 'Material Symbols Outlined';
+	font-weight: 400;
+	font-style: normal;
+	font-size: 1.25em;
+	line-height: 1;
+	letter-spacing: normal;
+	white-space: nowrap;
+	word-wrap: normal;
+}
+
+/* ---- Sidebar: Contents heading, simple nav, top margin ---- */
+.ss-proposal-sidebar {
+	background: #fff;
+	border-radius: 12px;
+	padding: 1.25rem;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	top: 50px;
+}
+
+@media (min-width: 992px) {
+	.ss-proposal-portal .ss-proposal-sidebar {
+		top: 50px
+	}
+}
+
+.ss-proposal-contents-title {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+	margin: 0 0 0.75rem 0;
+}
+
+.ss-proposal-sidebar-nav-only .ss-proposal-nav-cards ul {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.ss-proposal-nav-link {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0;
+	text-decoration: none;
+	color: inherit;
+	font-size: 0.95rem;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	transition: opacity 0.15s ease;
+}
+
+.ss-proposal-nav-link:hover,
+.ss-proposal-nav-link:focus {
+	background: transparent;
+	text-decoration: underline;
+	color: inherit;
+	outline: none;
+	opacity: 0.9;
+}
+
+.ss-proposal-nav-link:focus {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.ss-proposal-nav-icon {
+	color: #12305c;
+	flex-shrink: 0;
+}
+
+.ss-proposal-reqs {
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.ss-proposal-reqs dt {
+	font-weight: 600;
+	margin-top: 0.35rem;
+}
+
+.ss-proposal-reqs dt:first-child {
+	margin-top: 0;
+}
+
+.ss-proposal-reqs dd {
+	margin: 0 0 0 0.5rem;
+}
+
+.ss-proposal-nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ss-proposal-next-steps {
+	margin: 0;
+	padding-left: 1.25rem;
+	font-size: 0.9rem;
+	line-height: 1.5;
+}
+
+.ss-proposal-muted {
+	margin: 0;
+	font-size: 0.9rem;
+	opacity: 0.8;
+}
+
+.ss-proposal-how-steps {
+	margin: 0;
+	padding-left: 1.25rem;
+	font-size: 0.9rem;
+	line-height: 1.5;
+}
+
+.ss-proposal-how-steps li {
+	margin-bottom: 0.5rem;
+}
+
+.ss-proposal-how-steps li:last-child {
+	margin-bottom: 0;
+}
+
+/* Itinerary card (Yacht Charter style) */
+.ss-proposal-itinerary-card {
+	display: grid;
+	grid-template-columns: 1fr;
+	overflow: hidden;
+	margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+	.ss-proposal-itinerary-card {
+		grid-template-columns: 320px 1fr;
+	}
+}
+
+.ss-proposal-itinerary-card-image {
+	min-height: 180px;
+	background-size: cover;
+	background-position: center;
+	background-color: #e5e7eb;
+}
+
+.ss-proposal-itinerary-card-body {
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.ss-proposal-itinerary-card-title {
+	font-size: 1.35rem;
+	margin: 0;
+	font-weight: 700;
+	color: #12305c;
+}
+
+.ss-proposal-itinerary-card-summary {
+	margin: 0;
+	line-height: 1.6;
+	color: #374151;
+}
+
+/* How it works grid (Yacht Charter style) */
+.ss-proposal-how-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+	.ss-proposal-how-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 992px) {
+	.ss-proposal-how-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.ss-proposal-how-step {
+	padding: 1.25rem;
+}
+
+.ss-proposal-how-icon {
+	display: block;
+	color: #12305c;
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
+}
+
+.ss-proposal-how-step-title {
+	font-size: 1.05rem;
+	margin: 0 0 0.35rem 0;
+	font-weight: 700;
+	color: #12305c;
+}
+
+.ss-proposal-how-step-summary {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	color: #374151;
+}
+
+/* ---- Yacht detail page (ss-yacht-page) ---- */
+.ss-yacht-page {
+	padding: 1.5rem 1rem 3rem;
+}
+
+.ss-yacht-page-inner {
+	max-width: 1140px;
+	margin: 0 auto;
+}
+
+/* Header */
+.ss-yacht-page-header {
+	margin-bottom: 1.5rem;
+}
+
+.ss-yacht-page-title {
+	font-size: 2rem;
+	font-weight: 800;
+	color: #12305c;
+	margin: 0 0 0.75rem;
+	line-height: 1.2;
+}
+
+/* Stats bar */
+.ss-yacht-stats-bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.ss-yacht-stat-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	background: #f0f4f8;
+	border: 1px solid rgba(18, 48, 92, 0.12);
+	border-radius: 999px;
+	padding: 0.3rem 0.75rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #12305c;
+}
+
+.ss-yacht-stat-pill .material-symbols-outlined {
+	font-size: 1rem;
+	opacity: 0.7;
+}
+
+/* Two-column layout: main + sidebar */
+.ss-yacht-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	align-items: start;
+}
+
+@media (min-width: 900px) {
+	.ss-yacht-layout {
+		grid-template-columns: 1fr 320px;
+		gap: 2rem;
+	}
+}
+
+/* Main content column */
+.ss-yacht-main {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+}
+
+/* Section blocks in main column */
+.ss-yacht-detail-section {
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, .06);
+	border-radius: 12px;
+	padding: 1.5rem;
+	box-shadow: 0px 0px 30px 3px rgba(0, 0, 0, 0.08);
+}
+
+.ss-yacht-section-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #12305c;
+	margin: 0 0 1rem;
+}
+
+.ss-yacht-section-title .material-symbols-outlined {
+	font-size: 1.25rem;
+	color: #12305c;
+	flex-shrink: 0;
+}
+
+/* Gallery placeholder (no images) */
+.ss-yacht-gallery-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 280px;
+	background: #f0f4f8;
+	border-radius: 12px;
+	color: #6b7280;
+}
+
+.ss-yacht-gallery-placeholder .material-symbols-outlined {
+	font-size: 4rem;
+	opacity: 0.4;
+}
+
+/* Specification grid */
+.ss-yacht-specs-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+}
+
+@media (min-width: 500px) {
+	.ss-yacht-specs-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.ss-yacht-spec-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	padding: 0.6rem 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ss-yacht-spec-row:last-child,
+.ss-yacht-spec-row:nth-last-child(2):nth-child(odd) {
+	border-bottom: 0;
+}
+
+.ss-yacht-spec-label {
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+}
+
+.ss-yacht-spec-value {
+	font-size: 0.95rem;
+	font-weight: 500;
+	color: #111827;
+}
+
+/* Deck plan image */
+.ss-yacht-deck-plan {
+	background: #f8fafc;
+	border-radius: 8px;
+	overflow: hidden;
+	text-align: center;
+}
+
+.ss-yacht-deck-plan img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+}
+
+/* Mobile CTA strip */
+.ss-yacht-cta-mobile {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+@media (min-width: 900px) {
+	.ss-yacht-cta-mobile {
+		display: none;
+	}
+}
+
+.ss-yacht-cta-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	width: 100%;
+}
+
+/* Sidebar */
+.ss-yacht-sidebar {
+	position: relative;
+}
+
+@media (min-width: 900px) {
+	.ss-yacht-sidebar {
+		position: sticky;
+		top: 50px;
+	}
+}
+
+.ss-yacht-sidebar-card {
+	padding: 1.25rem;
+}
+
+/* Price summary in sidebar */
+.ss-yacht-sidebar-price {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	margin-bottom: 0.25rem;
+}
+
+.ss-yacht-sidebar-price-label {
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+}
+
+.ss-yacht-sidebar-price-amount {
+	font-size: 1.75rem;
+	font-weight: 800;
+	color: #12305c;
+	line-height: 1.1;
+}
+
+.ss-yacht-sidebar-price-base {
+	font-size: 0.8rem;
+	color: #6b7280;
+	text-decoration: line-through;
+}
+
+/* Quick facts in sidebar */
+.ss-yacht-sidebar-facts {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.ss-yacht-sidebar-fact {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	color: #374151;
+	line-height: 1.4;
+}
+
+.ss-yacht-sidebar-fact-icon {
+	font-size: 1rem;
+	color: #12305c;
+	flex-shrink: 0;
+	margin-top: 0.1rem;
+}
+
+/* CTA buttons in sidebar */
+.ss-yacht-sidebar-ctas {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+/* Sidebar nav */
+.ss-yacht-sidebar-nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ss-yacht-sidebar-nav-heading {
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+	margin: 0 0 0.5rem;
+}
+
+/* Hide sidebar entirely on mobile (CTA mobile strip used instead) */
+@media (max-width: 899px) {
+	.ss-yacht-sidebar {
+		display: none;
+	}
+}
+
+/* Light pricing table (email-style, used on proposal cards and yacht single page) */
+.ss-proposal-pricing-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.07);
+	border-radius: 10px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	margin: 0.5rem 0 0.75rem;
+	font-size: 0.9rem;
+}
+
+.ss-proposal-pricing-table thead tr {
+	background: #12305c;
+	color: #fff;
+}
+
+.ss-proposal-pricing-table thead th {
+	padding: 0.6rem 1rem;
+	font-weight: 600;
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #fff;
+	border: 0;
+	text-align: left;
+}
+
+.ss-proposal-pricing-table thead th:last-child {
+	text-align: center;
+}
+
+.ss-proposal-pricing-table th,
+.ss-proposal-pricing-table td {
+	padding: 0.55rem 1rem;
+	text-align: left;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ss-proposal-pricing-table tbody tr:last-child th,
+.ss-proposal-pricing-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.ss-proposal-pricing-table tbody th {
+	font-weight: 500;
+	color: #374151;
+}
+
+.ss-proposal-pricing-table tbody td {
+	color: #111827;
+	text-align: center;
+}
+
+/* Section label rows (Mandatory Extras / Optional Extras) */
+.ss-proposal-pricing-section td {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #6b7280;
+	background: #f3f4f6;
+	padding-top: 0.55rem;
+	padding-bottom: 0.4rem;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	text-align: center;
+}
+
+/* Discount rows */
+.ss-proposal-pricing-discount th {
+	color: #6b7280;
+	font-weight: 400;
+	font-style: italic;
+}
+
+.ss-proposal-pricing-negative {
+	color: #059669 !important;
+}
+
+/* Charter price (net total) row */
+.ss-proposal-pricing-total {
+	background: #f0f4f8;
+}
+
+.ss-proposal-pricing-total th {
+	font-weight: 700 !important;
+	color: #12305c !important;
+}
+
+.ss-proposal-pricing-charter {
+	font-weight: 700;
+	color: #12305c !important;
+}
+
+.ss-yacht-prices .ss-proposal-pricing-table {
+	margin-top: 0.5rem;
+}
+
+/* Sub-section heading inside yacht card body */
+.ss-proposal-yacht-section-heading {
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #6b7280;
+	margin: 1rem 0 0.4rem;
+}
+
+/* Charter details block (base, dates) */
+.ss-proposal-yacht-charter-details {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.35rem 1.5rem;
+	background: #f8fafc;
+	border: 1px solid rgba(0, 0, 0, 0.07);
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+	margin: 0.75rem 0;
+	font-size: 0.9rem;
+}
+
+@media (min-width: 640px) {
+	.ss-proposal-yacht-charter-details {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.ss-proposal-yacht-charter-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+}
+
+.ss-proposal-yacht-charter-label {
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+}
+
+.ss-proposal-yacht-charter-value {
+	font-weight: 500;
+	color: #12305c;
+}
+
+/* Two-column grid: pricing (60%) | equipment (40%) on large screens */
+.ss-proposal-yacht-body-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+}
+
+@media (min-width: 860px) {
+	.ss-proposal-yacht-body-grid {
+		grid-template-columns: 60fr 40fr;
+		gap: 1.5rem;
+		align-items: start;
+	}
+}
+
+.ss-proposal-yacht-body-col-main,
+.ss-proposal-yacht-body-col-side {
+	min-width: 0;
+}
+
+.ss-yacht-cta-btn .material-symbols-outlined {
+	font-size: 1rem;
+}

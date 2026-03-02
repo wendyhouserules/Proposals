@@ -1,0 +1,78 @@
+{
+  "yachts": [
+    {
+      "display_name": "Bavaria Cruiser 46",
+      "model": "Cruiser 46",
+      "year": 2023,
+      "length_m": 14.27,
+      "cabins": 4,
+      "berths": 8,
+      "base_name": "Athens Marina",
+      "country": "Greece",
+      "region": "Saronic Gulf",
+      "images_json": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        "https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=800"
+      ],
+      "highlights_json": [
+        "Spacious cockpit with bimini",
+        "Full galley with fridge",
+        "Double helm station",
+        "Large swim platform"
+      ]
+    },
+    {
+      "display_name": "Lagoon 42 Catamaran",
+      "model": "Lagoon 42",
+      "year": 2022,
+      "length_m": 12.8,
+      "cabins": 4,
+      "berths": 10,
+      "base_name": "Lefkas",
+      "country": "Greece",
+      "region": "Ionian",
+      "images_json": [
+        "https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=800",
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800"
+      ],
+      "highlights_json": [
+        "Flybridge option",
+        "Stable cruising",
+        "Four double cabins",
+        "Air conditioning"
+      ]
+    },
+    {
+      "display_name": "Jeanneau Sun Odyssey 519",
+      "model": "Sun Odyssey 519",
+      "year": 2024,
+      "length_m": 15.94,
+      "cabins": 5,
+      "berths": 10,
+      "base_name": "Palma",
+      "country": "Spain",
+      "region": "Balearics",
+      "images_json": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800"
+      ],
+      "highlights_json": [
+        "Five cabins",
+        "Walk-through transom",
+        "Electric winches",
+        "Generator"
+      ]
+    }
+  ],
+  "intro_html": "<p>Hi, here are your personalised charter options for the dates and area you requested. We've selected three yachts that match your requirements and group size.</p><p>Click <strong>View details</strong> on any yacht to see the full specification and gallery, or use the sidebar to jump between sections.</p>",
+  "itinerary_html": "<p><strong>Sample 7-night itinerary (Saronic / Ionian):</strong></p><ul><li>Day 1–2: Base area, provisioning and briefing</li><li>Day 3–4: Island hop (e.g. Poros, Hydra or Sivota, Fiskardo)</li><li>Day 5–6: Quiet anchorages and swimming</li><li>Day 7: Return to base</li></ul><p>We can tailor the route to your preferences and experience level.</p>",
+  "notes_html": "<p>This proposal is valid for 14 days. Contact us to confirm availability and secure your booking. A deposit is required to hold your dates.</p><p>If you have any questions about the yachts or the process, reply to this email or use the WhatsApp button in the sidebar.</p>",
+  "contact_whatsapp": "",
+  "contact_email": "",
+  "requirements": {
+    "Charter type": "Bareboat",
+    "Dates": "July 2025",
+    "Guests": "6",
+    "Area": "Greece",
+    "Experience": "Competent crew"
+  }
+}
