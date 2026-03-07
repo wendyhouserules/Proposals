@@ -1,0 +1,39 @@
+{
+    "lead_id": "3f6ae043-73de-430e-b1fb-f2af7c74cca0",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {},
+      "cabins": 5,
+      "budget": "3-5k",
+      "dates": {
+        "start": "2026-08-16",
+        "end": "2026-08-19"
+      },
+      "contact": {
+        "name": "Georgia",
+        "email": "georgiarankin@gmail.com",
+        "phone": "+61423366958"
+      }
+    },
+    "attribution": {
+      "gclid": "CjwKCAiA-__MBhAKEiwASBmsBOkfOpRB_IFEtG8h0HpXFpRGrpYrQxBPGzK4mcOt8SBuxU4KwwpK0xoC9WsQAvD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=CjwKCAiA-__MBhAKEiwASBmsBOkfOpRB_IFEtG8h0HpXFpRGrpYrQxBPGzK4mcOt8SBuxU4KwwpK0xoC9WsQAvD_BwE&gbraid=0AAAAA-8-0yWMXIS-iV9kbb1alBK0rHOyQ"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-02-27T02:53:18.502Z",
+    "geo": {
+      "ip": "1.145.92.81",
+      "countryCode": "AU",
+      "source": "header"
+    }
+   }

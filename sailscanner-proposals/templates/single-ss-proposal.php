@@ -50,30 +50,24 @@ $itinerary_link_title = get_post_meta( $proposal_id, 'ss_itinerary_link_title', 
 $itinerary_link_summary = get_post_meta( $proposal_id, 'ss_itinerary_link_summary', true );
 $itinerary_link_image = get_post_meta( $proposal_id, 'ss_itinerary_link_image', true );
 
-// Yacht picks: prefer ss_yacht_ids when all are ss_proposal_yacht (so "View details" has a real URL); else ss_yacht_data.
+// Yacht picks: use ss_yacht_ids, skipping trashed/deleted posts individually.
+// Only fall back to ss_yacht_data when there are no IDs at all — never fall back just because
+// some IDs were trashed, as that would resurrect deliberately removed yachts.
 $yachts = [];
-$use_ids = false;
 if ( ! empty( $yacht_ids ) ) {
-	$use_ids = true;
 	foreach ( $yacht_ids as $yid ) {
 		$p = get_post( (int) $yid );
-		if ( ! $p || $p->post_type !== 'ss_proposal_yacht' ) {
-			$use_ids = false;
-			break;
+		// Skip posts that don't exist, wrong type, or have been trashed/deleted.
+		if ( ! $p || $p->post_type !== 'ss_proposal_yacht' || $p->post_status !== 'publish' ) {
+			continue;
 		}
+		$yachts[] = SS_Proposal_Helpers::get_yacht_display_data( (int) $yid );
 	}
 }
-if ( $use_ids ) {
-	foreach ( $yacht_ids as $yid ) {
-		$yachts[] = SS_Proposal_Helpers::get_yacht_display_data( (int) $yid );
-	}
-} elseif ( ! empty( $yacht_data ) ) {
+// Only fall back to raw ss_yacht_data if no published yacht posts exist at all.
+if ( empty( $yachts ) && ! empty( $yacht_data ) ) {
 	foreach ( $yacht_data as $i => $item ) {
 		$yachts[] = SS_Proposal_Helpers::normalize_yacht_data_item( $item, $i );
-	}
-} else {
-	foreach ( $yacht_ids as $yid ) {
-		$yachts[] = SS_Proposal_Helpers::get_yacht_display_data( (int) $yid );
 	}
 }
 $yachts = array_filter( $yachts );
@@ -279,40 +273,17 @@ get_header();
 										</ul>
 									<?php endif; ?>
 
-									<?php
-									$charter    = is_array( $yacht['charter'] ?? null ) ? $yacht['charter'] : [];
-									$has_charter = ! empty( $charter['base'] ) || ! empty( $charter['date_from'] ) || ! empty( $charter['checkin'] );
-									$has_prices  = ! empty( $yacht['prices'] ) && is_array( $yacht['prices'] );
-									$has_equip   = ! empty( $yacht['highlights'] );
-									?>
+								<?php
+								$charter     = is_array( $yacht['charter'] ?? null ) ? $yacht['charter'] : [];
+								$charter_html = SS_Proposal_Helpers::render_charter_slots( $charter );
+								$has_charter  = $charter_html !== '';
+								$has_prices   = ! empty( $yacht['prices'] ) && is_array( $yacht['prices'] );
+								$has_equip    = ! empty( $yacht['highlights'] );
+								?>
 
-									<?php if ( $has_charter ) : ?>
-										<div class="ss-proposal-yacht-charter-details">
-											<?php if ( ! empty( $charter['base'] ) ) : ?>
-												<div class="ss-proposal-yacht-charter-row">
-													<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Base', 'sailscanner-proposals' ); ?></span>
-													<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( $charter['base'] ); ?></span>
-												</div>
-											<?php endif; ?>
-											<?php
-											$date_parts = [];
-											if ( ! empty( $charter['date_from'] ) ) {
-												$from_parts = array_filter( [ $charter['date_from'], $charter['checkin'] ?? '' ] );
-												$date_parts[] = implode( ', ', $from_parts );
-											}
-											if ( ! empty( $charter['date_to'] ) ) {
-												$to_parts = array_filter( [ $charter['date_to'], $charter['checkout'] ?? '' ] );
-												$date_parts[] = implode( ', ', $to_parts );
-											}
-											if ( ! empty( $date_parts ) ) :
-											?>
-												<div class="ss-proposal-yacht-charter-row">
-													<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Dates', 'sailscanner-proposals' ); ?></span>
-													<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( implode( ' → ', $date_parts ) ); ?></span>
-												</div>
-											<?php endif; ?>
-										</div>
-									<?php endif; ?>
+								<?php if ( $has_charter ) : ?>
+									<?php echo $charter_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php endif; ?>
 
 									<!-- Pricing + Equipment in two columns on large screens -->
 									<div class="ss-proposal-yacht-body-grid">

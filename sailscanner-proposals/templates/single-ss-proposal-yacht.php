@@ -45,6 +45,7 @@ wp_enqueue_style(
 
 // --- Prepare data ---
 $charter         = is_array( $yacht['charter'] ?? null ) ? $yacht['charter'] : [];
+$charter_html    = SS_Proposal_Helpers::render_charter_slots( $charter );
 $gallery_images  = array_values( array_filter( (array) $yacht['images'], [ 'SS_Proposal_Helpers', 'is_real_yacht_image' ] ) );
 if ( empty( $gallery_images ) && SS_Proposal_Helpers::is_real_yacht_image( $yacht['image_url'] ?? '' ) ) {
 	$gallery_images = [ $yacht['image_url'] ];
@@ -61,19 +62,20 @@ $wa_url        = $contact_wa ? SS_Proposal_Helpers::whatsapp_url( $contact_wa, $
 $charter_price = ! empty( $yacht['prices']['charter_price'] ) ? $yacht['prices']['charter_price'] : '';
 $base_price    = ! empty( $yacht['prices']['base_price'] ) ? $yacht['prices']['base_price'] : '';
 
-// Build date line for sidebar
+// Build sidebar date line — for multi-slot yachts use the first slot's dates.
 $sidebar_dates = '';
-$date_parts    = [];
-if ( ! empty( $charter['date_from'] ) ) {
-	$from_bits  = array_filter( [ $charter['date_from'], $charter['checkin'] ?? '' ] );
-	$date_parts[] = implode( ', ', $from_bits );
+$_charter_first = ( ! empty( $charter['slots'] ) && is_array( $charter['slots'] ) ) ? $charter['slots'][0] : $charter;
+$_date_parts    = [];
+if ( ! empty( $_charter_first['date_from'] ) ) {
+	$_from_bits    = array_filter( [ $_charter_first['date_from'], $_charter_first['checkin'] ?? '' ] );
+	$_date_parts[] = implode( ', ', $_from_bits );
 }
-if ( ! empty( $charter['date_to'] ) ) {
-	$to_bits    = array_filter( [ $charter['date_to'], $charter['checkout'] ?? '' ] );
-	$date_parts[] = implode( ', ', $to_bits );
+if ( ! empty( $_charter_first['date_to'] ) ) {
+	$_to_bits      = array_filter( [ $_charter_first['date_to'], $_charter_first['checkout'] ?? '' ] );
+	$_date_parts[] = implode( ', ', $_to_bits );
 }
-if ( ! empty( $date_parts ) ) {
-	$sidebar_dates = implode( ' → ', $date_parts );
+if ( ! empty( $_date_parts ) ) {
+	$sidebar_dates = implode( ' → ', $_date_parts );
 }
 
 // Key stat pills: pull from specs when available, fall back to direct fields
@@ -87,7 +89,7 @@ $stat_cabins = $stat_map['cabins'] ?? ( $yacht['cabins'] ? $yacht['cabins'] : ''
 $stat_berths = $stat_map['berths'] ?? ( $yacht['berths'] ? $yacht['berths'] : '' );
 
 $has_prices  = ! empty( $yacht['prices'] ) && is_array( $yacht['prices'] );
-$has_charter = ! empty( $charter['base'] ) || ! empty( $charter['date_from'] );
+$has_charter = $charter_html !== '';
 $has_specs   = ! empty( $yacht['specs'] );
 $has_equip   = ! empty( $yacht['highlights'] );
 
@@ -166,41 +168,16 @@ get_header();
 				</div>
 				<?php endif; ?>
 
-				<!-- Charter Details -->
-				<?php if ( $has_charter ) : ?>
-				<section class="ss-yacht-detail-section" id="charter-details">
-					<h2 class="ss-yacht-section-title">
-						<span class="material-symbols-outlined" aria-hidden="true">anchor</span>
-						<?php esc_html_e( 'Charter Details', 'sailscanner-proposals' ); ?>
-					</h2>
-					<div class="ss-proposal-yacht-charter-details">
-						<?php if ( ! empty( $charter['base'] ) ) : ?>
-						<div class="ss-proposal-yacht-charter-row">
-							<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Base', 'sailscanner-proposals' ); ?></span>
-							<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( $charter['base'] ); ?></span>
-						</div>
-						<?php endif; ?>
-						<?php if ( ! empty( $sidebar_dates ) ) : ?>
-						<div class="ss-proposal-yacht-charter-row">
-							<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Dates', 'sailscanner-proposals' ); ?></span>
-							<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( $sidebar_dates ); ?></span>
-						</div>
-						<?php endif; ?>
-						<?php if ( ! empty( $charter['checkin'] ) && empty( $charter['date_from'] ) ) : ?>
-						<div class="ss-proposal-yacht-charter-row">
-							<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Check-in', 'sailscanner-proposals' ); ?></span>
-							<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( $charter['checkin'] ); ?></span>
-						</div>
-						<?php endif; ?>
-						<?php if ( ! empty( $charter['checkout'] ) && empty( $charter['date_to'] ) ) : ?>
-						<div class="ss-proposal-yacht-charter-row">
-							<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Check-out', 'sailscanner-proposals' ); ?></span>
-							<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( $charter['checkout'] ); ?></span>
-						</div>
-						<?php endif; ?>
-					</div>
-				</section>
-				<?php endif; ?>
+			<!-- Charter Details -->
+			<?php if ( $has_charter ) : ?>
+			<section class="ss-yacht-detail-section" id="charter-details">
+				<h2 class="ss-yacht-section-title">
+					<span class="material-symbols-outlined" aria-hidden="true">anchor</span>
+					<?php esc_html_e( 'Charter Details', 'sailscanner-proposals' ); ?>
+				</h2>
+				<?php echo $charter_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</section>
+			<?php endif; ?>
 
 				<!-- Specification -->
 				<?php if ( $has_specs || $yacht['cabins'] || $yacht['year'] ) : ?>
@@ -337,18 +314,18 @@ get_header();
 							<span><?php echo esc_html( $stat_year ); ?></span>
 						</div>
 						<?php endif; ?>
-						<?php if ( ! empty( $charter['base'] ) ) : ?>
-						<div class="ss-yacht-sidebar-fact">
-							<span class="material-symbols-outlined ss-yacht-sidebar-fact-icon" aria-hidden="true">location_on</span>
-							<span><?php echo esc_html( $charter['base'] ); ?></span>
-						</div>
-						<?php endif; ?>
-						<?php if ( $sidebar_dates ) : ?>
-						<div class="ss-yacht-sidebar-fact">
-							<span class="material-symbols-outlined ss-yacht-sidebar-fact-icon" aria-hidden="true">event</span>
-							<span><?php echo esc_html( $sidebar_dates ); ?></span>
-						</div>
-						<?php endif; ?>
+					<?php if ( ! empty( $_charter_first['base'] ) ) : ?>
+					<div class="ss-yacht-sidebar-fact">
+						<span class="material-symbols-outlined ss-yacht-sidebar-fact-icon" aria-hidden="true">location_on</span>
+						<span><?php echo esc_html( $_charter_first['base'] ); ?></span>
+					</div>
+					<?php endif; ?>
+					<?php if ( $sidebar_dates ) : ?>
+					<div class="ss-yacht-sidebar-fact">
+						<span class="material-symbols-outlined ss-yacht-sidebar-fact-icon" aria-hidden="true">event</span>
+						<span><?php echo esc_html( $sidebar_dates ); ?></span>
+					</div>
+					<?php endif; ?>
 					</div>
 
 					<?php if ( $wa_url || $contact_email ) : ?>

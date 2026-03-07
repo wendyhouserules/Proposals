@@ -1,0 +1,38 @@
+{
+    "lead_id": "1d40ae21-0142-4757-b5ed-47ab7bea5a69",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "Italy",
+      "region": [
+        "Sicily",
+        "Aeolian Islands"
+      ],
+      "boatType": "monohull",
+      "size": "41-45",
+      "crewServices": {},
+      "cabins": 3,
+      "budget": "3-5k",
+      "dates": {
+        "start": "2026-06-27"
+      },
+      "contact": {
+        "name": "Lauren Murphy",
+        "email": "lkmurph@hotmail.com",
+        "phone": "+447721645400"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-02-22T19:58:20.913Z",
+    "geo": {
+      "ip": "62.197.57.43",
+      "countryCode": "GB",
+      "source": "header"
+    }
+   }

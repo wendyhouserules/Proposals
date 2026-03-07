@@ -113,6 +113,114 @@ class SS_Proposal_Helpers {
 	}
 
 	/**
+	 * Render charter details (base, dates, times) as HTML.
+	 *
+	 * Handles two formats:
+	 *  - Single slot (legacy): charter_json with top-level base/date_from/date_to/checkin/checkout keys.
+	 *  - Multi-slot (merged dedup): charter_json with a 'slots' array, each entry having the above keys.
+	 *    When multiple distinct slots exist (same boat at different bases/dates) they are rendered as a
+	 *    compact table so the client can see all options at a glance.
+	 *
+	 * @param array $charter Decoded charter_json array.
+	 * @return string Safe HTML, empty string when nothing to show.
+	 */
+	public static function render_charter_slots( array $charter ): string {
+		if ( empty( $charter ) ) {
+			return '';
+		}
+
+		$slots = ( ! empty( $charter['slots'] ) && is_array( $charter['slots'] ) ) ? array_values( $charter['slots'] ) : null;
+
+		// Deduplicate slots by base + date_from + date_to fingerprint.
+		if ( $slots ) {
+			$seen_fp = [];
+			$unique  = [];
+			foreach ( $slots as $slot ) {
+				$fp = ( $slot['base'] ?? '' ) . '|' . ( $slot['date_from'] ?? '' ) . '|' . ( $slot['date_to'] ?? '' );
+				if ( ! isset( $seen_fp[ $fp ] ) ) {
+					$seen_fp[ $fp ] = true;
+					$unique[]       = $slot;
+				}
+			}
+			$slots = $unique;
+		}
+
+		// Multi-slot: render an availability table.
+		if ( $slots && count( $slots ) > 1 ) {
+			ob_start();
+			?>
+			<table class="ss-charter-slots-table">
+				<thead>
+					<tr>
+						<th class="ss-cst-base"><?php esc_html_e( 'Base', 'sailscanner-proposals' ); ?></th>
+						<th class="ss-cst-dates"><?php esc_html_e( 'Dates', 'sailscanner-proposals' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $slots as $slot ) : ?>
+					<?php
+					$base       = ! empty( $slot['base'] ) ? sanitize_text_field( (string) $slot['base'] ) : '—';
+					$date_parts = [];
+					if ( ! empty( $slot['date_from'] ) ) {
+						$from_bits    = array_filter( [ $slot['date_from'], $slot['checkin'] ?? '' ] );
+						$date_parts[] = implode( ', ', $from_bits );
+					}
+					if ( ! empty( $slot['date_to'] ) ) {
+						$to_bits      = array_filter( [ $slot['date_to'], $slot['checkout'] ?? '' ] );
+						$date_parts[] = implode( ', ', $to_bits );
+					}
+					$dates = ! empty( $date_parts ) ? implode( ' → ', $date_parts ) : '—';
+					?>
+					<tr>
+						<td><?php echo esc_html( $base ); ?></td>
+						<td><?php echo esc_html( $dates ); ?></td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<?php
+			return ob_get_clean();
+		}
+
+		// Single slot (one slot entry or legacy top-level keys).
+		$data = ( $slots && count( $slots ) === 1 ) ? $slots[0] : $charter;
+
+		$date_parts = [];
+		if ( ! empty( $data['date_from'] ) ) {
+			$from_bits    = array_filter( [ $data['date_from'], $data['checkin'] ?? '' ] );
+			$date_parts[] = implode( ', ', $from_bits );
+		}
+		if ( ! empty( $data['date_to'] ) ) {
+			$to_bits      = array_filter( [ $data['date_to'], $data['checkout'] ?? '' ] );
+			$date_parts[] = implode( ', ', $to_bits );
+		}
+		$has_base  = ! empty( $data['base'] );
+		$has_dates = ! empty( $date_parts );
+		if ( ! $has_base && ! $has_dates ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<div class="ss-proposal-yacht-charter-details">
+			<?php if ( $has_base ) : ?>
+			<div class="ss-proposal-yacht-charter-row">
+				<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Base', 'sailscanner-proposals' ); ?></span>
+				<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( sanitize_text_field( (string) $data['base'] ) ); ?></span>
+			</div>
+			<?php endif; ?>
+			<?php if ( $has_dates ) : ?>
+			<div class="ss-proposal-yacht-charter-row">
+				<span class="ss-proposal-yacht-charter-label"><?php esc_html_e( 'Dates', 'sailscanner-proposals' ); ?></span>
+				<span class="ss-proposal-yacht-charter-value"><?php echo esc_html( implode( ' → ', $date_parts ) ); ?></span>
+			</div>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Normalize a yacht data item (from ss_yacht_data JSON) to same shape as get_yacht_display_data.
 	 * Used when proposal has no ss_proposal_yacht IDs yet (fallback from raw ss_yacht_data).
 	 *

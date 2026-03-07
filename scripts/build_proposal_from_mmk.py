@@ -296,6 +296,36 @@ def yacht_entry_to_ss_data(y: Any, fetched_gallery: list[str] | None = None, lay
     return out
 
 
+def _extract_yacht_id(more_info_url: str) -> str:
+    """Return the MMK yachtId from a price-quote more_info_url, used for deduplication."""
+    if not more_info_url:
+        return ""
+    _qs = parse_qs(urlparse(more_info_url).query)
+    _pqrid = (_qs.get("priceQuoteReservationId") or [""])[0]
+    return _pqrid.split("_")[0] if _pqrid else ""
+
+
+def _build_charter_slot(y: Any) -> dict[str, str]:
+    """Extract charter details (base, dates, times) from a YachtEntry as a slot dict."""
+    slot: dict[str, str] = {}
+    raw_base = getattr(y, "base_location", None)
+    if raw_base:
+        slot["base"] = str(raw_base).strip()
+    date_from = getattr(y, "date_from_str", None)
+    if date_from:
+        slot["date_from"] = str(date_from).strip()
+    date_to = getattr(y, "date_to_str", None)
+    if date_to:
+        slot["date_to"] = str(date_to).strip()
+    checkin = getattr(y, "check_in_time", None)
+    if checkin:
+        slot["checkin"] = str(checkin).strip()
+    checkout = getattr(y, "check_out_time", None)
+    if checkout:
+        slot["checkout"] = str(checkout).strip()
+    return slot
+
+
 def parse_mmk_file(path: Path, for_skippered: bool) -> list[Any]:
     """Parse MMK HTML file and return list of YachtEntry."""
     try:
@@ -383,18 +413,58 @@ def main() -> None:
         print("No yachts parsed. Check input HTML.", file=sys.stderr)
         sys.exit(1)
 
-    yacht_data = []
+    # Group entries by yachtId so the same physical boat at multiple bases becomes one entry.
+    # Entries without a parseable yachtId are treated as unique (keyed by index).
+    from collections import OrderedDict
+    yacht_groups: OrderedDict[str, list[Any]] = OrderedDict()
     for y in all_yachts:
+        more_info = getattr(y, "more_info_url", None) or ""
+        yid = _extract_yacht_id(more_info) if more_info else ""
+        group_key = yid if yid else f"_noid_{len(yacht_groups)}"
+        if group_key not in yacht_groups:
+            yacht_groups[group_key] = []
+        yacht_groups[group_key].append(y)
+
+    yacht_data = []
+    for group_key, group in yacht_groups.items():
+        primary = group[0]
+        label = primary.model or getattr(primary, "name", "?")
+        if len(group) > 1:
+            print(f"  Merging {len(group)} slots for: {label} (yachtId={group_key})", file=sys.stderr)
+
         fetched_photos: list[str] = []
         fetched_layout: str = ""
-        if args.fetch_images and getattr(y, "more_info_url", None):
-            print(f"Fetching gallery for: {y.model or y.name}", file=sys.stderr)
-            fetched_photos, fetched_layout = _fetch_yacht_gallery(y.more_info_url)
-        yacht_data.append(yacht_entry_to_ss_data(
-            y,
+        if args.fetch_images and getattr(primary, "more_info_url", None):
+            print(f"Fetching gallery for: {label}", file=sys.stderr)
+            fetched_photos, fetched_layout = _fetch_yacht_gallery(primary.more_info_url)
+
+        entry = yacht_entry_to_ss_data(
+            primary,
             fetched_gallery=fetched_photos or None,
             layout_image_url=fetched_layout or None,
-        ))
+        )
+
+        # When the same boat appears multiple times, embed all charter slots so the
+        # front-end can show every available base/date without creating duplicate cards.
+        if len(group) > 1:
+            slots = [_build_charter_slot(y) for y in group]
+            slots = [s for s in slots if s]  # drop any empties
+            # Deduplicate by (base, date_from, date_to) fingerprint.
+            seen_fps: set[str] = set()
+            unique_slots = []
+            for s in slots:
+                fp = f"{s.get('base','')}|{s.get('date_from','')}|{s.get('date_to','')}"
+                if fp not in seen_fps:
+                    seen_fps.add(fp)
+                    unique_slots.append(s)
+            slots = unique_slots
+            if slots:
+                if "charter_json" not in entry:
+                    entry["charter_json"] = {}
+                entry["charter_json"]["slots"] = slots
+
+        yacht_data.append(entry)
+
     yacht_data = [y for y in yacht_data if y.get("display_name")]
 
     def read_optional(path_arg: str | None) -> str:

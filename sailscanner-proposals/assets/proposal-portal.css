@@ -1046,6 +1046,7 @@
 
 .ss-proposal-pricing-table thead th:last-child {
 	text-align: center;
+	min-width: 130px;
 }
 
 .ss-proposal-pricing-table th,
@@ -1184,4 +1185,68 @@
 
 .ss-yacht-cta-btn .material-symbols-outlined {
 	font-size: 1rem;
+}
+
+/* ── Multi-slot charter availability table ────────────────────────────── */
+.ss-charter-slots-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85rem;
+	margin-top: 0.25rem;
+}
+
+.ss-charter-slots-table thead th {
+	background: #f5f7fa;
+	color: #555;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 0.75rem;
+	padding: 0.45rem 0.75rem;
+	border-bottom: 2px solid #e4e8ef;
+	text-align: left;
+}
+
+.ss-charter-slots-table tbody tr {
+	border-bottom: 1px solid #edf0f5;
+}
+
+.ss-charter-slots-table tbody tr:last-child {
+	border-bottom: none;
+}
+
+.ss-charter-slots-table tbody td {
+	padding: 0.5rem 0.75rem;
+	color: #333;
+	vertical-align: top;
+}
+
+.ss-charter-slots-table .ss-cst-base {
+	width: 42%;
+}
+
+@media ( max-width: 480px ) {
+	.ss-charter-slots-table,
+	.ss-charter-slots-table thead,
+	.ss-charter-slots-table tbody,
+	.ss-charter-slots-table th,
+	.ss-charter-slots-table td,
+	.ss-charter-slots-table tr {
+		display: block;
+	}
+	.ss-charter-slots-table thead {
+		display: none;
+	}
+	.ss-charter-slots-table tbody tr {
+		padding: 0.5rem 0;
+	}
+	.ss-charter-slots-table tbody td {
+		padding: 0.15rem 0;
+	}
+	.ss-charter-slots-table tbody td::before {
+		content: attr(data-label) ": ";
+		font-weight: 600;
+		color: #888;
+		font-size: 0.75rem;
+	}
 }

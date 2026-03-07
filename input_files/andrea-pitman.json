@@ -1,0 +1,40 @@
+{
+    "lead_id": "376eb3c7-6cd2-4c31-981e-983aede3eb84",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Spain",
+      "region": [
+        "Balearic Islands"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {
+        "chef": true
+      },
+      "cabins": 2,
+      "budget": "any",
+      "dates": {
+        "start": "2026-07-23",
+        "end": "2026-07-26"
+      },
+      "contact": {
+        "name": "Andrea Pitman",
+        "email": "Andreafdavalos@hotmail.com",
+        "phone": "8329536377"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-03T00:58:29.762Z",
+    "geo": {
+      "ip": "174.218.215.74",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }
