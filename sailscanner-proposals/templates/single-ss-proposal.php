@@ -45,6 +45,24 @@ if ( is_string( $lead_json ) ) {
 		$lead = $dec;
 	}
 }
+// Apply any admin-edited requirement overrides (ss_answers_override) without touching the original lead data.
+$answers_override_json = get_post_meta( $proposal_id, 'ss_answers_override', true );
+if ( is_string( $answers_override_json ) && $answers_override_json !== '' ) {
+	$_override = json_decode( $answers_override_json, true );
+	if ( is_array( $_override ) ) {
+		if ( ! isset( $lead['answers'] ) || ! is_array( $lead['answers'] ) ) {
+			$lead['answers'] = [];
+		}
+		foreach ( $_override as $_k => $_v ) {
+			// 'dates' is a nested array; all other keys are flat strings.
+			if ( $_k === 'dates' && is_array( $_v ) ) {
+				$lead['answers']['dates'] = array_merge( $lead['answers']['dates'] ?? [], $_v );
+			} elseif ( $_v !== '' && $_v !== null ) {
+				$lead['answers'][ $_k ] = $_v;
+			}
+		}
+	}
+}
 $itinerary_link_url  = get_post_meta( $proposal_id, 'ss_itinerary_link_url', true );
 $itinerary_link_title = get_post_meta( $proposal_id, 'ss_itinerary_link_title', true );
 $itinerary_link_summary = get_post_meta( $proposal_id, 'ss_itinerary_link_summary', true );

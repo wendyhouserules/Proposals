@@ -1,0 +1,38 @@
+{
+    "lead_id": "c18335dc-d2dc-48fd-a426-3ab814244732",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "monohull",
+      "size": "41-45",
+      "cabins": 2,
+      "yachtOptions": {},
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-05-23",
+        "end": "2026-05-30"
+      },
+      "contact": {
+        "name": "Nicky",
+        "email": "pnbroadhead@sky.com",
+        "phone": "+447973387626"
+      }
+    },
+    "attribution": {
+      "gclid": "EAIaIQobChMI1JPksMCNkwMVBJJQBh3G2xDwEAAYAiAAEgKMIfD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=EAIaIQobChMI1JPksMCNkwMVBJJQBh3G2xDwEAAYAiAAEgKMIfD_BwE&gbraid=0AAAAA-8-0yXNaXx4KN8S6zUFdTp8N8W_8"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_14 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6.1 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-07T09:48:10.641Z",
+    "geo": {
+      "ip": "86.132.56.113",
+      "countryCode": "GB",
+      "source": "header"
+    }
+   }
