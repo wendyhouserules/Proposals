@@ -27,8 +27,19 @@ class SS_Proposal_Helpers {
 
 		$display_name = self::decode_display_string( get_post_meta( $id, 'display_name', true ) ?: get_the_title( $id ) );
 
+		// Media library gallery images (admin-selected) take precedence.
+		$gallery_ids_raw = get_post_meta( $id, 'ss_yacht_gallery_ids', true );
+		$images          = [];
+		if ( is_string( $gallery_ids_raw ) && $gallery_ids_raw !== '' ) {
+			foreach ( array_filter( array_map( 'absint', explode( ',', $gallery_ids_raw ) ) ) as $att_id ) {
+				$full = wp_get_attachment_image_url( $att_id, 'full' );
+				if ( $full ) {
+					$images[] = esc_url( $full );
+				}
+			}
+		}
+
 		$images_json = get_post_meta( $id, 'images_json', true );
-		$images      = [];
 		if ( is_string( $images_json ) ) {
 			$dec = json_decode( $images_json, true );
 			if ( is_array( $dec ) ) {
@@ -86,9 +97,15 @@ class SS_Proposal_Helpers {
 			}
 		}
 
-		$raw_layout = get_post_meta( $id, 'layout_image_url', true );
-		$layout_image_url = ( is_string( $raw_layout ) && filter_var( $raw_layout, FILTER_VALIDATE_URL ) )
-			? esc_url( $raw_layout ) : '';
+		// Layout image: media library selection takes priority over auto-fetched URL.
+		$layout_att_id = (int) get_post_meta( $id, 'ss_yacht_layout_image_id', true );
+		if ( $layout_att_id ) {
+			$layout_image_url = esc_url( wp_get_attachment_image_url( $layout_att_id, 'full' ) ?: '' );
+		} else {
+			$raw_layout = get_post_meta( $id, 'layout_image_url', true );
+			$layout_image_url = ( is_string( $raw_layout ) && filter_var( $raw_layout, FILTER_VALIDATE_URL ) )
+				? esc_url( $raw_layout ) : '';
+		}
 
 		return [
 			'id'               => $id,
@@ -463,10 +480,13 @@ class SS_Proposal_Helpers {
 				'budget'            => [ 'label' => __( 'Budget', 'sailscanner-proposals' ), 'icon' => 'payments' ],
 				'experienceLevel'   => [ 'label' => __( 'Experience', 'sailscanner-proposals' ), 'icon' => 'school' ],
 			];
-			$dates = isset( $answers['dates']['start'] ) ? $answers['dates']['start'] : '';
-			if ( $dates ) {
-				$rows[] = [ 'label' => __( 'Dates', 'sailscanner-proposals' ), 'icon' => 'calendar_today', 'value' => $dates ];
+		if ( ! empty( $answers['dates']['start'] ) ) {
+			$dates_val = (string) $answers['dates']['start'];
+			if ( ! empty( $answers['dates']['end'] ) ) {
+				$dates_val .= ' → ' . (string) $answers['dates']['end'];
 			}
+			$rows[] = [ 'label' => __( 'Dates', 'sailscanner-proposals' ), 'icon' => 'calendar_today', 'value' => $dates_val ];
+		}
 			foreach ( $map as $key => $conf ) {
 				if ( empty( $answers[ $key ] ) ) {
 					continue;
@@ -480,7 +500,22 @@ class SS_Proposal_Helpers {
 			if ( ! empty( $answers['crewServices'] ) && is_array( $answers['crewServices'] ) ) {
 				$opts = array_filter( $answers['crewServices'] );
 				if ( ! empty( $opts ) ) {
-					$rows[] = [ 'label' => __( 'Crew services', 'sailscanner-proposals' ), 'icon' => 'group', 'value' => implode( ', ', array_keys( $opts ) ) ];
+					$_svc_labels = [
+						'chef'            => 'Chef',
+						'cook'            => 'Chef / Cook',
+						'provisioning'    => 'Provisioning',
+						'airportTransfer' => 'Airport Transfer',
+						'hostess'         => 'Hostess',
+					];
+					$_svc_names = array_map(
+						fn( $k ) => $_svc_labels[ $k ] ?? ucfirst( (string) $k ),
+						array_keys( $opts )
+					);
+					$rows[] = [
+						'label' => __( 'Crew services', 'sailscanner-proposals' ),
+						'icon'  => 'group',
+						'value' => implode( ', ', $_svc_names ),
+					];
 				}
 			}
 			if ( empty( $rows ) ) {
@@ -533,11 +568,15 @@ class SS_Proposal_Helpers {
 	 * Render pricing as a full, structured table. Safe HTML via esc_html on all values.
 	 * Shows: base price → discounts → charter price (total) → mandatory extras → optional extras.
 	 *
-	 * @param array $prices Same shape as get_yacht_display_data['prices'].
-	 * @param bool  $compact Unused; kept for backward compatibility. Full table always shown.
+	 * @param array       $prices    Same shape as get_yacht_display_data['prices'].
+	 * @param bool        $compact   Unused; kept for backward compatibility.
+	 * @param string      $opt_mode  'full' = all optional extras (default); 'requested' = only
+	 *                               items the client requested (have a 'note' field), with a
+	 *                               "View more extras" link appended.
+	 * @param string      $detail_url URL of the yacht detail page (used in 'requested' mode).
 	 * @return string HTML table or empty string if no prices.
 	 */
-	public static function render_pricing_table( $prices, $compact = false ) {
+	public static function render_pricing_table( $prices, $compact = false, $opt_mode = 'full', $detail_url = '' ) {
 		if ( ! is_array( $prices ) || empty( $prices ) ) {
 			return '';
 		}
@@ -608,17 +647,63 @@ class SS_Proposal_Helpers {
 			}
 		}
 
-		// Optional extras.
-		if ( ! empty( $prices['optional_extras'] ) && is_array( $prices['optional_extras'] ) ) {
+		// Optional extras — filter to requested-only when in 'requested' mode.
+		$all_optionals     = ( ! empty( $prices['optional_extras'] ) && is_array( $prices['optional_extras'] ) )
+			? $prices['optional_extras'] : [];
+		$requested_only    = $opt_mode === 'requested';
+		$extras_to_show    = $requested_only
+			? array_values( array_filter( $all_optionals, fn( $e ) => ! empty( $e['note'] ) ) )
+			: $all_optionals;
+		$hidden_extra_count = $requested_only ? ( count( $all_optionals ) - count( $extras_to_show ) ) : 0;
+
+		if ( ! empty( $extras_to_show ) ) {
 			$out .= $section( __( 'Optional Extras', 'sailscanner-proposals' ) );
-			foreach ( $prices['optional_extras'] as $extra ) {
-				$row  = $parse_extra( $extra );
-				$out .= '<tr><th scope="row">' . esc_html( $row['label'] ) . '</th>'
+			foreach ( $extras_to_show as $extra ) {
+				$row        = $parse_extra( $extra );
+				$note_badge = '';
+				if ( ! empty( $extra['note'] ) ) {
+					$note_badge = ' <span class="ss-pricing-note-badge">(' . esc_html( (string) $extra['note'] ) . ')</span>';
+				}
+				$out .= '<tr><th scope="row">' . esc_html( $row['label'] ) . $note_badge . '</th>'
 					. '<td>' . esc_html( $row['amount'] ) . '</td></tr>';
 			}
 		}
 
 		$out .= '</tbody></table>';
+
+		// In requested mode, append a "View more extras" link when there are hidden items.
+		if ( $requested_only && $hidden_extra_count > 0 && $detail_url ) {
+			$anchor_url = esc_url( rtrim( $detail_url, '/' ) . '/#pricing' );
+			/* translators: %d: number of additional optional extras */
+			$link_label = sprintf(
+				_n( 'View %d more optional extra', 'View %d more optional extras', $hidden_extra_count, 'sailscanner-proposals' ),
+				$hidden_extra_count
+			);
+			$out .= '<p class="ss-proposal-extras-more-link">'
+				. '<a href="' . $anchor_url . '">'
+				. esc_html( $link_label )
+				. ' <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>'
+				. '</a>'
+				. '</p>';
+		} elseif ( $requested_only && empty( $extras_to_show ) && ! empty( $all_optionals ) && $detail_url ) {
+			// No requested extras but extras exist — still show the link.
+			$anchor_url = esc_url( rtrim( $detail_url, '/' ) . '/#pricing' );
+			$out .= '<p class="ss-proposal-extras-more-link">'
+				. '<a href="' . esc_url( $anchor_url ) . '">'
+				. esc_html__( 'View optional extras', 'sailscanner-proposals' )
+				. ' <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>'
+				. '</a>'
+				. '</p>';
+		}
+
+		// If the price was pro-rated from a weekly rate, show a brief note below the table.
+		if ( ! empty( $prices['prorated_note'] ) ) {
+			$out .= '<p class="ss-proposal-pricing-prorated-note">'
+				. '<span class="material-symbols-outlined" aria-hidden="true">info</span> '
+				. esc_html( (string) $prices['prorated_note'] )
+				. '</p>';
+		}
+
 		return $out;
 	}
 

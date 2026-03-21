@@ -63,10 +63,13 @@ if ( is_string( $answers_override_json ) && $answers_override_json !== '' ) {
 		}
 	}
 }
-$itinerary_link_url  = get_post_meta( $proposal_id, 'ss_itinerary_link_url', true );
-$itinerary_link_title = get_post_meta( $proposal_id, 'ss_itinerary_link_title', true );
-$itinerary_link_summary = get_post_meta( $proposal_id, 'ss_itinerary_link_summary', true );
-$itinerary_link_image = get_post_meta( $proposal_id, 'ss_itinerary_link_image', true );
+$itinerary_link_url      = get_post_meta( $proposal_id, 'ss_itinerary_link_url',      true );
+$itinerary_link_title    = get_post_meta( $proposal_id, 'ss_itinerary_link_title',    true );
+$itinerary_link_summary  = get_post_meta( $proposal_id, 'ss_itinerary_link_summary',  true );
+$itinerary_link_image    = get_post_meta( $proposal_id, 'ss_itinerary_link_image',    true );
+$itinerary_link_days     = get_post_meta( $proposal_id, 'ss_itinerary_link_days',     true );
+$itinerary_link_distance = get_post_meta( $proposal_id, 'ss_itinerary_link_distance', true );
+$itinerary_link_region   = get_post_meta( $proposal_id, 'ss_itinerary_link_region',   true );
 
 // Yacht picks: use ss_yacht_ids, skipping trashed/deleted posts individually.
 // Only fall back to ss_yacht_data when there are no IDs at all — never fall back just because
@@ -89,6 +92,41 @@ if ( empty( $yachts ) && ! empty( $yacht_data ) ) {
 	}
 }
 $yachts = array_filter( $yachts );
+
+// Group-by-base: when enabled, bucket yachts by their charter base for sub-section display.
+$group_by_base = (bool) get_post_meta( $proposal_id, 'ss_group_by_base', true );
+
+/**
+ * Build an ordered array of base groups: [ 'base_label' => [ yacht, ... ], ... ]
+ * Base label comes from charter_json['base'] or falls back to 'Other'.
+ */
+$yacht_base_groups = []; // Populated only when $group_by_base is true.
+if ( $group_by_base && ! empty( $yachts ) ) {
+	foreach ( $yachts as $y ) {
+		// 'charter' is the key returned by get_yacht_display_data() / normalize_yacht_data_item().
+		$charter = is_array( $y['charter'] ?? null ) ? $y['charter'] : [];
+		$base    = ! empty( $charter['base'] ) ? trim( $charter['base'] ) : __( 'Other', 'sailscanner-proposals' );
+		// Shorten label: drop "Country, Region / " prefix for readability.
+		// e.g. "Italy, Sicily / Furnari / Marina Portorosa" → "Furnari / Marina Portorosa"
+		$base_parts = explode( ' / ', $base, 2 );
+		$base_label = isset( $base_parts[1] ) ? $base_parts[1] : $base;
+		if ( ! isset( $yacht_base_groups[ $base_label ] ) ) {
+			$yacht_base_groups[ $base_label ] = [];
+		}
+		$yacht_base_groups[ $base_label ][] = $y;
+	}
+}
+
+/**
+ * Slugify a base label into a safe anchor ID.
+ * e.g. "Furnari / Marina Portorosa" → "base-furnari-marina-portorosa"
+ */
+function ss_base_anchor( string $label ): string {
+	$slug = strtolower( $label );
+	$slug = preg_replace( '/[^a-z0-9]+/', '-', $slug );
+	$slug = trim( $slug, '-' );
+	return 'base-' . $slug;
+}
 
 // Intro: prefer editable post_content (block editor); fall back to auto-generated HTML.
 // When using post_content, the template appends the CTA buttons so the editable text stays clean.
@@ -171,11 +209,20 @@ get_header();
 						<li><a href="#intro" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">description</span><?php esc_html_e( 'Introduction', 'sailscanner-proposals' ); ?></a></li>
 						<?php endif; ?>
 						<li><a href="#requirements" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">checklist</span><?php esc_html_e( 'Your Requirements', 'sailscanner-proposals' ); ?></a></li>
-						<?php if ( ! empty( $yachts ) ) : ?>
-						<li><a href="#yacht-selection" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">sailing</span><?php esc_html_e( 'Yacht Selection', 'sailscanner-proposals' ); ?></a></li>
-						<?php endif; ?>
 						<?php if ( $itinerary_html || ( $itinerary_link_url && ( $itinerary_link_title || $itinerary_link_summary ) ) ) : ?>
 						<li><a href="#itinerary" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">map</span><?php esc_html_e( 'Example Itinerary', 'sailscanner-proposals' ); ?></a></li>
+						<?php endif; ?>
+						<?php if ( ! empty( $yachts ) ) : ?>
+						<li>
+							<a href="#yacht-selection" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">sailing</span><?php esc_html_e( 'Yacht Selection', 'sailscanner-proposals' ); ?></a>
+							<?php if ( $group_by_base && ! empty( $yacht_base_groups ) ) : ?>
+							<ul class="ss-proposal-nav-subnav">
+								<?php foreach ( $yacht_base_groups as $_base_label => $_base_yachts ) : ?>
+								<li><a href="#<?php echo esc_attr( ss_base_anchor( $_base_label ) ); ?>" class="ss-proposal-nav-sublink"><?php echo esc_html( $_base_label ); ?> <span class="ss-proposal-nav-subcount">(<?php echo count( $_base_yachts ); ?>)</span></a></li>
+								<?php endforeach; ?>
+							</ul>
+							<?php endif; ?>
+						</li>
 						<?php endif; ?>
 						<li><a href="#how-it-works" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">settings</span><?php esc_html_e( 'How it Works', 'sailscanner-proposals' ); ?></a></li>
 						<li><a href="#next-steps" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">check_circle</span><?php esc_html_e( 'Next Steps', 'sailscanner-proposals' ); ?></a></li>
@@ -211,11 +258,126 @@ get_header();
 			</section>
 			<hr class="ss-proposal-section-hr" />
 
+		<?php if ( $itinerary_html || ( $itinerary_link_url && ( $itinerary_link_title || $itinerary_link_summary ) ) ) : ?>
+			<section class="ss-proposal-section" id="itinerary">
+				<h2 class="ss-proposal-h2"><?php esc_html_e( 'Example Itinerary', 'sailscanner-proposals' ); ?></h2>
+
+				<?php if ( $itinerary_link_url && ( $itinerary_link_title || $itinerary_link_summary ) ) :
+					// Build the "N-Day Sailing Itinerary · Region" tag line.
+					$_itin_tag_parts = [];
+					if ( $itinerary_link_days ) {
+						$_itin_tag_parts[] = esc_html( $itinerary_link_days ) . '-Day Sailing Itinerary';
+					}
+					if ( $itinerary_link_region ) {
+						$_itin_tag_parts[] = esc_html( $itinerary_link_region );
+					}
+					$_itin_tag = implode( ' · ', $_itin_tag_parts );
+				?>
+				<div class="ss-proposal-itinerary-card ss-proposal-card">
+					<?php if ( $itinerary_link_image ) : ?>
+					<a href="<?php echo esc_url( $itinerary_link_url ); ?>" class="ss-proposal-itinerary-card-img-wrap" target="_blank" rel="noopener noreferrer">
+						<img src="<?php echo esc_url( $itinerary_link_image ); ?>"
+							alt="<?php echo esc_attr( $itinerary_link_title ); ?>"
+							class="ss-proposal-itinerary-card-img" />
+					</a>
+					<?php endif; ?>
+
+					<div class="ss-proposal-itinerary-card-body">
+						<?php if ( $_itin_tag ) : ?>
+						<div class="ss-proposal-itinerary-card-tag"><?php echo $_itin_tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+						<?php endif; ?>
+
+						<?php if ( $itinerary_link_title ) : ?>
+						<h3 class="ss-proposal-itinerary-card-title"><?php echo esc_html( $itinerary_link_title ); ?></h3>
+						<?php endif; ?>
+
+						<?php if ( $itinerary_link_days || $itinerary_link_distance ) : ?>
+						<div class="ss-proposal-itinerary-card-meta">
+							<?php if ( $itinerary_link_days ) : ?>
+							<span class="ss-itin-meta-pill">
+								<span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+								<?php echo esc_html( $itinerary_link_days ); ?> days
+							</span>
+							<?php endif; ?>
+							<?php if ( $itinerary_link_distance ) : ?>
+							<span class="ss-itin-meta-pill">
+								<span class="material-symbols-outlined" aria-hidden="true">conversion_path</span>
+								<?php echo esc_html( $itinerary_link_distance ); ?>
+							</span>
+							<?php endif; ?>
+						</div>
+						<?php endif; ?>
+
+						<?php if ( $itinerary_link_summary ) : ?>
+						<p class="ss-proposal-itinerary-card-summary"><?php echo esc_html( $itinerary_link_summary ); ?></p>
+						<?php endif; ?>
+
+						<a href="<?php echo esc_url( $itinerary_link_url ); ?>"
+							class="ss-proposal-btn ss-proposal-btn-primary ss-proposal-itinerary-card-cta"
+							target="_blank" rel="noopener noreferrer">
+							<span class="material-symbols-outlined" aria-hidden="true">map</span>
+							<?php esc_html_e( 'View Day-by-Day Itinerary', 'sailscanner-proposals' ); ?>
+						</a>
+					</div>
+				</div>
+				<?php endif; ?>
+
+				<?php if ( $itinerary_html ) : ?>
+				<div class="ss-proposal-content ss-proposal-card"><?php echo wp_kses_post( $itinerary_html ); ?></div>
+				<?php endif; ?>
+			</section>
+			<hr class="ss-proposal-section-hr" />
+		<?php endif; ?>
+
 			<?php if ( ! empty( $yachts ) ) : ?>
 				<section class="ss-proposal-section ss-proposal-yachts" id="yacht-selection">
 					<h2 class="ss-proposal-h2"><?php esc_html_e( 'Yacht Selection', 'sailscanner-proposals' ); ?></h2>
+
+					<?php
+					/**
+					 * Build a flat render list so card markup only appears once.
+					 * Each item is either a yacht array (render a card) or a marker:
+					 *   ['__m' => 'base_open',  'label' => string, 'count' => int]
+					 *   ['__m' => 'base_close']
+					 *   ['__m' => 'cards_open']
+					 *   ['__m' => 'cards_close']
+					 */
+					$_render_list = [];
+					if ( $group_by_base && ! empty( $yacht_base_groups ) ) {
+						foreach ( $yacht_base_groups as $_bl => $_by ) {
+							$_render_list[] = [ '__m' => 'base_open',  'label' => $_bl, 'count' => count( $_by ) ];
+							foreach ( $_by as $_y ) {
+								$_render_list[] = $_y;
+							}
+							$_render_list[] = [ '__m' => 'base_close' ];
+						}
+					} else {
+						$_render_list[] = [ '__m' => 'cards_open' ];
+						foreach ( $yachts as $_y ) {
+							$_render_list[] = $_y;
+						}
+						$_render_list[] = [ '__m' => 'cards_close' ];
+					}
+					foreach ( $_render_list as $_item ) :
+						$_m = $_item['__m'] ?? null;
+						if ( $_m === 'base_open' ) :
+					?>
+						<div class="ss-proposal-base-group" id="<?php echo esc_attr( ss_base_anchor( $_item['label'] ) ); ?>">
+							<h3 class="ss-proposal-base-group-heading">
+								<span class="material-symbols-outlined" aria-hidden="true">anchor</span>
+								<?php echo esc_html( $_item['label'] ); ?>
+								<span class="ss-proposal-base-group-count">(<?php echo (int) $_item['count']; ?> <?php esc_html_e( 'options', 'sailscanner-proposals' ); ?>)</span>
+							</h3>
+							<div class="ss-proposal-yacht-cards">
+					<?php elseif ( $_m === 'base_close' ) : ?>
+							</div><!-- /.ss-proposal-yacht-cards -->
+						</div><!-- /.ss-proposal-base-group -->
+					<?php elseif ( $_m === 'cards_open' ) : ?>
 					<div class="ss-proposal-yacht-cards">
-						<?php foreach ( $yachts as $yacht ) : ?>
+					<?php elseif ( $_m === 'cards_close' ) : ?>
+					</div><!-- /.ss-proposal-yacht-cards -->
+					<?php else : $yacht = $_item; ?>
+					<?php /* ↓ yacht card — $yacht is set above */ ?>
 							<?php
 							$wa_message = sprintf(
 								/* translators: yacht name */
@@ -309,7 +471,12 @@ get_header();
 											<div class="ss-proposal-yacht-body-col-main">
 												<?php
 												if ( $has_prices ) {
-													$pricing_html = SS_Proposal_Helpers::render_pricing_table( $yacht['prices'] );
+													$pricing_html = SS_Proposal_Helpers::render_pricing_table(
+														$yacht['prices'],
+														false,
+														'requested',
+														$yacht['url'] ?? ''
+													);
 													if ( $pricing_html !== '' ) {
 														echo '<h4 class="ss-proposal-yacht-section-heading">' . esc_html__( 'Pricing', 'sailscanner-proposals' ) . '</h4>';
 														echo $pricing_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -338,8 +505,9 @@ get_header();
 									</div>
 								</div>
 							</article>
-						<?php endforeach; ?>
-					</div>
+					<?php endif; // end render-list item dispatch ?>
+					<?php endforeach; // end render list loop ?>
+
 					<script>
 					(function () {
 						function ssGallerySwap(btn) {
@@ -360,32 +528,6 @@ get_header();
 						});
 					})();
 					</script>
-				</section>
-				<hr class="ss-proposal-section-hr" />
-			<?php endif; ?>
-
-			<?php if ( $itinerary_html || ( $itinerary_link_url && ( $itinerary_link_title || $itinerary_link_summary ) ) ) : ?>
-				<section class="ss-proposal-section" id="itinerary">
-					<h2 class="ss-proposal-h2"><?php esc_html_e( 'Example Itinerary', 'sailscanner-proposals' ); ?></h2>
-					<?php if ( $itinerary_link_url && ( $itinerary_link_title || $itinerary_link_summary ) ) : ?>
-						<div class="ss-proposal-itinerary-card">
-							<?php if ( $itinerary_link_image ) : ?>
-								<div class="ss-proposal-itinerary-card-image" style="background-image:url('<?php echo esc_url( $itinerary_link_image ); ?>');"></div>
-							<?php endif; ?>
-							<div class="ss-proposal-itinerary-card-body">
-								<?php if ( $itinerary_link_title ) : ?>
-									<h3 class="ss-proposal-itinerary-card-title"><?php echo esc_html( $itinerary_link_title ); ?></h3>
-								<?php endif; ?>
-								<?php if ( $itinerary_link_summary ) : ?>
-									<p class="ss-proposal-itinerary-card-summary"><?php echo esc_html( $itinerary_link_summary ); ?></p>
-								<?php endif; ?>
-								<a href="<?php echo esc_url( $itinerary_link_url ); ?>" class="ss-proposal-btn ss-proposal-btn-primary"><?php esc_html_e( 'View Day-by-Day', 'sailscanner-proposals' ); ?></a>
-							</div>
-						</div>
-					<?php endif; ?>
-					<?php if ( $itinerary_html ) : ?>
-						<div class="ss-proposal-content ss-proposal-card"><?php echo wp_kses_post( $itinerary_html ); ?></div>
-					<?php endif; ?>
 				</section>
 				<hr class="ss-proposal-section-hr" />
 			<?php endif; ?>

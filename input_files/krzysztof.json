@@ -1,0 +1,41 @@
+{
+    "lead_id": "b9b94f83-18e5-4178-93bd-511abe644ab9",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "monohull",
+      "size": "41-45",
+      "cabins": 3,
+      "yachtOptions": {
+        "airConditioning": true,
+        "generator": true,
+        "bowThruster": true,
+        "furlingMainsail": true
+      },
+      "dates": {
+        "start": "2026-05-01",
+        "end": "2026-05-08"
+      },
+      "contact": {
+        "name": "Krzysztof",
+        "email": "ceolesthezone@gmail.com",
+        "phone": "+48501509569"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-03-20T07:37:27.442Z",
+    "geo": {
+      "ip": "5.173.196.55",
+      "countryCode": "PL",
+      "source": "header"
+    }
+   }

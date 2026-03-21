@@ -1,0 +1,42 @@
+{
+    "lead_id": "24926a90-292a-4ab3-87f1-c752ef6ccf1a",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {
+        "provisioning": true,
+        "airportTransfer": true
+      },
+      "cabins": 2,
+      "budget": "any",
+      "dates": {
+        "start": "2027-09-04",
+        "end": "2027-09-11"
+      },
+      "contact": {
+        "name": "Amanda Knoll",
+        "email": "amandaknoll32@gmail.com",
+        "phone": "9082461169"
+      }
+    },
+    "attribution": {
+      "gclid": "EAIaIQobChMI2MPDlPaVkwMV1WpHAR0ZLiFFEAAYASAAEgK0rvD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=EAIaIQobChMI2MPDlPaVkwMV1WpHAR0ZLiFFEAAYASAAEgK0rvD_BwE&gbraid=0AAAAA-8-0yXVFJKZixaPZaiCZS6EwyvKQ"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-10T18:09:24.030Z",
+    "geo": {
+      "ip": "174.231.105.185",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

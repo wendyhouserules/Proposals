@@ -34,6 +34,12 @@ SS_Proposal_REST_Core::init();
 SS_Proposal_REST::init();
 SS_Proposal_SEO::init();
 
+// Prevent WordPress from auto-converting uploaded images to WebP.
+// The server's WAF blocks .webp files from being served (406), so any WebP
+// output — whether uploaded directly or converted by WordPress — breaks images.
+// This keeps JPEG uploads as JPEG and PNG as PNG.
+add_filter( 'wp_upload_image_mime_transforms', '__return_empty_array' );
+
 register_activation_hook( __FILE__, function () {
 	SS_Proposal_CPT::register_cpt();
 	SS_Proposal_Routing::add_rewrite_rule();

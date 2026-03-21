@@ -78,9 +78,34 @@ The script prints the proposal URL when done. Open it or send it directly to the
 | `--lead FILE` | Recommended | Path to lead/quiz JSON. Populates the personalised greeting and **Your Requirements** section. See [Lead file format](#lead-file-format) below. |
 | `--fetch-images` | Optional | Fetches the full yacht gallery (up to 20 photos at 1200 px) from the MMK YachtDetails page for each yacht. Without this flag, the 2 email thumbnails are still upsized to 1200 px. Requires internet access. |
 | `--upload` | Optional | After building the JSON, POSTs to WordPress and prints the proposal URL. Requires env vars. |
+| `--group-by-base` | Optional | Group yacht cards by their charter base. Each base gets its own sub-heading and anchor, with clickable sub-nav items in the sidebar under "Yacht Selection". Useful when yachts span multiple departure marinas. |
+| `--prorate` | Optional | Override yacht dates to match lead dates AND scale prices proportionally when the MMK quote is for 7 days and the lead is for a shorter/longer duration. Off by default — also enabled permanently via `SAILSCANNER_PRORATE=1` in `.env`. |
+| `--no-prorate` | Optional | Explicitly disable pro-rating and date override for this run, even if `SAILSCANNER_PRORATE=1` is set in `.env`. |
+| `--no-date-override` | Optional | When `--prorate` is active, skip overriding yacht dates but still apply price scaling. Also controlled permanently via `SAILSCANNER_DATE_OVERRIDE=0` in `.env`. |
 | `--intro FILE` | Optional | HTML file to use as the proposal introduction instead of the default. |
 | `--itinerary FILE` | Optional | HTML file for the Example Itinerary section. |
 | `--notes FILE` | Optional | HTML file for the Notes/validity section. |
+
+### Pro-rating and date override: env var reference
+
+Both behaviours are **off by default** and can be set globally in `.env` or overridden per-run on the CLI.
+
+| Behaviour | `.env` variable | CLI flag (on) | CLI flag (off) |
+|-----------|----------------|---------------|----------------|
+| Price pro-rating | `SAILSCANNER_PRORATE=1` | `--prorate` | `--no-prorate` |
+| Date override | `SAILSCANNER_DATE_OVERRIDE=0` to disable | *(on by default when pro-rating is active)* | `--no-date-override` |
+
+**CLI flags always win over `.env` values.**
+
+Common combinations:
+
+| Scenario | Command / `.env` |
+|----------|-----------------|
+| Never pro-rate anything | Default — do nothing |
+| Always pro-rate all proposals | `SAILSCANNER_PRORATE=1` in `.env` |
+| Pro-rate this run only | `--prorate` |
+| Pro-rate but keep original dates | `--prorate --no-date-override` or `SAILSCANNER_DATE_OVERRIDE=0` in `.env` |
+| Disable pro-rate even if env var is set | `--no-prorate` |
 
 ### Common command variations
 
@@ -91,7 +116,7 @@ python scripts/build_proposal_from_mmk.py \
   --type bareboat \
   --output output_files/out.json
 
-# Skippered, with lead, fetch full gallery, upload:
+# Skippered, with lead, fetch full gallery, upload (no pro-rating — default):
 python scripts/build_proposal_from_mmk.py \
   --input input_files/mmk-costa-brava.html \
   --type skippered \
@@ -100,11 +125,32 @@ python scripts/build_proposal_from_mmk.py \
   --output output_files/out.json \
   --upload
 
+# Skippered, with lead — ENABLE pro-rating (dates overridden, prices scaled):
+python scripts/build_proposal_from_mmk.py \
+  --input input_files/mmk-sarah.html \
+  --type skippered \
+  --lead input_files/sarah.json \
+  --fetch-images \
+  --prorate \
+  --output output_files/out.json \
+  --upload
+
 # Multiple MMK files (merge yachts from two sources):
 python scripts/build_proposal_from_mmk.py \
   --input input_files/file1.html \
   --input input_files/file2.html \
   --type bareboat \
+  --output output_files/out.json \
+  --upload
+
+# Group by base + pro-rate:
+python scripts/build_proposal_from_mmk.py \
+  --input input_files/lauren-murphey2.html \
+  --type skippered \
+  --lead input_files/lauren-murphey-lead.json \
+  --fetch-images \
+  --group-by-base \
+  --prorate \
   --output output_files/out.json \
   --upload
 

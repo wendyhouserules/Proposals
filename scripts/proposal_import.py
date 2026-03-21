@@ -105,6 +105,7 @@ def create_proposal(
     contact_email: str = "",
     requirements: dict[str, Any] | None = None,
     lead: dict[str, Any] | None = None,
+    group_by_base: bool = False,
 ) -> dict[str, Any]:
     """Create ss_proposal via wp/v2 with ss_yacht_data (server creates ss_proposal_yacht posts)."""
     body: dict[str, Any] = {
@@ -122,6 +123,8 @@ def create_proposal(
         )
     if lead is not None and isinstance(lead, dict) and lead:
         body["ss_lead_json"] = lead
+    if group_by_base:
+        body["ss_group_by_base"] = True
     r = _post("/ss_proposal", body, auth)
     r.raise_for_status()
     return r.json()
@@ -166,6 +169,7 @@ def main() -> None:
         "contact_email": data.get("contact_email", ""),
         "requirements": data.get("requirements"),
         "lead": data.get("lead"),
+        "group_by_base": bool(data.get("group_by_base", False)),
     }
     try:
         out = create_proposal(

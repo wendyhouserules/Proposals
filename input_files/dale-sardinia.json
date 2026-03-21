@@ -1,0 +1,38 @@
+{
+    "lead_id": "8d128162-b5a8-410b-bfc1-7983aaece0e0",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "size": "any",
+      "cabins": 3,
+      "yachtOptions": {},
+      "budget": "any",
+      "dates": {
+        "start": "2026-09-08",
+        "end": "2026-09-18"
+      },
+      "contact": {
+        "name": "Dale",
+        "email": "wheresdale@hotmail.com",
+        "phone": "+61 411 373 871"
+      }
+    },
+    "attribution": {
+      "gclid": "CjwKCAjwyMnNBhBNEiwA-Kcgu9iFFDyNNIva-GyCGu_fNWVW2Ag05EZFXwYeyjmp6aqAiFa2f0wQkhoCbpEQAvD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=CjwKCAjwyMnNBhBNEiwA-Kcgu9iFFDyNNIva-GyCGu_fNWVW2Ag05EZFXwYeyjmp6aqAiFa2f0wQkhoCbpEQAvD_BwE&gbraid=0AAAAA-8-0yUafkMH5hKOEWMJuC8W4guxM"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-12T22:19:27.393Z",
+    "geo": {
+      "ip": "49.195.3.240",
+      "countryCode": "AU",
+      "source": "header"
+    },
+    "phone_country_code": "+61"
+   }

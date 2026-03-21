@@ -44,10 +44,14 @@ class SS_Proposal_REST_Core {
 			'ss_contact_email'          => [ 'type' => 'string' ],
 			'ss_requirements_json'      => [ 'type' => [ 'string', 'object' ] ],
 			'ss_lead_json'              => [ 'type' => [ 'string', 'object' ], 'description' => 'Lead payload (answers, contact) for intro and requirements display' ],
-			'ss_itinerary_link_url'     => [ 'type' => 'string' ],
-			'ss_itinerary_link_title'   => [ 'type' => 'string' ],
-			'ss_itinerary_link_summary' => [ 'type' => 'string' ],
-			'ss_itinerary_link_image'   => [ 'type' => 'string' ],
+			'ss_itinerary_link_url'      => [ 'type' => 'string' ],
+			'ss_itinerary_link_title'    => [ 'type' => 'string' ],
+			'ss_itinerary_link_summary'  => [ 'type' => 'string' ],
+			'ss_itinerary_link_image'    => [ 'type' => 'string' ],
+			'ss_itinerary_link_days'     => [ 'type' => 'string' ],
+			'ss_itinerary_link_distance' => [ 'type' => 'string' ],
+			'ss_itinerary_link_region'   => [ 'type' => 'string' ],
+			'ss_group_by_base'           => [ 'type' => 'boolean', 'description' => 'When true, yacht cards are grouped by charter base in the proposal.' ],
 			'ss_status'                 => [ 'type' => 'string' ],
 			'ss_created_at'             => [ 'type' => 'string' ],
 			'ss_expires_at'             => [ 'type' => 'string' ],
@@ -113,10 +117,14 @@ class SS_Proposal_REST_Core {
 					update_post_meta( $post_id, $key, $val );
 					return true;
 				}
-					if ( in_array( $key, [ 'ss_itinerary_link_url', 'ss_itinerary_link_image' ], true ) ) {
-						update_post_meta( $post_id, $key, esc_url_raw( is_string( $value ) ? $value : '' ) );
-						return true;
-					}
+				if ( $key === 'ss_group_by_base' ) {
+					update_post_meta( $post_id, $key, (bool) $value ? '1' : '0' );
+					return true;
+				}
+				if ( in_array( $key, [ 'ss_itinerary_link_url', 'ss_itinerary_link_image' ], true ) ) {
+					update_post_meta( $post_id, $key, esc_url_raw( is_string( $value ) ? $value : '' ) );
+					return true;
+				}
 					if ( in_array( $key, [ 'ss_itinerary_link_title', 'ss_itinerary_link_summary' ], true ) ) {
 						update_post_meta( $post_id, $key, sanitize_text_field( is_string( $value ) ? $value : '' ) );
 						return true;

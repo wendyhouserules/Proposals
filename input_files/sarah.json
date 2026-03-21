@@ -1,0 +1,42 @@
+{
+    "lead_id": "3476cb54-abef-4a49-8709-915f63492520",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "experienced",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "46-50",
+      "crewServices": {
+        "chef": true,
+        "airportTransfer": true
+      },
+      "cabins": 2,
+      "budget": "any",
+      "dates": {
+        "start": "2026-07-30",
+        "end": "2026-08-02"
+      },
+      "contact": {
+        "name": "Sarah Liscano",
+        "email": "sarahliscano@gmail.com",
+        "phone": "5132250216"
+      }
+    },
+    "attribution": {
+      "gclid": "Cj0KCQiA2bTNBhDjARIsAK89wlHDEPi1cN-4KwUbcBuA10OrD3B6QmeC1l96wkRSBkqBgAzIbML3P4UaAkSKEALw_wcB",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=Cj0KCQiA2bTNBhDjARIsAK89wlHDEPi1cN-4KwUbcBuA10OrD3B6QmeC1l96wkRSBkqBgAzIbML3P4UaAkSKEALw_wcB&gbraid=0AAAAA-8-0yU_urAPaKpvZIOAEghSm8RNg"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-09T01:10:20.007Z",
+    "geo": {
+      "ip": "192.24.243.250",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

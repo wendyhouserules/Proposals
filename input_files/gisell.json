@@ -1,0 +1,42 @@
+{
+    "lead_id": "713d156d-7f1b-4784-bb01-acaac54b9bef",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia",
+        "Sicily"
+      ],
+      "boatType": "monohull",
+      "size": "any",
+      "crewServices": {
+        "chef": true
+      },
+      "cabins": 5,
+      "budget": "5-8k",
+      "dates": {
+        "start": "2027-07-13",
+        "end": "2027-07-16"
+      },
+      "contact": {
+        "name": "Giselle v",
+        "email": "gvllsnr@yahoo.com",
+        "phone": "6262331914"
+      }
+    },
+    "attribution": {
+      "gclid": "EAIaIQobChMIg7jt452RkwMV_yBECB0XXDxZEAAYASAAEgJbbfD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=EAIaIQobChMIg7jt452RkwMV_yBECB0XXDxZEAAYASAAEgJbbfD_BwE&gbraid=0AAAAA-8-0yXVt1JW4yGQak1w-HnFOLTP5"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-08T21:23:19.772Z",
+    "geo": {
+      "ip": "172.58.209.29",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

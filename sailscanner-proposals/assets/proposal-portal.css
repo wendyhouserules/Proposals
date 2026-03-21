@@ -644,44 +644,160 @@
 }
 
 /* Itinerary card (Yacht Charter style) */
+/* ── Itinerary card (email-snippet style) ─────────────────────────────── */
 .ss-proposal-itinerary-card {
-	display: grid;
-	grid-template-columns: 1fr;
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
+	padding: 0 !important;
 	margin-bottom: 1rem;
 }
 
-@media (min-width: 640px) {
-	.ss-proposal-itinerary-card {
-		grid-template-columns: 320px 1fr;
-	}
+/* ── Base-group sub-sections ─────────────────────────────────────────── */
+.ss-proposal-base-group {
+	margin-bottom: 2.5rem;
 }
 
-.ss-proposal-itinerary-card-image {
-	min-height: 180px;
-	background-size: cover;
-	background-position: center;
-	background-color: #e5e7eb;
+.ss-proposal-base-group-heading {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: #1a2e44;
+	margin: 0 0 1rem;
+	padding: 0.65rem 1rem;
+	background: #f0f4f8;
+	border-left: 4px solid #0077b6;
+	border-radius: 0 8px 8px 0;
+}
+
+.ss-proposal-base-group-heading .material-symbols-outlined {
+	font-size: 1.2rem;
+	color: #0077b6;
+	flex-shrink: 0;
+}
+
+.ss-proposal-base-group-count {
+	margin-left: auto;
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: #555;
+	background: #fff;
+	border: 1px solid #d0dbe6;
+	border-radius: 20px;
+	padding: 0.15rem 0.55rem;
+}
+
+/* ── Base-group sub-nav ───────────────────────────────────────────────── */
+.ss-proposal-nav-subnav {
+	list-style: none;
+	margin: 0.25rem 0 0 1.5rem;
+	padding: 0;
+}
+
+.ss-proposal-nav-sublink {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.3rem 0.5rem;
+	font-size: 0.8rem;
+	color: #444;
+	text-decoration: none;
+	border-radius: 6px;
+	transition: background 0.15s, color 0.15s;
+	line-height: 1.3;
+}
+
+.ss-proposal-nav-sublink:hover {
+	background: #e8f0fe;
+	color: #0077b6;
+}
+
+.ss-proposal-nav-subcount {
+	margin-left: auto;
+	font-size: 0.72rem;
+	color: #888;
+}
+
+.ss-proposal-itinerary-card-img-wrap {
+	display: block;
+	line-height: 0;
+}
+
+.ss-proposal-itinerary-card-img {
+	display: block;
+	width: 100%;
+	height: 220px;
+	object-fit: cover;
+	border-radius: 0;
 }
 
 .ss-proposal-itinerary-card-body {
-	padding: 1.25rem;
+	padding: 1.25rem 1.5rem 1.5rem;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 0.65rem;
 }
 
-.ss-proposal-itinerary-card-title {
-	font-size: 1.35rem;
-	margin: 0;
+.ss-proposal-itinerary-card-tag {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
 	font-weight: 700;
 	color: #12305c;
 }
 
+.ss-proposal-itinerary-card-title {
+	font-size: 1.3rem;
+	margin: 0;
+	font-weight: 700;
+	color: #12305c;
+	line-height: 1.3;
+}
+
+.ss-proposal-itinerary-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
+
+.ss-itin-meta-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #f0f4f9;
+	color: #12305c;
+	font-size: 0.78rem;
+	font-weight: 600;
+	padding: 3px 10px 3px 7px;
+	border-radius: 99px;
+}
+
+.ss-itin-meta-pill .material-symbols-outlined {
+	font-size: 0.9rem;
+}
+
 .ss-proposal-itinerary-card-summary {
 	margin: 0;
-	line-height: 1.6;
+	line-height: 1.65;
 	color: #374151;
+	font-size: 0.9rem;
+}
+
+.ss-proposal-itinerary-card-cta {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+	margin-top: 0.25rem;
+}
+
+.ss-proposal-itinerary-card-cta .material-symbols-outlined {
+	font-size: 1rem;
 }
 
 /* How it works grid (Yacht Charter style) */
@@ -1113,6 +1229,56 @@
 
 .ss-yacht-prices .ss-proposal-pricing-table {
 	margin-top: 0.5rem;
+}
+
+/* Pro-rated price note beneath the pricing table */
+.ss-proposal-pricing-prorated-note {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 0.75rem;
+	color: #6b7280;
+	font-style: italic;
+	margin: -0.25rem 0 0.5rem;
+	padding: 0 0.25rem;
+}
+
+.ss-proposal-pricing-prorated-note .material-symbols-outlined {
+	font-size: 0.9rem;
+	flex-shrink: 0;
+	color: #9ca3af;
+}
+
+/* "View more optional extras" link below compact pricing table */
+.ss-proposal-extras-more-link {
+	margin: 6px 0 2px;
+	font-size: 0.82rem;
+}
+.ss-proposal-extras-more-link a {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	color: #1d4ed8;
+	text-decoration: none;
+	font-weight: 500;
+}
+.ss-proposal-extras-more-link a:hover {
+	text-decoration: underline;
+}
+.ss-proposal-extras-more-link .material-symbols-outlined {
+	font-size: 0.9rem;
+	vertical-align: middle;
+}
+
+/* "Requested by client" note on crew-service optional extras */
+.ss-pricing-note-badge {
+	display: inline;
+	margin-left: 5px;
+	font-size: 0.72rem;
+	font-style: italic;
+	font-weight: 400;
+	color: #9ca3af;
+	white-space: nowrap;
 }
 
 /* Sub-section heading inside yacht card body */

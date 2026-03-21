@@ -1,0 +1,106 @@
+.ss-gallery-help {
+	color: #6b7280;
+	margin: 0 0 10px;
+	font-size: 13px;
+}
+
+.ss-gallery-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.ss-gallery-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	min-height: 80px;
+}
+
+.ss-gallery-list:empty::before {
+	content: 'No images selected yet.';
+	color: #9ca3af;
+	font-size: 13px;
+	font-style: italic;
+	align-self: center;
+}
+
+.ss-gallery-item {
+	position: relative;
+	width: 90px;
+	height: 90px;
+	border: 2px solid #e5e7eb;
+	border-radius: 6px;
+	overflow: hidden;
+	cursor: grab;
+	background: #f9fafb;
+}
+
+.ss-gallery-item:active {
+	cursor: grabbing;
+}
+
+.ss-gallery-item.ss-dragging {
+	opacity: 0.4;
+	border-style: dashed;
+}
+
+.ss-gallery-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ss-gallery-remove {
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	width: 20px;
+	height: 20px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	font-size: 10px;
+	line-height: 20px;
+	text-align: center;
+	cursor: pointer;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ss-gallery-remove:hover {
+	background: #dc2626;
+}
+
+#ss-yacht-gallery-add {
+	align-self: flex-start;
+}
+
+.ss-gallery-autofetch-notice {
+	background: #fefce8;
+	border: 1px solid #fde68a;
+	border-radius: 5px;
+	padding: 8px 12px;
+	font-size: 13px;
+	color: #78350f;
+	margin-bottom: 4px;
+}
+
+.ss-gallery-autofetch-notice label {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.ss-gallery-autofetch-notice input[type="checkbox"] {
+	margin-top: 2px;
+	flex-shrink: 0;
+}

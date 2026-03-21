@@ -15,6 +15,7 @@ import argparse
 import json
 import re
 import sys
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
@@ -326,6 +327,74 @@ def _build_charter_slot(y: Any) -> dict[str, str]:
     return slot
 
 
+def _yacht_charter_days(more_info_url: str) -> int | None:
+    """
+    Return the number of days in the yacht's charter period using millisecond timestamps
+    embedded in its more_info_url.
+
+    MMK "more info" URLs encode dates in two ways:
+      1. Top-level params: &dateFrom=MS&dateTo=MS  (used on YachtDetails pages)
+      2. Inside priceQuoteReservationId: YACHTID_DATEFROM_DATETO_...  (used on Event/moreInfo pages)
+
+    Both are tried; the first that yields parseable timestamps wins.
+    Uses round() to handle check-in/check-out time-of-day differences gracefully.
+    """
+    if not more_info_url:
+        return None
+    qs = parse_qs(urlparse(more_info_url).query)
+
+    # Strategy 1: top-level dateFrom / dateTo params (YachtDetails URLs).
+    df_ms = (qs.get("dateFrom") or [""])[0]
+    dt_ms = (qs.get("dateTo")   or [""])[0]
+
+    # Strategy 2: extract from priceQuoteReservationId segments (Event/moreInfo URLs).
+    # Format: YACHTID_DATEFROM_DATETO_...
+    if not df_ms or not dt_ms:
+        pqrid = (qs.get("priceQuoteReservationId") or [""])[0]
+        if pqrid:
+            parts = pqrid.split("_")
+            if len(parts) >= 3:
+                df_ms = parts[1]
+                dt_ms = parts[2]
+
+    if not df_ms or not dt_ms:
+        return None
+    try:
+        dt_from = datetime.fromtimestamp(int(df_ms) / 1000, tz=timezone.utc)
+        dt_to   = datetime.fromtimestamp(int(dt_ms) / 1000, tz=timezone.utc)
+        return round((dt_to - dt_from).total_seconds() / 86400)
+    except (ValueError, OSError, OverflowError):
+        return None
+
+
+def _scale_price_str(price_str: str, lead_days: int, yacht_days: int) -> str:
+    """
+    Scale a formatted price string (e.g. '3,445.00 €') by lead_days / yacht_days.
+    Returns the original string unchanged if parsing fails.
+    """
+    if not price_str or yacht_days == 0:
+        return price_str
+    sym_match = re.search(r"[€$£¥]", price_str)
+    symbol    = sym_match.group(0) if sym_match else ""
+    num_str   = re.sub(r"[^\d.]", "", price_str.replace(",", ""))
+    try:
+        val = float(num_str)
+    except ValueError:
+        return price_str
+    scaled = val * lead_days / yacht_days
+    formatted = f"{scaled:,.2f}"
+    return f"{formatted} {symbol}".strip() if symbol else formatted
+
+
+def _fmt_lead_date(iso: str) -> str:
+    """Convert ISO date '2026-07-30' → '30 July 2026'."""
+    try:
+        d = date.fromisoformat(iso)
+        return f"{d.day} {d.strftime('%B %Y')}"
+    except (ValueError, AttributeError):
+        return iso
+
+
 def parse_mmk_file(path: Path, for_skippered: bool) -> list[Any]:
     """Parse MMK HTML file and return list of YachtEntry."""
     try:
@@ -396,7 +465,70 @@ def main() -> None:
             "Without this flag, the 2 email thumbnails are still upsized to 1200px."
         ),
     )
+    parser.add_argument(
+        "--group-by-base",
+        action="store_true",
+        dest="group_by_base",
+        help=(
+            "Group yacht cards by their charter base in the proposal. "
+            "Each base gets its own sub-heading and anchor, with clickable "
+            "sub-nav items in the sidebar under 'Yacht Selection'."
+        ),
+    )
+    parser.add_argument(
+        "--prorate",
+        action="store_true",
+        dest="prorate",
+        help=(
+            "When --lead is provided, override yacht dates to match lead dates AND "
+            "scale prices proportionally when the MMK quote is for 7 days and the "
+            "lead is for a different duration. Can also be enabled permanently by "
+            "setting SAILSCANNER_PRORATE=1 in your .env file."
+        ),
+    )
+    parser.add_argument(
+        "--no-prorate",
+        action="store_true",
+        dest="no_prorate",
+        help="Explicitly disable pro-rating and date override even if SAILSCANNER_PRORATE=1 is set.",
+    )
+    parser.add_argument(
+        "--no-date-override",
+        action="store_true",
+        dest="no_date_override",
+        help=(
+            "When --lead + --prorate are active, skip overriding yacht dates "
+            "but still apply price scaling."
+        ),
+    )
     args = parser.parse_args()
+
+    # Load .env early so SAILSCANNER_PRORATE can influence behaviour.
+    import os
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_project_root / ".env")
+    except ImportError:
+        pass
+
+    # Resolve effective prorate flag:
+    #   --no-prorate  → always off
+    #   --prorate     → always on
+    #   neither       → follow SAILSCANNER_PRORATE env var (default: off)
+    _env_prorate = os.environ.get("SAILSCANNER_PRORATE", "0").strip() in ("1", "true", "yes")
+    if args.no_prorate:
+        _effective_prorate = False
+    elif args.prorate:
+        _effective_prorate = True
+    else:
+        _effective_prorate = _env_prorate
+
+    # Resolve effective date-override flag:
+    #   --no-date-override           → always off for this run
+    #   SAILSCANNER_DATE_OVERRIDE=0  → off by default
+    #   neither                      → on (default when pro-rating is active)
+    _env_date_override = os.environ.get("SAILSCANNER_DATE_OVERRIDE", "1").strip() not in ("0", "false", "no")
+    _effective_date_override = False if args.no_date_override else _env_date_override
 
     for_skippered = args.type == "skippered"
     all_yachts: list[Any] = []
@@ -412,6 +544,45 @@ def main() -> None:
     if not all_yachts:
         print("No yachts parsed. Check input HTML.", file=sys.stderr)
         sys.exit(1)
+
+    # ── Load lead data early so date/price adjustments are available in the loop ──
+    lead_data: dict[str, Any] = {}
+    if args.lead:
+        lead_path = Path(args.lead).expanduser()
+        if not lead_path.is_absolute():
+            lead_path = _project_root / lead_path
+        if lead_path.exists():
+            try:
+                lead_data = json.loads(lead_path.read_text(encoding="utf-8"))
+                if not isinstance(lead_data, dict):
+                    lead_data = {}
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"Warning: could not read lead file: {e}", file=sys.stderr)
+        else:
+            print(f"Warning: lead file not found: {lead_path}", file=sys.stderr)
+
+    # Compute lead charter duration for date override + price pro-rating.
+    lead_days: int | None = None
+    lead_from_str: str = ""
+    lead_to_str: str = ""
+    _answers   = lead_data.get("answers", {}) if lead_data else {}
+    _ld_dates  = _answers.get("dates", {}) if isinstance(_answers, dict) else {}
+    _start_iso = _ld_dates.get("start", "") if isinstance(_ld_dates, dict) else ""
+    _end_iso   = _ld_dates.get("end",   "") if isinstance(_ld_dates, dict) else ""
+    if _start_iso and _end_iso:
+        try:
+            _d_start = date.fromisoformat(_start_iso)
+            _d_end   = date.fromisoformat(_end_iso)
+            # Inclusive: July 30 → Aug 2 = (3 days diff) + 1 = 4 days
+            lead_days = (_d_end - _d_start).days + 1
+            lead_from_str = _fmt_lead_date(_start_iso)
+            lead_to_str   = _fmt_lead_date(_end_iso)
+            print(
+                f"  Lead dates: {lead_from_str} → {lead_to_str} ({lead_days} days)",
+                file=sys.stderr,
+            )
+        except ValueError:
+            pass
 
     # Group entries by yachtId so the same physical boat at multiple bases becomes one entry.
     # Entries without a parseable yachtId are treated as unique (keyed by index).
@@ -463,9 +634,164 @@ def main() -> None:
                     entry["charter_json"] = {}
                 entry["charter_json"]["slots"] = slots
 
+        # ── Lead date override + price pro-rating ─────────────────────────────
+        # Only runs when --prorate (or SAILSCANNER_PRORATE=1) is active.
+        if lead_days is not None and lead_from_str and _effective_prorate:
+            # How many days was this yacht's charter originally listed for?
+            _more_info = getattr(primary, "more_info_url", None) or ""
+            yacht_days = _yacht_charter_days(_more_info) if _more_info else None
+            print(
+                f"  {label}: yacht_days={yacht_days}, lead_days={lead_days}"
+                + (" → pro-rating" if yacht_days == 7 and lead_days != 7 else " → no pro-rating"),
+                file=sys.stderr,
+            )
+
+            # Override dates in charter_json top-level and every slot.
+            # Skipped when SAILSCANNER_DATE_OVERRIDE=0 or --no-date-override is passed.
+            if _effective_date_override:
+                def _override_dates(c: dict[str, Any]) -> None:
+                    c["date_from"] = lead_from_str
+                    c["date_to"]   = lead_to_str
+
+                if "charter_json" in entry:
+                    _override_dates(entry["charter_json"])
+                    if isinstance(entry["charter_json"].get("slots"), list):
+                        for _slot in entry["charter_json"]["slots"]:
+                            _override_dates(_slot)
+
+            # Pro-rate only when the yacht was priced for exactly 7 days and the lead
+            # wants a different duration.
+            if yacht_days == 7 and lead_days != 7 and "prices_json" in entry:
+                _prices = entry["prices_json"]
+
+                def _scale_field(field: str) -> None:
+                    if field in _prices and isinstance(_prices[field], str):
+                        _old = _prices[field]
+                        _prices[field] = _scale_price_str(_old, lead_days, 7)
+                        print(
+                            f"  Pro-rated {label} {field}: {_old} → {_prices[field]}"
+                            f" ({lead_days}/7)",
+                            file=sys.stderr,
+                        )
+
+                _scale_field("charter_price")
+                _scale_field("base_price")
+                # Discount amounts are proportional to the base price.
+                if isinstance(_prices.get("discounts"), list):
+                    for _item in _prices["discounts"]:
+                        if isinstance(_item, dict) and "amount" in _item:
+                            _item["amount"] = _scale_price_str(_item["amount"], lead_days, 7)
+
+                # Pro-rate per-day crew costs (skipper, captain, crew, hostess).
+                # Fixed one-off costs (cleaning packs, starter kits, damage deposits,
+                # park fees, etc.) are intentionally left unscaled.
+                _CREW_KEYWORDS = (
+                    "skipper", "skiper", "captain", "crew", "hostess",
+                    "deckhand", "tour leader",
+                )
+
+                def _is_crew_item(item_label: str) -> bool:
+                    lo = item_label.lower()
+                    return any(kw in lo for kw in _CREW_KEYWORDS)
+
+                for _list_key in ("mandatory_advance", "mandatory_base", "optional_extras"):
+                    for _item in _prices.get(_list_key) or []:
+                        if not isinstance(_item, dict):
+                            continue
+                        _item_label = _item.get("label", "")
+                        if _is_crew_item(_item_label) and "amount" in _item:
+                            _old_amt = _item["amount"]
+                            _item["amount"] = _scale_price_str(_old_amt, lead_days, 7)
+                            print(
+                                f"  Pro-rated {label} [{_list_key}] '{_item_label}': "
+                                f"{_old_amt} → {_item['amount']} ({lead_days}/7)",
+                                file=sys.stderr,
+                            )
+
+                _prices["prorated_note"] = (
+                    f"Estimated {lead_days}-day price (pro-rated from 7-day rate)"
+                )
+
+        # ── Inject lead crew-service requests into optional_extras ────────────
+        # If the lead asks for services (chef, provisioning, airportTransfer,
+        # hostess) that aren't already listed in optional_extras, add a
+        # "Price on request" placeholder so the client can see they were noted.
+        # (lead_key, display_label, [keywords to match against existing items])
+        _crew_service_map: list[tuple[str, str, list[str]]] = [
+            ("chef",            "Chef",             ["chef", "cook", "hostess"]),
+            ("cook",            "Chef / Cook",      ["chef", "cook", "hostess"]),
+            ("provisioning",    "Provisioning",     ["provisioning", "provision"]),
+            ("airportTransfer", "Airport Transfer", ["airport", "transfer"]),
+            ("hostess",         "Hostess",          ["hostess", "host", "chef", "cook"]),
+        ]
+        _lead_services: dict[str, Any] = (
+            (lead_data.get("answers") or {}).get("crewServices") or {}
+        )
+        if _lead_services and "prices_json" in entry:
+            _opt = entry["prices_json"].setdefault("optional_extras", [])
+            # Mandatory items: if service is covered here it's obligatory — skip silently.
+            _mandatory_items = (
+                (entry["prices_json"].get("mandatory_advance") or [])
+                + (entry["prices_json"].get("mandatory_base") or [])
+            )
+            _mandatory_labels = {
+                (item.get("label") or "").lower()
+                for item in _mandatory_items
+                if isinstance(item, dict)
+            }
+            for _svc_key, _svc_label, _match_kws in _crew_service_map:
+                if not _lead_services.get(_svc_key):
+                    continue
+                # Covered by a mandatory/obligatory item → already visible; skip entirely.
+                if any(kw in lbl for lbl in _mandatory_labels for kw in _match_kws):
+                    print(
+                        f"  Skipping '{_svc_label}' for {label} — already mandatory",
+                        file=sys.stderr,
+                    )
+                    continue
+                # Already in optional extras (has a real price) → mark it as requested
+                # so it surfaces in "requested" mode on the proposal card.
+                _matched_opt = next(
+                    (item for item in _opt
+                     if isinstance(item, dict)
+                     and any(kw in (item.get("label") or "").lower() for kw in _match_kws)),
+                    None,
+                )
+                if _matched_opt is not None:
+                    _matched_opt["note"] = "Requested"
+                    print(
+                        f"  Marked existing '{_matched_opt['label']}' as requested for {label}",
+                        file=sys.stderr,
+                    )
+                    continue
+                # Not found anywhere → add a "Price on request" placeholder.
+                _opt.append({
+                    "label":  _svc_label,
+                    "amount": "Price on request",
+                    "note":   "Requested",
+                })
+                print(
+                    f"  Added crew service '{_svc_label}' to optional extras for {label}",
+                    file=sys.stderr,
+                )
+
         yacht_data.append(entry)
 
     yacht_data = [y for y in yacht_data if y.get("display_name")]
+
+    # Sort yachts cheapest-first by charter_price (the net price after discounts).
+    # Yachts without a parseable price sort to the end.
+    # Format is "3,956.82 €" — comma is thousands separator, period is decimal point.
+    def _price_sort_key(y: dict[str, Any]) -> float:
+        raw = (y.get("prices_json") or {}).get("charter_price", "")
+        # Keep only digits, commas, and periods; then drop commas (thousands separators).
+        cleaned = re.sub(r"[^\d,.]", "", str(raw).strip()).replace(",", "")
+        try:
+            return float(cleaned)
+        except ValueError:
+            return float("inf")
+
+    yacht_data.sort(key=_price_sort_key)
 
     def read_optional(path_arg: str | None) -> str:
         if not path_arg:
@@ -491,21 +817,6 @@ def main() -> None:
             "<p>This proposal is valid for 14 days. Contact us to confirm availability and secure your booking.</p>"
         )
 
-    lead_data: dict[str, Any] = {}
-    if args.lead:
-        lead_path = Path(args.lead).expanduser()
-        if not lead_path.is_absolute():
-            lead_path = _project_root / lead_path
-        if lead_path.exists():
-            try:
-                lead_data = json.loads(lead_path.read_text(encoding="utf-8"))
-                if not isinstance(lead_data, dict):
-                    lead_data = {}
-            except (json.JSONDecodeError, OSError) as e:
-                print(f"Warning: could not read lead file: {e}", file=sys.stderr)
-        else:
-            print(f"Warning: lead file not found: {lead_path}", file=sys.stderr)
-
     payload: dict[str, Any] = {
         "yachts": yacht_data,
         "intro_html": intro_html,
@@ -514,6 +825,7 @@ def main() -> None:
         "contact_whatsapp": "",
         "contact_email": "",
         "requirements": {},
+        "group_by_base": args.group_by_base,
     }
     if lead_data:
         payload["lead"] = lead_data
@@ -527,12 +839,6 @@ def main() -> None:
             out_path = _project_root / out_path
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-        try:
-            from dotenv import load_dotenv
-            load_dotenv(_project_root / ".env")
-        except ImportError:
-            pass
-        import os
         os.chdir(_project_root)
         os.environ["SAILSCANNER_PROPOSAL_JSON"] = str(out_path)
         from proposal_import import main as run_import

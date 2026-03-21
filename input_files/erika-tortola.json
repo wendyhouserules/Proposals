@@ -1,0 +1,42 @@
+{
+    "lead_id": "30b24186-64a4-423c-85bc-07f61f592309",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "British Virgin Islands",
+      "region": [
+        "Tortola"
+      ],
+      "boatType": "catamaran",
+      "size": "51+",
+      "crewServices": {
+        "chef": true,
+        "provisioning": true,
+        "airportTransfer": true
+      },
+      "cabins": 2,
+      "budget": "5-8k",
+      "dates": {
+        "start": "2027-05-01",
+        "end": "2027-05-15"
+      },
+      "contact": {
+        "name": "Erika Nelson",
+        "email": "peekabluetahoe@aol.com",
+        "phone": "5304001313"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-15T20:21:26.988Z",
+    "geo": {
+      "ip": "140.248.30.1",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

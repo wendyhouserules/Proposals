@@ -113,9 +113,9 @@ class YachtEntry:
     base_price: Optional[Money]
     discount_items: List[Tuple[str, Money]]
     charter_price_net: Money
-    mandatory_advance_items: List[Tuple[str, Money]]
-    mandatory_base_items: List[Tuple[str, Money]]
-    optional_items: List[Tuple[str, Money]]
+    mandatory_advance_items: List[Tuple[str, Any]]
+    mandatory_base_items: List[Tuple[str, Any]]
+    optional_items: List[Tuple[str, Any]]
     deposit: Optional[Money]
     check_in_time: Optional[str]
     check_out_time: Optional[str]
@@ -137,9 +137,11 @@ class YachtEntry:
         currency = self.charter_price_net.currency or "€"
         total = Money.zero(currency)
         for _, m in self.mandatory_advance_items:
-            total = total + m
+            if hasattr(m, "amount"):
+                total = total + m
         for _, m in self.mandatory_base_items:
-            total = total + m
+            if hasattr(m, "amount"):
+                total = total + m
         return total
 
     @property
@@ -268,8 +270,21 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
             unique_discounts.append((lbl, amt))
         discount_items = unique_discounts
 
+    def _parse_amt(raw: str, currency: str) -> Any:
+        """Return a Money if the text has a numeric currency value, else a display string."""
+        rl = raw.lower()
+        if re.search(r"(€|eur|£|gbp|\$|usd)", raw, re.I):
+            m = parse_money(raw, currency)
+            if m.amount > 0:
+                return m
+        if "included" in rl:
+            return "Included"
+        if "upon request" in rl or "on request" in rl:
+            return "Price on request"
+        return None
+
     # Extras - Payable in advance
-    mandatory_advance_items: List[Tuple[str, Money]] = []
+    mandatory_advance_items: List[Tuple[str, Any]] = []
     for table in soup.find_all("table"):
         header_row = table.find("tr")
         if not header_row:
@@ -286,13 +301,13 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
             label = text_of(tds[0])
             if not label or "total" in label.lower():
                 continue
-            amount = parse_money(text_of(tds[1]), charter_price_net.currency)
-            if amount.amount > 0:
-                mandatory_advance_items.append((label, amount))
+            amt = _parse_amt(text_of(tds[1]), charter_price_net.currency)
+            if amt is not None:
+                mandatory_advance_items.append((label, amt))
         break
 
     # Extras - Payable at base
-    mandatory_base_items: List[Tuple[str, Money]] = []
+    mandatory_base_items: List[Tuple[str, Any]] = []
     for table in soup.find_all("table"):
         header_row = table.find("tr")
         if not header_row:
@@ -309,9 +324,9 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
             label = text_of(tds[0])
             if not label or "total" in label.lower():
                 continue
-            amount = parse_money(text_of(tds[1]), charter_price_net.currency)
-            if amount.amount > 0:
-                mandatory_base_items.append((label, amount))
+            amt = _parse_amt(text_of(tds[1]), charter_price_net.currency)
+            if amt is not None:
+                mandatory_base_items.append((label, amt))
         break
 
     # Destination and dates/times
@@ -404,20 +419,19 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
         if deposit:
             break
 
-    # Optional extras: collect all positive items; keep Skipper optional unless explicitly mandatory
+    # Optional extras: capture ALL items (including text-valued ones).
+    # Email-specific display filtering (crewed/skipper) happens in render_yacht_block().
     def normalize_label(label: str) -> str:
         return re.sub(r"\s+", " ", (label or "").strip().lower())
     mandatory_label_norms = {
         normalize_label(lbl) for (lbl, _) in (mandatory_advance_items + mandatory_base_items)
     }
-    optional_items: List[Tuple[str, Money]] = []
+    optional_items: List[Tuple[str, Any]] = []
     for table in soup.find_all("table"):
-        # Work with direct child rows (or tbody rows if present) for robust detection
         body = table.find("tbody") or table
         rows = body.find_all("tr", recursive=False)
         if not rows:
             continue
-        # Find the specific header row within this table
         header_idx = -1
         for idx, tr in enumerate(rows):
             tds = tr.find_all("td", recursive=False)
@@ -428,62 +442,40 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
                 break
         if header_idx == -1:
             continue
-        # Parse rows after the header row
         for tr in rows[header_idx + 1:]:
             tds = tr.find_all("td")
             if len(tds) != 2:
                 continue
             label = text_of(tds[0]).strip()
             ll = label.lower()
-            # Skip headers or unrelated summaries that sometimes appear within the same table
             if ll in ("optional extras", "price", "price:"):
                 continue
-            # End of the optional extras section when we reach other section headers or totals
             if ll.startswith("mandatory extras") or ll.startswith("total") or "total (payable" in ll:
                 break
-            right_text = text_of(tds[1]).strip()
-            # Require an explicit currency marker to avoid parsing things like "1 / 12" as "112.00 €"
-            if not re.search(r"(€|eur|£|gbp|\$|usd)", right_text, re.I):
-                continue
-            amount = parse_money(right_text, charter_price_net.currency)
-            if amount.amount <= 0:
-                continue
-            # Exclude items that are actually mandatory or marked obligatory
+            # Exclude items already captured as mandatory / marked obligatory
             norm_lbl = normalize_label(label)
             if "obligatory" in norm_lbl or "mandatory" in norm_lbl:
                 continue
             if norm_lbl in mandatory_label_norms:
                 continue
-            optional_items.append((label, amount))
+            right_text = text_of(tds[1]).strip()
+            amt = _parse_amt(right_text, charter_price_net.currency)
+            if amt is None:
+                continue
+            optional_items.append((label, amt))
         break
-    # Deduplicate optional items by label+amount+currency
+    # Deduplicate optional items by label + amount string
     if optional_items:
-        seen_opt = set()
-        dedup_opt: List[Tuple[str, Money]] = []
+        seen_opt: set = set()
+        dedup_opt: List[Tuple[str, Any]] = []
         for lbl, amt in optional_items:
-            key = (normalize_label(lbl), str(amt.amount), amt.currency)
+            amt_str = amt.format() if hasattr(amt, "format") else str(amt)
+            key = (normalize_label(lbl), amt_str)
             if key in seen_opt:
                 continue
             seen_opt.add(key)
             dedup_opt.append((lbl, amt))
         optional_items = dedup_opt
-    # Skippered output: only show Skipper in optional extras; if none, add at default price
-    def is_label_skipper(lbl: str) -> bool:
-        return "skipper" in (lbl or "").lower() and "cook" not in (lbl or "").lower()
-    skipper_mandatory = any(is_label_skipper(lbl) for lbl, _ in (mandatory_advance_items + mandatory_base_items))
-    if skipper_mandatory:
-        optional_items = [(lbl, amt) for (lbl, amt) in optional_items if not is_label_skipper(lbl)]
-    # For crewed charters: do not add our skipper to optional extras
-    is_crewed = charter_type and "crewed" in charter_type.strip().lower()
-    if not is_crewed:
-        skipper_only = [(lbl, amt) for (lbl, amt) in optional_items if is_label_skipper(lbl)]
-        currency = charter_price_net.currency or "€"
-        if not skipper_only:
-            optional_items = [("Skipper", Money(DEFAULT_SKIPPER_PRICE, currency))]
-        else:
-            optional_items = [skipper_only[0]]
-    else:
-        optional_items = []
 
     # Licence required
     licence_required: Optional[str] = None
@@ -613,12 +605,13 @@ def render_yacht_block(y: YachtEntry) -> str:
         )
         return "".join(rows)
 
-    def render_items(title: str, items: List[Tuple[str, Money]]) -> str:
+    def render_items(title: str, items: List[Tuple[str, Any]]) -> str:
         if not items:
             return ""
         rows = "".join(
             f"<tr><td style='text-align:left;padding:4px 0;'>{html.escape(to_sentence_case(label) if is_mostly_uppercase(label) else label)}</td>"
-            f"<td style='text-align:right;padding:4px 0;white-space:nowrap;'>{amt.format()}</td></tr>"
+            f"<td style='text-align:right;padding:4px 0;white-space:nowrap;'>"
+            f"{amt.format() if hasattr(amt, 'format') else html.escape(str(amt))}</td></tr>"
             for label, amt in items
         )
         return (
@@ -626,14 +619,31 @@ def render_yacht_block(y: YachtEntry) -> str:
             f"{rows}"
         )
 
+    # For the email, only show the Skipper line in optional extras (crewed charters
+    # have everything bundled; non-crewed need the skipper highlighted).
+    # The full optional_items list is preserved on the YachtEntry for the proposal system.
+    def _is_label_skipper(lbl: str) -> bool:
+        return "skipper" in (lbl or "").lower() and "cook" not in (lbl or "").lower()
+
     equip_pills = build_equipment_pills(y.equipment_tags)
     is_crewed = y.charter_type and "crewed" in (y.charter_type or "").strip().lower()
+
+    # Build email-specific optional display (crewed: nothing; non-crewed: skipper only)
+    skipper_mandatory = any(_is_label_skipper(lbl) for lbl, _ in (y.mandatory_advance_items + y.mandatory_base_items))
     if is_crewed:
+        email_optional: List[Tuple[str, Any]] = []
         total_display = y.grand_total
         total_label = "Total"
     else:
-        skipper_amt = y.optional_items[0][1] if y.optional_items else Money.zero(y.charter_price_net.currency or "€")
-        total_display = y.grand_total + skipper_amt
+        skipper_opts = [(lbl, amt) for lbl, amt in y.optional_items if _is_label_skipper(lbl)]
+        if skipper_mandatory:
+            email_optional = []
+        elif skipper_opts:
+            email_optional = [skipper_opts[0]]
+        else:
+            email_optional = [("Skipper", Money(DEFAULT_SKIPPER_PRICE, y.charter_price_net.currency or "€"))]
+        skipper_money = email_optional[0][1] if email_optional and hasattr(email_optional[0][1], "amount") else Money.zero(y.charter_price_net.currency or "€")
+        total_display = y.grand_total + skipper_money
         total_label = "Total with Skipper"
     total_html = (
         f"<span style='font-weight:bold;color:{SAILSCANNER_BLUE};'>{total_display.format()}</span>"
@@ -731,7 +741,7 @@ def render_yacht_block(y: YachtEntry) -> str:
                     <tr><td colspan="2" style="padding-top:8px;font-family:Arial, sans-serif;font-size:12px;color:{SAILSCANNER_BLUE};font-weight:bold">Price</td></tr>
                     {render_price_rows()}
                     {render_items("Mandatory extras", y.mandatory_advance_items + y.mandatory_base_items)}
-                    {render_items("Optional extras", y.optional_items) if y.optional_items else ""}
+                    {render_items("Optional extras", email_optional) if email_optional else ""}
                     <tr>
                       <td style="text-align:left;padding:8px 0;font-weight:bold;color:{SAILSCANNER_BLUE};">{total_label}</td>
                       <td style="text-align:right;padding:8px 0;">{total_html}</td>
