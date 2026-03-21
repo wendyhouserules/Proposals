@@ -16,6 +16,7 @@ class SS_Proposal_CPT {
 		add_action( 'save_post',      [ __CLASS__, 'save_itinerary_meta_box' ], 10, 2 );
 		add_action( 'save_post',      [ __CLASS__, 'save_yacht_gallery_meta_box' ], 10, 2 );
 		add_action( 'save_post',      [ __CLASS__, 'save_yacht_details_meta_box' ], 10, 2 );
+		add_action( 'save_post',      [ __CLASS__, 'save_yacht_pricing_meta_box' ], 10, 2 );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_yacht_gallery_scripts' ] );
 	}
 
@@ -111,6 +112,14 @@ class SS_Proposal_CPT {
 			'ss_yacht_details',
 			__( 'Yacht Details', 'sailscanner-proposals' ),
 			[ __CLASS__, 'render_yacht_details_meta_box' ],
+			'ss_proposal_yacht',
+			'normal',
+			'default'
+		);
+		add_meta_box(
+			'ss_yacht_pricing',
+			__( 'Pricing', 'sailscanner-proposals' ),
+			[ __CLASS__, 'render_yacht_pricing_meta_box' ],
 			'ss_proposal_yacht',
 			'normal',
 			'default'
@@ -604,6 +613,207 @@ class SS_Proposal_CPT {
 			$hl_arr  = array_values( array_filter( array_map( 'trim', explode( ',', $raw_hl ) ) ) );
 			update_post_meta( $post_id, 'highlights_json', wp_json_encode( $hl_arr, JSON_UNESCAPED_UNICODE ) );
 		}
+	}
+
+	// ── Pricing meta box ──────────────────────────────────────────────────────
+
+	public static function render_yacht_pricing_meta_box( WP_Post $post ) {
+		wp_nonce_field( 'ss_yacht_pricing_save', 'ss_yacht_pricing_nonce' );
+
+		$prices_json = get_post_meta( $post->ID, 'prices_json', true );
+		$prices      = [];
+		if ( is_string( $prices_json ) ) {
+			$dec = json_decode( $prices_json, true );
+			if ( is_array( $dec ) ) {
+				$prices = $dec;
+			}
+		}
+
+		$base_price    = $prices['base_price']    ?? '';
+		$charter_price = $prices['charter_price'] ?? '';
+		$prorated_note = $prices['prorated_note'] ?? '';
+		$discounts     = is_array( $prices['discounts'] ?? null )         ? $prices['discounts']         : [];
+		$mand_adv      = is_array( $prices['mandatory_advance'] ?? null ) ? $prices['mandatory_advance'] : [];
+		$mand_base     = is_array( $prices['mandatory_base'] ?? null )    ? $prices['mandatory_base']    : [];
+		$optional      = is_array( $prices['optional_extras'] ?? null )   ? $prices['optional_extras']   : [];
+
+		?>
+		<p style="color:#6b7280;font-size:12px;margin:0 0 12px;">
+			<?php esc_html_e( 'Edit any price line directly. Use + to add rows, × to remove. Amount format must match existing values (e.g. 1,500.00 €).', 'sailscanner-proposals' ); ?>
+		</p>
+
+		<table style="border-collapse:collapse;width:100%;margin-bottom:16px;">
+			<tr>
+				<th style="text-align:left;width:50%;padding:4px 12px 4px 0;font-size:13px;"><?php esc_html_e( 'Base Price', 'sailscanner-proposals' ); ?></th>
+				<td style="padding:4px 0;"><input type="text" name="ss_yp_base_price" value="<?php echo esc_attr( $base_price ); ?>" class="widefat" placeholder="e.g. 15,510.00 €" /></td>
+			</tr>
+			<tr>
+				<th style="text-align:left;padding:4px 12px 4px 0;font-size:13px;"><?php esc_html_e( 'Charter Price (net)', 'sailscanner-proposals' ); ?></th>
+				<td style="padding:4px 0;"><input type="text" name="ss_yp_charter_price" value="<?php echo esc_attr( $charter_price ); ?>" class="widefat" placeholder="e.g. 5,584.00 €" /></td>
+			</tr>
+			<tr>
+				<th style="text-align:left;padding:4px 12px 4px 0;font-size:13px;"><?php esc_html_e( 'Pro-rated note', 'sailscanner-proposals' ); ?></th>
+				<td style="padding:4px 0;"><input type="text" name="ss_yp_prorated_note" value="<?php echo esc_attr( $prorated_note ); ?>" class="widefat" placeholder="<?php esc_attr_e( 'Leave blank unless price was pro-rated', 'sailscanner-proposals' ); ?>" /></td>
+			</tr>
+		</table>
+
+		<?php
+		$sections = [
+			'discounts'         => [ __( 'Discounts', 'sailscanner-proposals' ),         $discounts,  'ss_yp_disc',     false ],
+			'mandatory_advance' => [ __( 'Mandatory Extras — Payable in Advance', 'sailscanner-proposals' ), $mand_adv, 'ss_yp_mand_adv', false ],
+			'mandatory_base'    => [ __( 'Mandatory Extras — Payable at Base', 'sailscanner-proposals' ),    $mand_base,'ss_yp_mand_base',false ],
+			'optional_extras'   => [ __( 'Optional Extras', 'sailscanner-proposals' ),   $optional,   'ss_yp_opt',      true  ],
+		];
+		foreach ( $sections as $key => [ $heading, $rows, $prefix, $has_note ] ) :
+		?>
+		<div class="ss-pricing-section" style="margin-bottom:18px;" data-prefix="<?php echo esc_attr( $prefix ); ?>" data-has-note="<?php echo $has_note ? '1' : '0'; ?>">
+			<h4 style="margin:0 0 6px;font-size:13px;color:#1e3a5f;border-bottom:1px solid #e5e7eb;padding-bottom:4px;">
+				<?php echo esc_html( $heading ); ?>
+			</h4>
+			<table class="ss-pricing-rows" style="width:100%;border-collapse:collapse;">
+				<thead>
+					<tr>
+						<th style="text-align:left;font-size:12px;color:#6b7280;padding:2px 8px 4px 0;font-weight:400;width:55%;"><?php esc_html_e( 'Item / Label', 'sailscanner-proposals' ); ?></th>
+						<th style="text-align:left;font-size:12px;color:#6b7280;padding:2px 8px 4px 0;font-weight:400;width:<?php echo $has_note ? '25%' : '40%'; ?>;"><?php esc_html_e( 'Amount', 'sailscanner-proposals' ); ?></th>
+						<?php if ( $has_note ) : ?>
+						<th style="text-align:left;font-size:12px;color:#6b7280;padding:2px 8px 4px 0;font-weight:400;width:15%;"><?php esc_html_e( 'Note', 'sailscanner-proposals' ); ?></th>
+						<?php endif; ?>
+						<th style="width:30px;"></th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach ( $rows as $i => $row ) :
+					$lbl  = is_array( $row ) ? ( $row['label']  ?? '' ) : (string) $row;
+					$amt  = is_array( $row ) ? ( $row['amount'] ?? '' ) : '';
+					$note = is_array( $row ) ? ( $row['note']   ?? '' ) : '';
+				?>
+				<tr class="ss-pricing-row">
+					<td style="padding:3px 6px 3px 0;"><input type="text" name="<?php echo esc_attr( $prefix ); ?>_label[]" value="<?php echo esc_attr( $lbl ); ?>" class="widefat" /></td>
+					<td style="padding:3px 6px 3px 0;"><input type="text" name="<?php echo esc_attr( $prefix ); ?>_amount[]" value="<?php echo esc_attr( $amt ); ?>" class="widefat" placeholder="e.g. 150.00 €" /></td>
+					<?php if ( $has_note ) : ?>
+					<td style="padding:3px 6px 3px 0;"><input type="text" name="<?php echo esc_attr( $prefix ); ?>_note[]" value="<?php echo esc_attr( $note ); ?>" class="widefat" placeholder="Requested" /></td>
+					<?php endif; ?>
+					<td style="padding:3px 0;"><button type="button" class="button-link ss-pricing-remove" style="color:#dc2626;padding:4px;" aria-label="<?php esc_attr_e( 'Remove row', 'sailscanner-proposals' ); ?>">&#x2715;</button></td>
+				</tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+			<button type="button" class="button ss-pricing-add-row" style="margin-top:6px;font-size:12px;">
+				+ <?php esc_html_e( 'Add row', 'sailscanner-proposals' ); ?>
+			</button>
+		</div>
+		<?php endforeach; ?>
+
+		<script>
+		(function ($) {
+			// Add row.
+			$('.ss-pricing-add-row').on('click', function () {
+				var $section  = $(this).closest('.ss-pricing-section');
+				var prefix    = $section.data('prefix');
+				var hasNote   = $section.data('has-note') === 1 || $section.data('has-note') === '1';
+				var noteCol   = hasNote
+					? '<td style="padding:3px 6px 3px 0;"><input type="text" name="' + prefix + '_note[]" value="" class="widefat" placeholder="Requested" /></td>'
+					: '';
+				var noteHead  = hasNote ? '<th style="width:15%;"></th>' : '';
+				var $row = $(
+					'<tr class="ss-pricing-row">' +
+					'<td style="padding:3px 6px 3px 0;"><input type="text" name="' + prefix + '_label[]" value="" class="widefat" /></td>' +
+					'<td style="padding:3px 6px 3px 0;"><input type="text" name="' + prefix + '_amount[]" value="" class="widefat" placeholder="e.g. 150.00 €" /></td>' +
+					noteCol +
+					'<td style="padding:3px 0;"><button type="button" class="button-link ss-pricing-remove" style="color:#dc2626;padding:4px;" aria-label="Remove">&#x2715;</button></td>' +
+					'</tr>'
+				);
+				$section.find('.ss-pricing-rows tbody').append($row);
+				$row.find('input').first().focus();
+			});
+
+			// Remove row.
+			$(document).on('click', '.ss-pricing-remove', function () {
+				$(this).closest('.ss-pricing-row').remove();
+			});
+		}(jQuery));
+		</script>
+		<?php
+	}
+
+	public static function save_yacht_pricing_meta_box( int $post_id, WP_Post $post ) {
+		if ( ! isset( $_POST['ss_yacht_pricing_nonce'] )
+			|| ! wp_verify_nonce( sanitize_key( $_POST['ss_yacht_pricing_nonce'] ), 'ss_yacht_pricing_save' )
+		) {
+			return;
+		}
+		if ( $post->post_type !== 'ss_proposal_yacht' ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		// Load existing prices so we preserve any keys we don't manage (e.g. deposit).
+		$existing_json = get_post_meta( $post_id, 'prices_json', true );
+		$prices        = [];
+		if ( is_string( $existing_json ) ) {
+			$dec = json_decode( $existing_json, true );
+			if ( is_array( $dec ) ) {
+				$prices = $dec;
+			}
+		}
+
+		// Scalar fields.
+		foreach ( [
+			'ss_yp_base_price'    => 'base_price',
+			'ss_yp_charter_price' => 'charter_price',
+			'ss_yp_prorated_note' => 'prorated_note',
+		] as $post_key => $prices_key ) {
+			if ( isset( $_POST[ $post_key ] ) ) {
+				$val = sanitize_text_field( wp_unslash( $_POST[ $post_key ] ) );
+				if ( $val !== '' ) {
+					$prices[ $prices_key ] = $val;
+				} else {
+					unset( $prices[ $prices_key ] );
+				}
+			}
+		}
+
+		// Row sections (label + amount [+ note]).
+		$row_sections = [
+			'discounts'         => [ 'ss_yp_disc',      false ],
+			'mandatory_advance' => [ 'ss_yp_mand_adv',  false ],
+			'mandatory_base'    => [ 'ss_yp_mand_base', false ],
+			'optional_extras'   => [ 'ss_yp_opt',       true  ],
+		];
+		foreach ( $row_sections as $prices_key => [ $prefix, $has_note ] ) {
+			$labels  = isset( $_POST[ $prefix . '_label' ] )  ? (array) wp_unslash( $_POST[ $prefix . '_label' ] )  : [];
+			$amounts = isset( $_POST[ $prefix . '_amount' ] ) ? (array) wp_unslash( $_POST[ $prefix . '_amount' ] ) : [];
+			$notes   = $has_note && isset( $_POST[ $prefix . '_note' ] ) ? (array) wp_unslash( $_POST[ $prefix . '_note' ] ) : [];
+
+			$rows = [];
+			foreach ( $labels as $i => $lbl ) {
+				$lbl = sanitize_text_field( $lbl );
+				$amt = sanitize_text_field( $amounts[ $i ] ?? '' );
+				if ( $lbl === '' && $amt === '' ) {
+					continue; // Skip blank rows.
+				}
+				$row = [ 'label' => $lbl, 'amount' => $amt ];
+				if ( $has_note ) {
+					$note = sanitize_text_field( $notes[ $i ] ?? '' );
+					if ( $note !== '' ) {
+						$row['note'] = $note;
+					}
+				}
+				$rows[] = $row;
+			}
+			if ( ! empty( $rows ) ) {
+				$prices[ $prices_key ] = $rows;
+			} else {
+				unset( $prices[ $prices_key ] );
+			}
+		}
+
+		update_post_meta( $post_id, 'prices_json', wp_json_encode( $prices, JSON_UNESCAPED_UNICODE ) );
 	}
 
 	/**
