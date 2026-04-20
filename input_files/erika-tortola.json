@@ -3,12 +3,12 @@
     "answers": {
       "charterType": "skippered",
       "experienceLevel": "some",
-      "country": "British Virgin Islands",
+      "country": "Italy",
       "region": [
-        "Tortola"
+        "Sardinia"
       ],
       "boatType": "catamaran",
-      "size": "51+",
+      "size": "40-51",
       "crewServices": {
         "chef": true,
         "provisioning": true,

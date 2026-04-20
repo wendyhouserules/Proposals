@@ -1,0 +1,39 @@
+{
+    "lead_id": "8a10a4f9-948a-4e41-99f4-4e6bd54e8cd8",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "monohull",
+      "size": "any",
+      "crewServices": {},
+      "cabins": 2,
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-08-25",
+        "end": "2026-09-02"
+      },
+      "contact": {
+        "name": "Robbie Jones",
+        "email": "robbie.jones123@outlook.com",
+        "phone": "07752437109"
+      }
+    },
+    "attribution": {
+      "gclid": "Cj0KCQjwp7jOBhDGARIsABe7C4c4PNmiMa7NUdGVayzNL9HCqQnvGOfMXKJgDJ2eWAqI14OZuLBEnGMaAjUJEALw_wcB",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=Cj0KCQjwp7jOBhDGARIsABe7C4c4PNmiMa7NUdGVayzNL9HCqQnvGOfMXKJgDJ2eWAqI14OZuLBEnGMaAjUJEALw_wcB&gbraid=0AAAAA-8-0yVHIFEoGQtjc6zRl348ltDHL"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-04-02T13:01:29.884Z",
+    "geo": {
+      "ip": "104.28.40.147",
+      "countryCode": "GB",
+      "source": "header"
+    }
+   }

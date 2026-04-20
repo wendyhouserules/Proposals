@@ -1,0 +1,27 @@
+{
+    "lead_id": "test-5night-001",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "any",
+      "size": "any",
+      "cabins": 3,
+      "budget": "any",
+      "dates": {
+        "start": "2026-08-01",
+        "end": "2026-08-06"
+      },
+      "contact": {
+        "name": "Test User",
+        "email": "test@sailscanner.ai",
+        "phone": "+44 7700 000000"
+      }
+    },
+    "timestamp": "2026-04-20T10:00:00.000Z",
+    "geo": {
+      "countryCode": "GB"
+    }
+  }

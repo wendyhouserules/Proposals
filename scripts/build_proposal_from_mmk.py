@@ -272,6 +272,11 @@ def yacht_entry_to_ss_data(y: Any, fetched_gallery: list[str] | None = None, lay
     checkout = getattr(y, "check_out_time", None)
     if checkout:
         charter_json["checkout"] = str(checkout).strip()
+    _charter_type_label = (getattr(y, "charter_type", None) or "").strip()
+    if _charter_type_label:
+        charter_json["charter_type_label"] = _charter_type_label
+        if "crewed" in _charter_type_label.lower():
+            charter_json["crewed"] = True
 
     out: dict[str, Any] = {
         "display_name": display_name,
@@ -712,45 +717,92 @@ def main() -> None:
                     f"Estimated {lead_days}-day price (pro-rated from 7-day rate)"
                 )
 
-        # ── Inject lead crew-service requests into optional_extras ────────────
-        # If the lead asks for services (chef, provisioning, airportTransfer,
-        # hostess) that aren't already listed in optional_extras, add a
-        # "Price on request" placeholder so the client can see they were noted.
-        # (lead_key, display_label, [keywords to match against existing items])
-        _crew_service_map: list[tuple[str, str, list[str]]] = [
-            ("chef",            "Chef",             ["chef", "cook", "hostess"]),
-            ("cook",            "Chef / Cook",      ["chef", "cook", "hostess"]),
-            ("provisioning",    "Provisioning",     ["provisioning", "provision"]),
-            ("airportTransfer", "Airport Transfer", ["airport", "transfer"]),
-            ("hostess",         "Hostess",          ["hostess", "host", "chef", "cook"]),
+        # ── Unified crew-service injection ────────────────────────────────────
+        # Handles skipper (auto from charterType), chef, hostess, and other
+        # services in a single pass to avoid duplication and coordinate notes.
+        #
+        # Note values:
+        #   "Skippered charter" — skipper implied by charterType == "skippered"
+        #   "Requested"         — explicitly in lead's crewServices
+        #   "Included"          — service bundled in mandatory pack (crewed charter)
+        #
+        # (lead_key, display_label, [match keywords], note_override_or_None)
+        _crew_service_map: list[tuple[str, str, list[str], str | None]] = [
+            ("skipper",         "Skipper",          ["skipper", "skiper", "captain"], "Skippered charter"),
+            ("chef",            "Chef",             ["chef", "cook"],                 None),
+            ("cook",            "Chef / Cook",      ["chef", "cook"],                 None),
+            ("hostess",         "Hostess",          ["hostess", "host"],              None),
+            ("provisioning",    "Provisioning",     ["provisioning", "provision"],    None),
+            ("airportTransfer", "Airport Transfer", ["airport", "transfer"],          None),
         ]
-        _lead_services: dict[str, Any] = (
+        _charter_type_str = (
+            (lead_data.get("answers") or {}).get("charterType") or ""
+        ).strip().lower()
+        _lead_services: dict[str, Any] = dict(
             (lead_data.get("answers") or {}).get("crewServices") or {}
         )
-        if _lead_services and "prices_json" in entry:
+        # Skippered charter always implies a skipper is needed, even when crewServices
+        # is empty or doesn't include "skipper" explicitly.
+        if _charter_type_str == "skippered":
+            _lead_services.setdefault("skipper", True)
+
+        _yacht_is_crewed = bool(entry.get("charter_json", {}).get("crewed"))
+
+        if (_lead_services or _charter_type_str == "skippered") and "prices_json" in entry:
             _opt = entry["prices_json"].setdefault("optional_extras", [])
-            # Mandatory items: if service is covered here it's obligatory — skip silently.
             _mandatory_items = (
                 (entry["prices_json"].get("mandatory_advance") or [])
                 + (entry["prices_json"].get("mandatory_base") or [])
             )
-            _mandatory_labels = {
+            # Normalised mandatory labels for keyword matching.
+            _mandatory_label_norms = [
                 (item.get("label") or "").lower()
                 for item in _mandatory_items
                 if isinstance(item, dict)
-            }
-            for _svc_key, _svc_label, _match_kws in _crew_service_map:
+            ]
+            # Track display labels already handled to avoid duplicate placeholders
+            # (e.g. both "chef" and "cook" keys mapping to the same optional item).
+            _handled_labels: set[str] = set()
+
+            for _svc_key, _svc_label, _match_kws, _note_override in _crew_service_map:
                 if not _lead_services.get(_svc_key):
                     continue
-                # Covered by a mandatory/obligatory item → already visible; skip entirely.
-                if any(kw in lbl for lbl in _mandatory_labels for kw in _match_kws):
-                    print(
-                        f"  Skipping '{_svc_label}' for {label} — already mandatory",
-                        file=sys.stderr,
-                    )
+                if _svc_label in _handled_labels:
                     continue
-                # Already in optional extras (has a real price) → mark it as requested
-                # so it surfaces in "requested" mode on the proposal card.
+
+                # Determine the appropriate note for this service.
+                _note = _note_override if _note_override else "Requested"
+
+                # ── Mandatory check ──────────────────────────────────────────
+                _in_mandatory = any(
+                    kw in lbl
+                    for lbl in _mandatory_label_norms
+                    for kw in _match_kws
+                )
+                if _in_mandatory:
+                    if _yacht_is_crewed:
+                        # Service is bundled in the crewed service pack — add an
+                        # explicit "Included" line so the client can see each
+                        # requested service is covered.
+                        _opt.append({
+                            "label":  _svc_label,
+                            "amount": "",
+                            "note":   "Included",
+                        })
+                        _handled_labels.add(_svc_label)
+                        print(
+                            f"  Added '{_svc_label}' as 'Included' (crewed) for {label}",
+                            file=sys.stderr,
+                        )
+                    else:
+                        _handled_labels.add(_svc_label)
+                        print(
+                            f"  Skipping '{_svc_label}' for {label} — already mandatory",
+                            file=sys.stderr,
+                        )
+                    continue
+
+                # ── Optional extras check ────────────────────────────────────
                 _matched_opt = next(
                     (item for item in _opt
                      if isinstance(item, dict)
@@ -758,20 +810,24 @@ def main() -> None:
                     None,
                 )
                 if _matched_opt is not None:
-                    _matched_opt["note"] = "Requested"
-                    print(
-                        f"  Marked existing '{_matched_opt['label']}' as requested for {label}",
-                        file=sys.stderr,
-                    )
+                    if not _matched_opt.get("note"):
+                        _matched_opt["note"] = _note
+                        print(
+                            f"  Marked '{_matched_opt['label']}' as '{_note}' for {label}",
+                            file=sys.stderr,
+                        )
+                    _handled_labels.add(_svc_label)
                     continue
-                # Not found anywhere → add a "Price on request" placeholder.
+
+                # ── Fallback: add placeholder ────────────────────────────────
                 _opt.append({
                     "label":  _svc_label,
                     "amount": "Price on request",
-                    "note":   "Requested",
+                    "note":   _note,
                 })
+                _handled_labels.add(_svc_label)
                 print(
-                    f"  Added crew service '{_svc_label}' to optional extras for {label}",
+                    f"  Added '{_svc_label}' ({_note}) placeholder for {label}",
                     file=sys.stderr,
                 )
 

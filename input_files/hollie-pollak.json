@@ -1,0 +1,40 @@
+{
+    "lead_id": "8fffcb32-eba3-4e58-9a3d-599fe1a7cd26",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "monohull",
+      "size": "33-40",
+      "crewServices": {
+        "provisioning": true
+      },
+      "cabins": 2,
+      "budget": "3-5k",
+      "dates": {
+        "start": "2026-08-16",
+        "end": "2026-08-22"
+      },
+      "contact": {
+        "name": "Hollie Pollak",
+        "email": "pollakhollie@gmail.com",
+        "phone": "9175134154"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-04-07T00:07:37.720Z",
+    "geo": {
+      "ip": "104.28.55.234",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

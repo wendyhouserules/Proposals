@@ -414,7 +414,16 @@ class SS_Proposal_Helpers {
 		// Always use the email-style intro; fill from lead when present, otherwise use generic placeholders.
 		$answers = isset( $lead['answers'] ) && is_array( $lead['answers'] ) ? $lead['answers'] : [];
 		$contact = self::get_lead_contact( $lead );
-		$name    = isset( $contact['name'] ) ? trim( (string) $contact['name'] ) : '';
+
+		// Handle both old { name } and new { firstName, lastName } contact formats.
+		if ( ! empty( $contact['firstName'] ) ) {
+			$first_name = trim( (string) $contact['firstName'] );
+		} elseif ( ! empty( $contact['name'] ) ) {
+			$_full = trim( (string) $contact['name'] );
+			$first_name = trim( (string) ( strstr( $_full, ' ', true ) ?: $_full ) );
+		} else {
+			$first_name = '';
+		}
 
 		$charter_type = isset( $answers['charterType'] ) ? trim( (string) $answers['charterType'] ) : '';
 		$boat_type    = isset( $answers['boatType'] ) ? trim( (string) $answers['boatType'] ) : '';
@@ -430,8 +439,8 @@ class SS_Proposal_Helpers {
 
 		$html = '';
 		$html .= '<p>';
-		if ( $name ) {
-			$html .= sprintf( __( 'Hi %s,', 'sailscanner-proposals' ), esc_html( $name ) ) . '<br><br>';
+		if ( $first_name ) {
+			$html .= sprintf( __( 'Hi %s,', 'sailscanner-proposals' ), esc_html( $first_name ) ) . '<br><br>';
 		} else {
 			$html .= __( 'Hi,', 'sailscanner-proposals' ) . '<br><br>';
 		}
@@ -443,7 +452,8 @@ class SS_Proposal_Helpers {
 			esc_html( $dates_label )
 		) . '</p>';
 		$html .= '<p>' . __( 'Please let me know your thoughts and if you need any more information.', 'sailscanner-proposals' ) . '</p>';
-		$html .= '<p>' . __( 'You can contact me via email or WhatsApp using the links below.', 'sailscanner-proposals' ) . '<br><br>Chris</p>';
+		$html .= '<p>' . __( 'You can contact me via email or WhatsApp using the links below.', 'sailscanner-proposals' ) . '</p>';
+		$html .= '<p>' . __( 'Best regards,', 'sailscanner-proposals' ) . '<br>Chris</p>';
 		if ( $contact_wa || $contact_email ) {
 			$html .= '<p>';
 			if ( $contact_wa ) {

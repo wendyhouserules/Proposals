@@ -36,7 +36,7 @@ class SS_Proposal_REST_Core {
 		$proposal_meta = [
 			'ss_token'                 => [ 'type' => 'string', 'description' => 'Server-generated if omitted' ],
 			'ss_yacht_ids'              => [ 'type' => 'array', 'items' => [ 'type' => 'integer' ], 'description' => 'ss_proposal_yacht post IDs (set server-side from ss_yacht_data on create)' ],
-			'ss_yacht_data'             => [ 'type' => 'array', 'description' => 'Yacht picks: array of objects with display_name, images_json, highlights_json, cabins, berths, etc. Server creates ss_proposal_yacht posts on proposal create.' ],
+			'ss_yacht_data'             => [ 'type' => 'array', 'items' => [ 'type' => 'object' ], 'description' => 'Yacht picks: array of objects with display_name, images_json, highlights_json, cabins, berths, etc. Server creates ss_proposal_yacht posts on proposal create.' ],
 			'ss_intro_html'             => [ 'type' => 'string' ],
 			'ss_itinerary_html'         => [ 'type' => 'string' ],
 			'ss_notes_html'             => [ 'type' => 'string' ],
@@ -251,15 +251,45 @@ class SS_Proposal_REST_Core {
 			'post_title' => 'Proposal ' . substr( $token, 0, 8 ) . '...',
 		];
 		if ( get_post_field( 'post_content', $post_id ) === '' ) {
-			$lead_raw = get_post_meta( $post_id, 'ss_lead_json', true );
-			$lead_arr = [];
-			if ( is_string( $lead_raw ) ) {
-				$decoded  = json_decode( $lead_raw, true );
-				$lead_arr = is_array( $decoded ) ? $decoded : [];
+			// Prefer AI-generated intro from the request body directly —
+			// post_meta hasn't been written yet when this hook fires (REST fields
+			// are saved by update_additional_fields_for_object which runs after
+			// rest_after_insert on some WP versions), so we read from $request.
+			$ss_intro = '';
+			if ( $request instanceof \WP_REST_Request ) {
+				$raw = $request->get_param( 'ss_intro_html' );
+				if ( is_string( $raw ) ) {
+					$ss_intro = trim( $raw );
+				}
 			}
-			$intro = self::generate_intro_content( $lead_arr );
-			if ( $intro !== '' ) {
-				$update_args['post_content'] = $intro;
+			// Fallback: try post_meta in case the meta was already saved.
+			if ( $ss_intro === '' ) {
+				$meta_val = get_post_meta( $post_id, 'ss_intro_html', true );
+				if ( is_string( $meta_val ) ) {
+					$ss_intro = trim( $meta_val );
+				}
+			}
+			if ( $ss_intro !== '' ) {
+				$update_args['post_content'] = wp_kses_post( $ss_intro );
+			} else {
+				$lead_raw = $request instanceof \WP_REST_Request ? $request->get_param( 'ss_lead_json' ) : null;
+				$lead_arr = [];
+				if ( is_array( $lead_raw ) ) {
+					$lead_arr = $lead_raw;
+				} elseif ( is_string( $lead_raw ) ) {
+					$decoded  = json_decode( $lead_raw, true );
+					$lead_arr = is_array( $decoded ) ? $decoded : [];
+				} else {
+					$lead_raw_meta = get_post_meta( $post_id, 'ss_lead_json', true );
+					if ( is_string( $lead_raw_meta ) ) {
+						$decoded  = json_decode( $lead_raw_meta, true );
+						$lead_arr = is_array( $decoded ) ? $decoded : [];
+					}
+				}
+				$intro = self::generate_intro_content( $lead_arr );
+				if ( $intro !== '' ) {
+					$update_args['post_content'] = $intro;
+				}
 			}
 		}
 		wp_update_post( $update_args );
@@ -274,6 +304,16 @@ class SS_Proposal_REST_Core {
 		$yacht_data = get_post_meta( $post_id, 'ss_yacht_data', true );
 		if ( is_string( $yacht_data ) ) {
 			$yacht_data = json_decode( $yacht_data, true );
+		}
+		// Fallback: read directly from the REST request if post meta is empty.
+		// This handles cases where update_post_meta failed silently (e.g. wp_json_encode
+		// returned false for a large payload, or a WAF stripped the meta write).
+		if ( ( ! is_array( $yacht_data ) || empty( $yacht_data ) ) && $request instanceof WP_REST_Request ) {
+			$req_val = $request->get_param( 'ss_yacht_data' );
+			if ( is_array( $req_val ) && ! empty( $req_val ) ) {
+				$yacht_data = $req_val;
+				update_post_meta( $post_id, 'ss_yacht_data', wp_json_encode( $yacht_data, JSON_UNESCAPED_UNICODE ) );
+			}
 		}
 		if ( ! is_array( $yacht_data ) || empty( $yacht_data ) ) {
 			return;

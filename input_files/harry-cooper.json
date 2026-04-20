@@ -1,0 +1,43 @@
+{
+    "lead_id": "501ad6f6-6182-4915-a9c6-c38f898e0184",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sicily",
+        "Amalfi Coast"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {
+        "chef": true,
+        "hostess": true
+      },
+      "cabins": 3,
+      "budget": "any",
+      "dates": {
+        "start": "2026-07-04",
+        "end": "2026-07-12"
+      },
+      "contact": {
+        "name": "Harry Cooper",
+        "email": "harry8904@hotmail.com",
+        "phone": "07492277207"
+      }
+    },
+    "attribution": {
+      "gclid": "CjwKCAjwhe3OBhABEiwA6392zHiYiGOtkI4adUzJOEx-HHJHjpbLk6E5odswaQjC20XW9kympLniUhoC67EQAvD_BwE",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=CjwKCAjwhe3OBhABEiwA6392zHiYiGOtkI4adUzJOEx-HHJHjpbLk6E5odswaQjC20XW9kympLniUhoC67EQAvD_BwE&gbraid=0AAAAA-8-0yWOzrzdlhNlO_gew6UoiYhqp"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7.5 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-04-12T13:45:16.076Z",
+    "geo": {
+      "ip": "86.164.60.236",
+      "countryCode": "GB",
+      "source": "header"
+    }
+   }

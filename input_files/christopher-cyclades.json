@@ -1,0 +1,46 @@
+{
+  "lead_id": "5678aae4-8572-4022-bffb-c40e03974815",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "experienced",
+    "country": "Greece",
+    "region": [
+      "Cyclades"
+    ],
+    "boatType": "either",
+    "size": "33-40",
+    "crewServices": {
+      "hostess": true,
+      "provisioning": true
+    },
+    "guests": {
+      "adults": 7,
+      "children": 2
+    },
+    "cabins": 5,
+    "budget": "8-12k",
+    "dates": {
+      "start": "2026-11-12",
+      "end": "2026-11-26"
+    },
+    "contact": {
+      "firstName": "Christopher",
+      "lastName": "Hennessy",
+      "email": "chris.daniel.hennessy@gmail.com",
+      "phone": "+447391669027"
+    }
+  },
+  "attribution": {
+    "referrer": "",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-19T21:28:05.727Z",
+  "geo": {
+    "ip": "90.210.17.18",
+    "countryCode": "GB",
+    "source": "header"
+  }
+}

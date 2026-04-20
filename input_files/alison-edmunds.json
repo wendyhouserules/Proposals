@@ -1,0 +1,43 @@
+{
+    "lead_id": "54cb4f6a-d8f7-4e9e-a121-bd4b15733ee1",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "33-40",
+      "crewServices": {
+        "chef": true,
+        "hostess": true,
+        "provisioning": true,
+        "airportTransfer": true
+      },
+      "cabins": 5,
+      "budget": "12k+",
+      "dates": {
+        "start": "2027-05-06"
+      },
+      "contact": {
+        "name": "Alison Joyce Edmunds",
+        "email": "alison.edmunds86@gmail.com",
+        "phone": "+61432345910"
+      }
+    },
+    "attribution": {
+      "gclid": "Cj0KCQjw1ZjOBhCmARIsADDuFTAKjgnnWvl2kTUWiU_O99CG2z9i4dAsCQEtgQPLVl9l6NTPR7ByhDQaAiaWEALw_wcB",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=Cj0KCQjw1ZjOBhCmARIsADDuFTAKjgnnWvl2kTUWiU_O99CG2z9i4dAsCQEtgQPLVl9l6NTPR7ByhDQaAiaWEALw_wcB&gbraid=0AAAAA-8-0yWnQl1uNU8OjlNtA6GTphbUV"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36"
+    },
+    "timestamp": "2026-03-28T05:04:11.857Z",
+    "geo": {
+      "ip": "49.180.222.49",
+      "countryCode": "AU",
+      "source": "header"
+    }
+   }

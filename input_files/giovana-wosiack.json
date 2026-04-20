@@ -1,0 +1,38 @@
+{
+    "lead_id": "1db2cf42-d203-40c3-a75c-4b4322750e4e",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {},
+      "cabins": 2,
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-06-20",
+        "end": "2026-06-23"
+      },
+      "contact": {
+        "name": "Giovana Wosiack",
+        "email": "wosiackg@gmail.com",
+        "phone": "+352691020393"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-03-28T19:18:58.559Z",
+    "geo": {
+      "ip": "153.94.16.235",
+      "countryCode": "LU",
+      "source": "header"
+    }
+   }

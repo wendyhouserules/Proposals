@@ -87,6 +87,7 @@ $stat_year   = $yacht['year']     ?: ( $stat_map['year']   ?? '' );
 $stat_length = $stat_map['length'] ?? ( $yacht['length_m'] ? $yacht['length_m'] . 'm' : '' );
 $stat_cabins = $stat_map['cabins'] ?? ( $yacht['cabins'] ? $yacht['cabins'] : '' );
 $stat_berths = $stat_map['berths'] ?? ( $yacht['berths'] ? $yacht['berths'] : '' );
+$stat_heads  = $stat_map['wc / heads'] ?? '';
 
 $has_prices  = ! empty( $yacht['prices'] ) && is_array( $yacht['prices'] );
 $has_charter = $charter_html !== '';
@@ -102,7 +103,7 @@ get_header();
 		<!-- Page header: title + key stats -->
 		<header class="ss-yacht-page-header">
 			<h1 class="ss-yacht-page-title"><?php echo esc_html( $yacht['display_name'] ); ?></h1>
-			<?php if ( $stat_year || $stat_length || $stat_cabins || $stat_berths ) : ?>
+			<?php if ( $stat_year || $stat_length || $stat_cabins || $stat_berths || $stat_heads ) : ?>
 			<div class="ss-yacht-stats-bar">
 				<?php if ( $stat_year ) : ?>
 					<span class="ss-yacht-stat-pill">
@@ -126,6 +127,12 @@ get_header();
 					<span class="ss-yacht-stat-pill">
 						<span class="material-symbols-outlined" aria-hidden="true">people</span>
 						<?php echo esc_html( $stat_berths ); ?> <?php esc_html_e( 'berths', 'sailscanner-proposals' ); ?>
+					</span>
+				<?php endif; ?>
+				<?php if ( $stat_heads ) : ?>
+					<span class="ss-yacht-stat-pill">
+						<span class="material-symbols-outlined" aria-hidden="true">water_drop</span>
+						<?php echo esc_html( $stat_heads ); ?> <?php esc_html_e( 'heads', 'sailscanner-proposals' ); ?>
 					</span>
 				<?php endif; ?>
 			</div>
@@ -199,8 +206,8 @@ get_header();
 					<div class="ss-yacht-specs-grid">
 						<?php if ( $yacht['year'] )    : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Year', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo absint( $yacht['year'] ); ?></span></div><?php endif; ?>
 						<?php if ( $yacht['length_m'] ) : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Length', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo esc_html( $yacht['length_m'] ); ?>m</span></div><?php endif; ?>
-						<?php if ( $yacht['cabins'] )   : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Cabins', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo absint( $yacht['cabins'] ); ?></span></div><?php endif; ?>
-						<?php if ( $yacht['berths'] )   : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Berths', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo absint( $yacht['berths'] ); ?></span></div><?php endif; ?>
+						<?php if ( $stat_cabins )   : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Cabins', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo esc_html( $stat_cabins ); ?></span></div><?php endif; ?>
+						<?php if ( $stat_berths )   : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Berths', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo esc_html( $stat_berths ); ?></span></div><?php endif; ?>
 						<?php if ( $yacht['base_name'] ): ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Base', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo esc_html( $yacht['base_name'] ); ?></span></div><?php endif; ?>
 						<?php if ( $yacht['country'] )  : ?><div class="ss-yacht-spec-row"><span class="ss-yacht-spec-label"><?php esc_html_e( 'Country', 'sailscanner-proposals' ); ?></span><span class="ss-yacht-spec-value"><?php echo esc_html( $yacht['country'] ); ?></span></div><?php endif; ?>
 					</div>
@@ -343,6 +350,24 @@ get_header();
 							<?php esc_html_e( 'Email us', 'sailscanner-proposals' ); ?>
 						</a>
 						<?php endif; ?>
+					</div>
+					<?php endif; ?>
+
+					<!-- Pro-rate alert: shown when prices have been scaled from a standard weekly rate -->
+					<?php
+					$_prorated_note = '';
+					if ( ! empty( $yacht['prices'] ) && is_array( $yacht['prices'] ) ) {
+						$_prorated_note = isset( $yacht['prices']['prorated_note'] )
+							? (string) $yacht['prices']['prorated_note']
+							: '';
+					}
+					?>
+					<?php if ( $_prorated_note ) : ?>
+					<hr class="ss-proposal-card-hr" />
+					<div class="ss-yacht-sidebar-prorated-alert">
+						<span class="material-symbols-outlined" aria-hidden="true">info</span>
+						<p><?php echo esc_html( $_prorated_note ); ?></p>
+						<p class="ss-yacht-sidebar-prorated-caveat"><?php esc_html_e( 'Note: in peak season, providers may not offer charters shorter than 7 nights. We will confirm availability and the exact rate before you commit.', 'sailscanner-proposals' ); ?></p>
 					</div>
 					<?php endif; ?>
 

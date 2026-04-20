@@ -1,0 +1,38 @@
+{
+    "lead_id": "354b78ef-2958-4b0c-99cf-90959f327446",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Croatia",
+      "region": [
+        "Dubrovnik & South Dalmatia"
+      ],
+      "boatType": "catamaran",
+      "size": "33-40",
+      "crewServices": {},
+      "cabins": 4,
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-06-13",
+        "end": "2026-06-20"
+      },
+      "contact": {
+        "name": "Zoran",
+        "email": "zgladoic@gmail.com",
+        "phone": "+385977800081"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-04-10T23:46:02.238Z",
+    "geo": {
+      "ip": "212.15.177.55",
+      "countryCode": "HR",
+      "source": "header"
+    }
+   }

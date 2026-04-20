@@ -1,0 +1,39 @@
+{
+    "lead_id": "36faaa70-b34c-4555-992b-35eb95c8517c",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "none",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "any",
+      "crewServices": {
+        "chef": true
+      },
+      "cabins": 3,
+      "budget": "3-5k",
+      "dates": {
+        "start": "2026-06-21"
+      },
+      "contact": {
+        "name": "Nicky Boiardi",
+        "email": "nboiardi@gmail.com",
+        "phone": "+447785902893"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1.1 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-04-15T20:01:31.204Z",
+    "geo": {
+      "ip": "2.138.208.99",
+      "countryCode": "ES",
+      "source": "header"
+    }
+   }

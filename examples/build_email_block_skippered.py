@@ -249,10 +249,15 @@ def parse_yacht_section(section_html: str) -> YachtEntry:
                 discount_items.append((left_text, parse_money(right_text)))
                 found_any = True
                 continue
-            amt = parse_money(right_text)
-            if amt.amount < 0:
-                discount_items.append((left_text or "Discount", amt))
-                found_any = True
+            # Only treat as a monetary value if a currency symbol is present.
+            # Without this guard, strings like "Price Quote (GMM-Yachting) 3 / 10"
+            # are incorrectly parsed as -310 € (the "-" from "GMM-Yachting" + "310"
+            # from the pagination fraction "3 / 10").
+            if re.search(r"(€|EUR|£|GBP|\$|USD)", right_text, re.I):
+                amt = parse_money(right_text)
+                if amt.amount < 0:
+                    discount_items.append((left_text or "Discount", amt))
+                    found_any = True
         return found_any
 
     for table in soup.find_all("table"):

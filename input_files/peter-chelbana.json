@@ -1,0 +1,35 @@
+{
+    "lead_id": "6221cd1d-864c-4646-9e70-965dd7cd04d6",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Greece",
+      "region": [
+        "Ionian"
+      ],
+      "boatType": "monohull",
+      "cabins": 3,
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-08-22",
+        "end": "2026-08-29"
+      },
+      "contact": {
+        "name": "Peter Chlebana",
+        "email": "peter.chlebana@gmail.com",
+        "phone": "+421903125920"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36"
+    },
+    "timestamp": "2026-03-29T17:19:40.899Z",
+    "geo": {
+      "ip": "78.99.190.233",
+      "countryCode": "SK",
+      "source": "header"
+    }
+   }

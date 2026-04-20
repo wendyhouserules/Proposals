@@ -1,0 +1,34 @@
+{
+    "lead_id": "8c017f28-8993-4c75-a454-5dc530044ff8",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "Turkey",
+      "region": "any",
+      "boatType": "monohull",
+      "size": "46-50",
+      "cabins": 4,
+      "dates": {
+        "start": "2026-09-12",
+        "end": "2026-09-19"
+      },
+      "contact": {
+        "name": "Marc",
+        "email": "xiaoqingze90@gmail.com",
+        "phone": "16478928436"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-04-12T01:01:42.822Z",
+    "geo": {
+      "ip": "136.226.131.10",
+      "countryCode": "CA",
+      "source": "header"
+    }
+   }

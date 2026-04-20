@@ -394,24 +394,28 @@ get_header();
 							if ( empty( $gallery_images ) && SS_Proposal_Helpers::is_real_yacht_image( $yacht['image_url'] ?? '' ) ) {
 								$gallery_images = [ $yacht['image_url'] ];
 							}
-							$gallery_id = 'ssg-' . absint( $yacht['id'] );
-							?>
-							<article class="ss-proposal-yacht-card" id="yacht-<?php echo absint( $yacht['id'] ); ?>">
+						$gallery_id  = 'ssg-' . absint( $yacht['id'] );
+						$is_crewed   = ! empty( $yacht['charter']['crewed'] );
+						?>
+						<article class="ss-proposal-yacht-card" id="yacht-<?php echo absint( $yacht['id'] ); ?>">
 
-								<!-- Gallery: main image + scrollable thumbnails -->
-								<div class="ss-proposal-yacht-gallery" id="<?php echo esc_attr( $gallery_id ); ?>">
-									<div class="ss-proposal-yacht-gallery-main">
-										<?php if ( ! empty( $gallery_images ) ) : ?>
-											<img class="ss-proposal-gallery-main-img"
-												src="<?php echo esc_url( $gallery_images[0] ); ?>"
-												alt="<?php echo esc_attr( $yacht['display_name'] ); ?>"
-												loading="lazy" />
-										<?php else : ?>
-											<div class="ss-proposal-yacht-gallery-placeholder">
-												<span class="material-symbols-outlined" aria-hidden="true">sailing</span>
-											</div>
-										<?php endif; ?>
-									</div>
+							<!-- Gallery: main image + scrollable thumbnails -->
+							<div class="ss-proposal-yacht-gallery" id="<?php echo esc_attr( $gallery_id ); ?>">
+								<div class="ss-proposal-yacht-gallery-main">
+									<?php if ( $is_crewed ) : ?>
+										<span class="ss-proposal-crewed-badge" aria-label="<?php esc_attr_e( 'Crewed charter', 'sailscanner-proposals' ); ?>"><?php esc_html_e( 'Crewed', 'sailscanner-proposals' ); ?></span>
+									<?php endif; ?>
+									<?php if ( ! empty( $gallery_images ) ) : ?>
+										<img class="ss-proposal-gallery-main-img"
+											src="<?php echo esc_url( $gallery_images[0] ); ?>"
+											alt="<?php echo esc_attr( $yacht['display_name'] ); ?>"
+											loading="lazy" />
+									<?php else : ?>
+										<div class="ss-proposal-yacht-gallery-placeholder">
+											<span class="material-symbols-outlined" aria-hidden="true">sailing</span>
+										</div>
+									<?php endif; ?>
+								</div>
 									<?php if ( count( $gallery_images ) > 1 ) : ?>
 										<div class="ss-proposal-yacht-gallery-thumbs" role="list" aria-label="<?php esc_attr_e( 'Yacht photos', 'sailscanner-proposals' ); ?>">
 											<?php foreach ( $gallery_images as $ti => $thumb_url ) : ?>
@@ -488,10 +492,13 @@ get_header();
 										<?php if ( $has_equip ) : ?>
 											<div class="ss-proposal-yacht-body-col-side">
 												<h4 class="ss-proposal-yacht-section-heading"><?php esc_html_e( 'Equipment & Features', 'sailscanner-proposals' ); ?></h4>
-												<div class="ss-proposal-yacht-equipment">
-													<?php foreach ( $yacht['highlights'] as $h ) : ?>
-														<span class="ss-proposal-yacht-pill"><?php echo esc_html( $h ); ?></span>
-													<?php endforeach; ?>
+										<div class="ss-proposal-yacht-equipment">
+												<?php if ( $is_crewed ) : ?>
+													<span class="ss-proposal-yacht-pill ss-proposal-yacht-pill--crewed"><?php esc_html_e( 'Crewed', 'sailscanner-proposals' ); ?></span>
+												<?php endif; ?>
+												<?php foreach ( $yacht['highlights'] as $h ) : ?>
+													<span class="ss-proposal-yacht-pill"><?php echo esc_html( $h ); ?></span>
+												<?php endforeach; ?>
 												</div>
 											</div>
 										<?php endif; ?>

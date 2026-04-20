@@ -1,0 +1,23 @@
+{
+    "answers": {
+      "charterType": "bareboat",
+      "experienceLevel": "experienced",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "monohull",
+      "size": "any",
+      "cabins": 2,
+      "crewServices": {},
+      "dates": {
+        "start": "2026-05-31",
+        "end": "2026-06-06"
+      },
+      "contact": {
+        "name": "Luiz Goncalves",
+        "email": "ique@hotmail.co.uk",
+        "phone": "662596310"
+      }
+    }
+  }

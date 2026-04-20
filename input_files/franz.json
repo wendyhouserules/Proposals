@@ -1,0 +1,37 @@
+{
+    "lead_id": "e99d226a-2989-4de9-85ea-cc0f6fb094f4",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "some",
+      "country": "Greece",
+      "region": [
+        "Crete"
+      ],
+      "size": "any",
+      "crewServices": {},
+      "cabins": 3,
+      "budget": "any",
+      "dates": {
+        "start": "2026-07-04",
+        "end": "2026-07-11"
+      },
+      "contact": {
+        "name": "Franz",
+        "email": "unkwiam@gmail.com",
+        "phone": "+491703822732"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36"
+    },
+    "timestamp": "2026-04-06T10:42:23.414Z",
+    "geo": {
+      "ip": "151.47.62.251",
+      "countryCode": "IT",
+      "source": "header"
+    }
+   }

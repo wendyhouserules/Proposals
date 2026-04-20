@@ -1,0 +1,39 @@
+{
+    "lead_id": "1d8654bd-b056-41c8-907c-fcc0019a0a8a",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Italy",
+      "region": [
+        "Sardinia"
+      ],
+      "boatType": "catamaran",
+      "size": "33-40",
+      "cabins": 2,
+      "yachtOptions": {},
+      "budget": "under-3k",
+      "dates": {
+        "start": "2026-06-27",
+        "end": "2026-07-04"
+      },
+      "contact": {
+        "name": "Natalia",
+        "email": "tnataliat@gmail.com",
+        "phone": "+1 9739753271"
+      }
+    },
+    "attribution": {
+      "gclid": "Cj0KCQjw4a3OBhCHARIsAChaqJPR5Xa2GRKZ-YuRt84f-aN8r1GAmheaDCZxrOoFSZe4_rrXI4BYL6caAsyuEALw_wcB",
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro?location=Italy&gclid=Cj0KCQjw4a3OBhCHARIsAChaqJPR5Xa2GRKZ-YuRt84f-aN8r1GAmheaDCZxrOoFSZe4_rrXI4BYL6caAsyuEALw_wcB&gbraid=0AAAAA-8-0yWJNVYFoRQw_rTO8aYsCJti5"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+    },
+    "timestamp": "2026-04-01T03:38:38.511Z",
+    "geo": {
+      "ip": "70.111.100.247",
+      "countryCode": "US",
+      "source": "header"
+    },
+    "phone_country_code": "+1"
+   }
