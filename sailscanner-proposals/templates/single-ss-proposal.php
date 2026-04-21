@@ -155,7 +155,14 @@ get_header();
 
 	<?php
 	$_lead_contact = SS_Proposal_Helpers::get_lead_contact( $lead );
-	$client_name   = isset( $_lead_contact['name'] ) ? sanitize_text_field( (string) $_lead_contact['name'] ) : '';
+	if ( ! empty( $_lead_contact['firstName'] ) ) {
+		$client_name = sanitize_text_field( (string) $_lead_contact['firstName'] );
+	} elseif ( ! empty( $_lead_contact['name'] ) ) {
+		$_full_name  = trim( (string) $_lead_contact['name'] );
+		$client_name = sanitize_text_field( (string) ( strstr( $_full_name, ' ', true ) ?: $_full_name ) );
+	} else {
+		$client_name = '';
+	}
 	$proposal_date = get_the_date( 'j F Y', $proposal_id );
 	?>
 	<div class="ss-proposal-header">
