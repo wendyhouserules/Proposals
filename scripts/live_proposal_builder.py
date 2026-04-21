@@ -45,17 +45,22 @@ from portal_live_search import _portal as _portal_session, PORTAL_BASE, _ensure_
 BM_PUBLIC_BASE = "https://www.booking-manager.com/wbm2/"
 
 BUDGET_RANGES: dict[str, tuple[float, float]] = {
-    "under-1k": (0,  1_000),
-    "1-2k":     (0,  2_000),
-    "2-3k":     (0,  3_000),
-    "3-5k":     (0,  5_000),
-    "5-7k":     (0,  7_000),
-    "5-8k":     (0,  8_000),
-    "7-10k":    (0, 10_000),
-    "8-12k":    (0, 12_000),
-    "10k+":     (0, float("inf")),
-    "12k+":     (0, float("inf")),
-    "any":      (0, float("inf")),
+    "under-1k":   (0,  1_000),
+    "1-2k":       (0,  2_000),
+    "2-3k":       (0,  3_000),
+    "3-5k":       (0,  5_000),
+    "5-7k":       (0,  7_000),
+    "5-8k":       (0,  8_000),
+    "7-10k":      (0, 10_000),
+    "7.5k-9.5k":  (0,  9_500),
+    "€7.5k–€9.5k":(0,  9_500),
+    "8-12k":      (0, 12_000),
+    "9.5k-12.5k": (0, 12_500),
+    "€9.5k–€12.5k":(0, 12_500),
+    "10k+":       (0, float("inf")),
+    "12k+":       (0, float("inf")),
+    "12.5k+":     (0, float("inf")),
+    "any":        (0, float("inf")),
 }
 
 BOAT_TYPE_MAP: dict[str, str | None] = {
@@ -300,7 +305,7 @@ def filter_live_yachts(
     lead: dict,
     budget_max_override: float | None = None,
     size_range_override: tuple[float, float] | None = None,
-    ignore_boat_type: bool = False,
+    allow_sailing_and_cats: bool = False,
 ) -> list[tuple[str, dict]]:
     """
     Filter live search results by lead criteria.
@@ -319,7 +324,7 @@ def filter_live_yachts(
     """
     answers = lead.get("answers") or {}
 
-    desired_kind: str | None = None if ignore_boat_type else BOAT_TYPE_MAP.get(
+    desired_kind: str | None = BOAT_TYPE_MAP.get(
         (answers.get("boatType") or "any").strip().lower()
     )
     size_str = (answers.get("size") or "").strip()
@@ -340,7 +345,11 @@ def filter_live_yachts(
         specs = data.get("specs") or {}
 
         # ── Boat type ──────────────────────────────────────────────────────
-        if desired_kind is not None and data.get("kind", "") != desired_kind:
+        if allow_sailing_and_cats:
+            # Relaxed: accept sailing boats and catamarans, reject everything else (gulets, motorboats etc.)
+            if data.get("kind", "") not in ("Sail boat", "Catamaran"):
+                continue
+        elif desired_kind is not None and data.get("kind", "") != desired_kind:
             continue
 
         # ── Cabins ─────────────────────────────────────────────────────────

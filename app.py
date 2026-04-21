@@ -414,15 +414,15 @@ async def build_proposal(request: Request) -> dict:
                 relaxation_applied = "budget widened by €4k, size filter removed"
 
         if len(filtered) < _TARGET:
-            # Step 5: also open boat type (monohull/catamaran)
+            # Step 5: open to sailing boats AND catamarans (never gulets/motorboats)
             _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
             filtered = filter_live_yachts(live_results, lead,
                 budget_max_override=_bmax,
                 size_range_override=(0, _INF),
-                ignore_boat_type=True)
-            print(f"Relaxation step 5 (boat type opened): {len(filtered)} yachts", flush=True)
+                allow_sailing_and_cats=True)
+            print(f"Relaxation step 5 (sail+cats, no size): {len(filtered)} yachts", flush=True)
             if len(filtered) >= _TARGET:
-                relaxation_applied = "budget widened, size and boat type filters removed"
+                relaxation_applied = "budget widened, size filter removed, opened to both sailing yachts and catamarans"
 
         if relaxation_applied:
             print(f"Filters relaxed: {relaxation_applied}", flush=True)

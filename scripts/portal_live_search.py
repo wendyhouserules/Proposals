@@ -229,6 +229,12 @@ REGION_CONFIG: dict[str, dict] = {
     "Azores":           {"filter_country": "PT", "filter_region": "", "filter_service": "2257,7542"},
     "Madeira":          {"filter_country": "PT", "filter_region": "", "filter_service": "5901"},
 
+    # ── French Polynesia ──────────────────────────────────────────────────────
+    # Region 32 — Bora Bora, Papeete (Tahiti), Raiatea
+    # Discovered 2026-04-21 via inline probe (country code PF confirmed, 108 yachts)
+    # Quiz skips sub-region step — country name is used as the lookup key.
+    "French Polynesia":  _rc("PF", "32", "6487,6745"),
+
     # ── Bahamas ───────────────────────────────────────────────────────────────
     # Region 28 covers the whole Bahamas fleet (Marsh Harbour/Abacos + Nassau).
     # Portal has no separate region IDs for Exumas or Eleuthera — all quiz values
