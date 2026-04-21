@@ -518,15 +518,15 @@
 }
 
 .ss-proposal-btn-whatsapp {
-	background: #25d366;
+	background: #12305c;
 	color: #fff;
-	border-color: #25d366;
+	border-color: #12305c;
 }
 
 .ss-proposal-btn-whatsapp:hover,
 .ss-proposal-btn-whatsapp:focus {
-	background: #20bd5a;
-	border-color: #20bd5a;
+	background: #12305c;
+	border-color: #12305c;
 	color: #fff;
 }
 

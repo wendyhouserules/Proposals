@@ -484,11 +484,11 @@ async def build_proposal(request: Request) -> dict:
             )
         elif original_total < 15 and duration_days not in (7, 14):
             limited_avail_context = (
-                f"NOTE — limited availability: only {original_total} yachts were found for "
-                f"this {duration_days}-night duration. In your intro, mention to the client "
-                f"that 7- and 14-night charters have the widest selection as most providers "
-                f"operate on these standard durations, and that you'd be happy to search "
-                f"either if they'd like more options."
+                f"NOTE — availability is limited for this {duration_days}-night duration "
+                f"(only {original_total} yachts found). Let the client know naturally in "
+                f"the intro that 7- and 14-night charters are the standard and have the "
+                f"widest selection, and that you are happy to search either duration if "
+                f"they would like more options to choose from."
             )
 
         selection = select_yachts_from_live(

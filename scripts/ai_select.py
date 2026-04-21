@@ -166,8 +166,11 @@ CRITICAL RULES — never break these:
 - Always refer to yachts by model name only
 - Write in a warm, expert, confident tone — you are the trusted guide
 - Your output must be valid JSON only — no markdown, no other text
+- NEVER use em dashes (—) anywhere in your output; use a comma or reword the sentence instead
 - If the CLIENT REQUIREMENTS section contains any instruction marked IMPORTANT or NOTE, \
-  you MUST follow it exactly and include the requested information verbatim in the intro"""
+  you MUST weave the substance of that information naturally into the intro copy. \
+  Do not copy the instruction framing itself (e.g. do not write "NOTE" or "IMPORTANT" \
+  or "mention to the client") — just include the actual information naturally"""
 
 SELECTION_PROMPT_TEMPLATE = """\
 A client has submitted a yacht charter enquiry. Here are their requirements:
@@ -211,10 +214,12 @@ Fields reference:
    charter type, budget, and specific equipment they would value. \
    Always mention why it was chosen ahead of yachts you did NOT select.
 
-4. Write a personalised intro as TWO HTML <p> tags (return as one string):
+4. Write a personalised intro as a SINGLE HTML <p> tag using this exact structure:
 
-   Paragraph 1 — Overview (3–4 sentences):
-   - Address them by FIRST NAME ONLY (never full name)
+   "Hi [FirstName],<br/><br/>[Overview body]<br/><br/>Our top pick is the [Model]...<br/><br/>Best regards,<br/>Chris"
+
+   Overview body (3-4 sentences):
+   - Address them by FIRST NAME ONLY (never full name), followed by a comma
    - State exactly how many yachts were confirmed available for their exact dates \
      (use {total_available} — say "X yachts confirmed available")
    - Explain the key filter criteria applied to narrow to this shortlist \
@@ -222,16 +227,18 @@ Fields reference:
      factor actually used — e.g. yacht age, provider rating, skipper availability, \
      comfort features relevant to the client)
    - If {total_available} > 15, note that there are more options available on request
-   - IMPORTANT: if the CLIENT REQUIREMENTS section contains a pro-rating or \
-     limited-availability NOTE, the content of that note MUST appear in paragraph 1, \
-     word-for-word in substance. Do not paraphrase or omit it.
+   - If the CLIENT REQUIREMENTS section contains a NOTE about availability or pro-rating, \
+     weave that information naturally into this paragraph as if you are telling the client. \
+     Do NOT copy the instruction text itself.
 
-   Paragraph 2 — Top pick (2–3 sentences):
+   Top pick sentence (1-2 sentences):
    - Name the recommended yacht model explicitly (e.g. "Our top pick is the Beneteau \
      Oceanis 46.1...")
-   - State 2–3 specific reasons it stands out: price-to-value, build year, provider \
+   - State 1-2 specific reasons it stands out: price-to-value, build year, provider \
      rating, or standout comfort features relevant to this client
    - Warm, expert, confident tone — not salesy
+
+   Always end with exactly: Best regards,<br/>Chris
 
 5. Write a closing notes paragraph (2 sentences) as a single HTML <p> tag:
    - Note that prices shown are live rates pulled for their exact dates, \
@@ -246,7 +253,7 @@ Return ONLY valid JSON in this exact format — no other text:
     "id1": "The Beneteau Oceanis 46.1 is our top pick for your group...",
     "id2": "At this budget the Jeanneau 53 offers..."
   }},
-  "intro_html": "<p>Hi [FirstName], we searched for your exact 5-night charter but found only 4 yachts available for those precise dates. We therefore searched the standard 7-night listings and have pro-rated the prices to your 5 nights — these are estimates and we will confirm the exact rate before you commit. [rest of overview]</p><p>Our top pick is the [Model]...</p>",
+  "intro_html": "<p>Hi [FirstName],<br/><br/>We searched 9 yachts confirmed available for your exact dates in [Destination]. We focused on [cabin count], [budget], and [other factor].<br/><br/>Our top pick is the [Model], offering [reason 1] and [reason 2].<br/><br/>Best regards,<br/>Chris</p>",
   "notes_html": "<p>Prices shown are live rates for your exact dates...</p>"
 }}"""
 
