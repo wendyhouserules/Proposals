@@ -298,13 +298,20 @@ def standard_search_duration(actual_days: int) -> int:
 def filter_live_yachts(
     live_results: dict[str, dict],
     lead: dict,
+    budget_max_override: float | None = None,
+    size_range_override: tuple[float, float] | None = None,
+    ignore_boat_type: bool = False,
 ) -> list[tuple[str, dict]]:
     """
     Filter live search results by lead criteria.
 
     Args:
-        live_results: {yacht_id: live_data_dict} from live_search_all()
-        lead:         Full lead JSON from the quiz
+        live_results:        {yacht_id: live_data_dict} from live_search_all()
+        lead:                Full lead JSON from the quiz
+        budget_max_override: If set, replaces the budget ceiling from the lead
+        size_range_override: If set, replaces (min_ft, max_ft) from the lead;
+                             pass (0, inf) to remove the size filter entirely
+        ignore_boat_type:    If True, accepts both monohulls and catamarans
 
     Returns:
         [(yacht_id, live_data), ...] sorted cheapest first.
@@ -312,14 +319,20 @@ def filter_live_yachts(
     """
     answers = lead.get("answers") or {}
 
-    desired_kind: str | None = BOAT_TYPE_MAP.get(
+    desired_kind: str | None = None if ignore_boat_type else BOAT_TYPE_MAP.get(
         (answers.get("boatType") or "any").strip().lower()
     )
-    size_str              = (answers.get("size") or "").strip()
-    min_ft, max_ft        = _parse_size_range(size_str)
+    size_str = (answers.get("size") or "").strip()
+    if size_range_override is not None:
+        min_ft, max_ft = size_range_override
+    else:
+        min_ft, max_ft = _parse_size_range(size_str)
+
     lead_cabins           = int(answers.get("cabins") or 0)
     budget_str            = (answers.get("budget") or "").strip().lower()
     budget_min, budget_max = BUDGET_RANGES.get(budget_str, (0, float("inf")))
+    if budget_max_override is not None:
+        budget_max = budget_max_override
 
     matched: list[tuple[str, dict]] = []
 
@@ -340,7 +353,8 @@ def filter_live_yachts(
 
         # ── Size / length ───────────────────────────────────────────────────
         # Portal returns "33 ft" format — extract the number
-        if size_str:
+        active_size_filter = size_range_override is not None or bool(size_str)
+        if active_size_filter and not (min_ft == 0 and max_ft == float("inf")):
             try:
                 _lraw = str(specs.get("length") or "")
                 _lm = re.search(r'[\d.]+', _lraw)

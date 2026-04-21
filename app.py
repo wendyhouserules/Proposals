@@ -359,13 +359,73 @@ async def build_proposal(request: Request) -> dict:
         filtered = filter_live_yachts(live_results, lead)
         print(f"Filtered to {len(filtered)} yachts matching lead criteria", flush=True)
 
-        # Relax budget if too few results
-        if len(filtered) < 4:
-            print("Too few results — relaxing budget constraint", flush=True)
-            lead_relaxed = json.loads(json.dumps(lead))
-            lead_relaxed.setdefault("answers", {})["budget"] = "10k+"
-            filtered = filter_live_yachts(live_results, lead_relaxed)
-            print(f"After budget relaxation: {len(filtered)} yachts", flush=True)
+        # ── Progressive filter relaxation (target: ≥3 yachts) ────────────────
+        # Parse original budget ceiling and size range from lead
+        from live_proposal_builder import BUDGET_RANGES, _parse_size_range as _psr
+        _budget_str = (answers.get("budget") or "").strip().lower()
+        _, _orig_bmax = BUDGET_RANGES.get(_budget_str, (0, float("inf")))
+        _size_str = (answers.get("size") or "").strip()
+        _orig_smin, _orig_smax = _psr(_size_str)
+
+        _INF = float("inf")
+        _TARGET = 3
+        relaxation_applied = ""
+
+        if len(filtered) < _TARGET:
+            # Step 1: widen budget by €2k
+            _bmax = _orig_bmax + 2_000 if _orig_bmax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead, budget_max_override=_bmax)
+            print(f"Relaxation step 1 (budget +2k → {_bmax:,.0f}): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "budget widened by €2k"
+
+        if len(filtered) < _TARGET:
+            # Step 2: also widen size by ±5ft
+            _bmax = _orig_bmax + 2_000 if _orig_bmax != _INF else _INF
+            _smin = max(0, _orig_smin - 5)
+            _smax = _orig_smax + 5 if _orig_smax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead,
+                budget_max_override=_bmax,
+                size_range_override=(_smin, _smax))
+            print(f"Relaxation step 2 (size ±5ft): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "budget widened by €2k, size ±5ft"
+
+        if len(filtered) < _TARGET:
+            # Step 3: widen budget by another €2k (total +4k), keep size ±5ft
+            _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
+            _smin = max(0, _orig_smin - 5)
+            _smax = _orig_smax + 5 if _orig_smax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead,
+                budget_max_override=_bmax,
+                size_range_override=(_smin, _smax))
+            print(f"Relaxation step 3 (budget +4k total): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "budget widened by €4k, size ±5ft"
+
+        if len(filtered) < _TARGET:
+            # Step 4: remove size filter entirely, keep budget at +4k
+            _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead,
+                budget_max_override=_bmax,
+                size_range_override=(0, _INF))
+            print(f"Relaxation step 4 (size removed): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "budget widened by €4k, size filter removed"
+
+        if len(filtered) < _TARGET:
+            # Step 5: also open boat type (monohull/catamaran)
+            _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead,
+                budget_max_override=_bmax,
+                size_range_override=(0, _INF),
+                ignore_boat_type=True)
+            print(f"Relaxation step 5 (boat type opened): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "budget widened, size and boat type filters removed"
+
+        if relaxation_applied:
+            print(f"Filters relaxed: {relaxation_applied}", flush=True)
 
         if not filtered:
             run_log.append(f"Portal search: {total_available} yachts found.")
