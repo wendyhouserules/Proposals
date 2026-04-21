@@ -82,7 +82,7 @@ if not login():
     sys.exit(1)
 
 def search(country: str, region: str = "", service: str = "",
-           date: str = "2026-07-17", duration: int = 7) -> dict:
+           date: str = "2026-12-05", duration: int = 7) -> dict:
     payload = {
         "view": "SearchResult2", "responseType": "JSON",
         "companyid": COMPANY_ID, "action": "getResults",
@@ -132,6 +132,7 @@ CANDIDATES = [
     ("Seychelles",             ["SC", "SYC", "SEY"]),
     ("Thailand",               ["TH", "THA"]),
     ("British Virgin Islands", ["VG", "BVI", "VI", "VGB"]),
+    ("French Polynesia",       ["PF", "FP", "CPF"]),
 ]
 
 print("\n" + "="*65)
