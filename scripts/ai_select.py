@@ -154,7 +154,7 @@ def _budget_label(budget_enum: str, charter_type: str, boat_type: str) -> str:
 # ── Prompts ───────────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = """You are a yacht charter specialist at SailScanner, an expert broker \
-helping clients find their perfect sailing holiday in the Mediterranean and Turkey.
+helping clients find their perfect sailing holiday.
 
 Your job is to review a shortlist of available yachts and select the best options for \
 a specific client, then write personalised proposal copy.
@@ -197,7 +197,7 @@ Fields reference:
 
 ## YOUR TASK
 
-1. Select 4–6 yachts that best match this client from the shortlist above.
+1. Select 5–6 yachts that best match this client from the shortlist above.
    Prioritise: correct cabin count → within budget (including mandatory extras) → \
    newer build year → higher provider_rating → best comfort for their group.
    Explain in the per-yacht notes WHY each yacht made the cut over the others you \
@@ -205,12 +205,12 @@ Fields reference:
    "newer build and higher provider_rating than the Bavaria 40").
 
 2. Mark 1–2 as RECOMMENDED — the single best overall fit must always be marked. \
-   Consider: value for money (charter_price + mandatory_extras vs rack_price), \
+   Consider: the yacht type and size, value for money (charter_price + mandatory_extras vs rack_price), \
    build year, provider_rating, comfort_equipment match to client priorities. \
    Never recommend purely on price.
 
 3. For each selected yacht write 2–3 sentences explaining specifically why it suits \
-   THIS client. Reference concrete details: their cabin requirement, group size, \
+   THIS client. Reference concrete details: the yacht type, their cabin requirement, group size, \
    charter type, budget, and specific equipment they would value. \
    Always mention why it was chosen ahead of yachts you did NOT select.
 
@@ -218,12 +218,12 @@ Fields reference:
 
    "Hi [FirstName],<br/><br/>[Overview body]<br/><br/>Our top pick is the [Model]...<br/><br/>Best regards,<br/>Chris"
 
-   Overview body (3-4 sentences):
+   Overview body (3-5 sentences):
    - Address them by FIRST NAME ONLY (never full name), followed by a comma
    - State exactly how many yachts were confirmed available for their exact dates \
      (use {total_available} — say "X yachts confirmed available")
    - Explain the key filter criteria applied to narrow to this shortlist \
-     (always mention: required cabin count, budget ceiling, and at least one other \
+     (always mention: the yacht type, required cabin count, budget ceiling, and at least one other \
      factor actually used — e.g. yacht age, provider rating, skipper availability, \
      comfort features relevant to the client)
    - If {total_available} > 15, note that there are more options available on request
@@ -236,6 +236,7 @@ Fields reference:
      Oceanis 46.1...")
    - State 1-2 specific reasons it stands out: price-to-value, build year, provider \
      rating, or standout comfort features relevant to this client
+   - IMPORTANT: If the CLIENT REQUIREMENTS mention a specific yacht type, size, or budget, and we are proposing options which don't match these because we had to relax the filtering to find suitable options, mention that here.
    - Warm, expert, confident tone — not salesy
 
    Always end with exactly: Best regards,<br/>Chris
@@ -674,6 +675,7 @@ def select_yachts_from_live(
     total_available: int | None = None,
     pro_rate_context: str | None = None,
     limited_avail_context: str | None = None,
+    boat_type_context: str | None = None,
 ) -> SelectionResult:
     """
     AI yacht selection for the live pipeline.
@@ -710,6 +712,8 @@ def select_yachts_from_live(
         lead_summary_str += f"\n\n{pro_rate_context}"
     if limited_avail_context:
         lead_summary_str += f"\n\n{limited_avail_context}"
+    if boat_type_context:
+        lead_summary_str += f"\n\n{boat_type_context}"
 
     prompt = SELECTION_PROMPT_TEMPLATE.format(
         lead_summary=lead_summary_str,

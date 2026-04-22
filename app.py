@@ -413,6 +413,7 @@ async def build_proposal(request: Request) -> dict:
             if len(filtered) >= _TARGET:
                 relaxation_applied = "budget widened by €4k, size filter removed"
 
+        boat_type_context = None
         if len(filtered) < _TARGET:
             # Step 5: open to sailing boats AND catamarans (never gulets/motorboats)
             _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
@@ -423,6 +424,39 @@ async def build_proposal(request: Request) -> dict:
             print(f"Relaxation step 5 (sail+cats, no size): {len(filtered)} yachts", flush=True)
             if len(filtered) >= _TARGET:
                 relaxation_applied = "budget widened, size filter removed, opened to both sailing yachts and catamarans"
+
+                # Detect preferred boat type and sort matching yachts to the top
+                _preferred_kind = (answers.get("boatType") or "").strip().lower()
+                _kind_map = {"catamaran": "Catamaran", "monohull": "Sail boat", "sailing yacht": "Sail boat"}
+                _preferred_portal_kind = _kind_map.get(_preferred_kind)
+
+                if _preferred_portal_kind:
+                    # Sort: preferred type first, then others
+                    filtered = (
+                        [(yid, d) for yid, d in filtered if d.get("kind") == _preferred_portal_kind] +
+                        [(yid, d) for yid, d in filtered if d.get("kind") != _preferred_portal_kind]
+                    )
+                    _preferred_label = "catamaran" if _preferred_portal_kind == "Catamaran" else "sailing monohull"
+                    _other_label = "sailing monohulls" if _preferred_portal_kind == "Catamaran" else "catamarans"
+                    _preferred_count = sum(1 for _, d in filtered if d.get("kind") == _preferred_portal_kind)
+                    if _preferred_count > 0:
+                        boat_type_context = (
+                            f"NOTE — boat type availability: the client requested a {_preferred_label}. "
+                            f"We found {_preferred_count} {_preferred_label}(s) plus additional {_other_label} "
+                            f"after widening the filters. Prioritise the {_preferred_label}(s) in your selection "
+                            f"and recommend one as the top pick if it fits the budget and cabin requirements. "
+                            f"Only include {_other_label} if needed to reach 4 options. "
+                            f"Mention naturally in the intro that {_preferred_label} availability was limited "
+                            f"for these dates and you have included the best available options."
+                        )
+                    else:
+                        boat_type_context = (
+                            f"NOTE — boat type: the client requested a {_preferred_label} but none were "
+                            f"available for these dates within budget. We have included the best available "
+                            f"{_other_label} instead. Mention this clearly and sympathetically in the intro, "
+                            f"and let them know you can search again for different dates if they want to "
+                            f"hold out for a {_preferred_label}."
+                        )
 
         if relaxation_applied:
             print(f"Filters relaxed: {relaxation_applied}", flush=True)
@@ -496,6 +530,7 @@ async def build_proposal(request: Request) -> dict:
             total_available=total_available,
             pro_rate_context=pro_rate_context,
             limited_avail_context=limited_avail_context,
+            boat_type_context=boat_type_context,
         )
         print(
             f"AI selected {len(selection.selected_ids)} yachts, "
