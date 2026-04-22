@@ -45,24 +45,60 @@ from portal_live_search import _portal as _portal_session, PORTAL_BASE, _ensure_
 BM_PUBLIC_BASE = "https://www.booking-manager.com/wbm2/"
 
 BUDGET_RANGES: dict[str, tuple[float, float]] = {
-    # (min, max) — matches the quiz label exactly.
-    # Relaxation steps in app.py lower the floor / raise the ceiling if needed.
-    "under-1k":    (0,       1_000),
-    "1-2k":        (1_000,   2_000),
-    "2-3k":        (2_000,   3_000),
-    "3-5k":        (3_000,   5_000),
-    "5-7k":        (5_000,   7_000),
-    "5-8k":        (5_000,   8_000),
-    "7-10k":       (7_000,  10_000),
-    "7.5k-9.5k":   (7_500,   9_500),
-    "€7.5k–€9.5k": (7_500,   9_500),
-    "8-12k":       (8_000,  12_000),
-    "9.5k-12.5k":  (9_500,  12_500),
-    "€9.5k–€12.5k":(9_500,  12_500),
-    "10k+":        (10_000, float("inf")),
-    "12k+":        (12_000, float("inf")),
-    "12.5k+":      (12_500, float("inf")),
-    "any":         (0,      float("inf")),
+    # (min, max) in EUR.  Keys are lowercased quiz values from the lead JSON.
+    # Each current quiz option is listed in slug format AND euro-display format
+    # (e.g. "€6.5k–€9.5k") so both Webflow value encodings are handled.
+    # Relaxation steps in app.py widen the floor/ceiling if needed.
+
+    # ── Bareboat · Monohull / Either (no offset) ─────────────────────────────
+    "under-3k":          (0,       3_000),
+    "3-5k":              (3_000,   5_000),
+    "5-8k":              (5_000,   8_000),
+    "8-12k":             (8_000,  12_000),
+    "12k+":              (12_000, float("inf")),
+
+    # ── Skippered · Monohull / Either (+€1.5k offset) ─────────────────────────
+    "under-4.5k":        (0,       4_500),
+    "4.5k-6.5k":         (4_500,   6_500),
+    "€4.5k–€6.5k":       (4_500,   6_500),
+    "6.5k-9.5k":         (6_500,   9_500),
+    "€6.5k–€9.5k":       (6_500,   9_500),
+    "9.5k-13.5k":        (9_500,  13_500),
+    "€9.5k–€13.5k":      (9_500,  13_500),
+    "13.5k+":            (13_500, float("inf")),
+
+    # ── Bareboat · Catamaran (+€3k offset) ────────────────────────────────────
+    "under-6k":          (0,       6_000),
+    "6k-8k":             (6_000,   8_000),
+    "€6k–€8k":           (6_000,   8_000),
+    "8k-11k":            (8_000,  11_000),
+    "€8k–€11k":          (8_000,  11_000),
+    "11k-15k":           (11_000, 15_000),
+    "€11k–€15k":         (11_000, 15_000),
+    "15k+":              (15_000, float("inf")),
+
+    # ── Skippered · Catamaran (+€4.5k offset) ─────────────────────────────────
+    "under-7.5k":        (0,       7_500),
+    "7.5k-9.5k":         (7_500,   9_500),
+    "€7.5k–€9.5k":       (7_500,   9_500),
+    "9.5k-12.5k":        (9_500,  12_500),
+    "€9.5k–€12.5k":      (9_500,  12_500),
+    "12.5k-16.5k":       (12_500, 16_500),
+    "€12.5k–€16.5k":     (12_500, 16_500),
+    "16.5k+":            (16_500, float("inf")),
+
+    # ── Catch-all ─────────────────────────────────────────────────────────────
+    "any":               (0,      float("inf")),
+
+    # ── Legacy (kept for leads saved before quiz revision) ────────────────────
+    "under-1k":          (0,       1_000),
+    "under-2k":          (0,       2_000),
+    "1-2k":              (1_000,   2_000),
+    "2-3k":              (2_000,   3_000),
+    "5-7k":              (5_000,   7_000),
+    "7-10k":             (7_000,  10_000),
+    "10k+":              (10_000, float("inf")),
+    "12.5k+":            (12_500, float("inf")),
 }
 
 BOAT_TYPE_MAP: dict[str, str | None] = {
