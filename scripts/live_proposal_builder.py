@@ -45,32 +45,88 @@ from portal_live_search import _portal as _portal_session, PORTAL_BASE, _ensure_
 BM_PUBLIC_BASE = "https://www.booking-manager.com/wbm2/"
 
 BUDGET_RANGES: dict[str, tuple[float, float]] = {
-    "under-1k":   (0,  1_000),
-    "1-2k":       (0,  2_000),
-    "2-3k":       (0,  3_000),
-    "3-5k":       (0,  5_000),
-    "5-7k":       (0,  7_000),
-    "5-8k":       (0,  8_000),
-    "7-10k":      (0, 10_000),
-    "7.5k-9.5k":  (0,  9_500),
-    "€7.5k–€9.5k":(0,  9_500),
-    "8-12k":      (0, 12_000),
-    "9.5k-12.5k": (0, 12_500),
-    "€9.5k–€12.5k":(0, 12_500),
-    "10k+":       (0, float("inf")),
-    "12k+":       (0, float("inf")),
-    "12.5k+":     (0, float("inf")),
-    "any":        (0, float("inf")),
+    # (min, max) — matches the quiz label exactly.
+    # Relaxation steps in app.py lower the floor / raise the ceiling if needed.
+    "under-1k":    (0,       1_000),
+    "1-2k":        (1_000,   2_000),
+    "2-3k":        (2_000,   3_000),
+    "3-5k":        (3_000,   5_000),
+    "5-7k":        (5_000,   7_000),
+    "5-8k":        (5_000,   8_000),
+    "7-10k":       (7_000,  10_000),
+    "7.5k-9.5k":   (7_500,   9_500),
+    "€7.5k–€9.5k": (7_500,   9_500),
+    "8-12k":       (8_000,  12_000),
+    "9.5k-12.5k":  (9_500,  12_500),
+    "€9.5k–€12.5k":(9_500,  12_500),
+    "10k+":        (10_000, float("inf")),
+    "12k+":        (12_000, float("inf")),
+    "12.5k+":      (12_500, float("inf")),
+    "any":         (0,      float("inf")),
 }
 
 BOAT_TYPE_MAP: dict[str, str | None] = {
-    "monohull":  "Sail boat",
+    # Values are portal filter_kind strings.
+    # "Catamaran" confirmed from portal network tab.
+    # Monohull/sail: pass "" to portal and filter client-side (filter_kind value unconfirmed).
+    # None = no portal kind filter; client-side logic still excludes gulets/motorboats.
     "catamaran": "Catamaran",
-    "any":       None,
-    "either":    None,   # new quiz value meaning no preference
-    "sailboat":  "Sail boat",
-    "sail":      "Sail boat",
+    "monohull":  "",        # filter client-side
+    "sailboat":  "",        # filter client-side
+    "sail":      "",        # filter client-side
+    "either":    "",        # show both sail + cats, exclude gulets — handled client-side
+    "any":       "",        # same as either
 }
+
+# Quiz boatType values that mean "sailing yacht or catamaran, no preference"
+SAILING_AND_CATS_TYPES = {"either", "any"}
+
+# Quiz boatType values that mean strictly monohull sailing yacht
+MONOHULL_TYPES = {"monohull", "sailboat", "sail"}
+
+# ── Supplier lists ─────────────────────────────────────────────────────────────
+# Matching is case-insensitive substring against company_name or base fields.
+# Blacklisted: excluded from results entirely before AI sees them.
+# Preferred: AI is asked to mildly favour these when choosing between equal options.
+
+BLACKLISTED_SUPPLIERS: list[str] = [
+    "Yachting in Sardinia",
+    "Discover Sailing Asia",
+]
+
+PREFERRED_SUPPLIERS: list[str] = [
+    "Oasis Sailing",
+    "Sailmarine",
+]
+
+
+def _supplier_name(data: dict) -> str:
+    """Return a best-effort supplier identifier for a yacht result."""
+    # Try explicit company_name field (extracted from portal raw data)
+    name = (data.get("company_name") or "").strip()
+    if name:
+        return name
+    # Fall back to base port name — often includes the company name
+    return (data.get("base") or "").strip()
+
+
+def is_blacklisted(data: dict) -> bool:
+    """Return True if this yacht's supplier is on the blacklist."""
+    supplier = _supplier_name(data).lower()
+    return any(bl.lower() in supplier for bl in BLACKLISTED_SUPPLIERS)
+
+
+def preferred_supplier_note() -> str:
+    """Return the AI instruction about preferred suppliers (empty if list is empty)."""
+    if not PREFERRED_SUPPLIERS:
+        return ""
+    names = ", ".join(PREFERRED_SUPPLIERS)
+    return (
+        f"SUPPLIER PREFERENCE: If two or more yachts are otherwise equally suitable "
+        f"(similar spec, price, and value), mildly prefer yachts from these suppliers: "
+        f"{names}. Do not choose a worse yacht just because it is from a preferred supplier "
+        f"— this is a tiebreaker only."
+    )
 
 REGION_COUNTRY: dict[str, str] = {
     "Sardinia":         "Italy",
@@ -290,12 +346,22 @@ def pro_rate_live_results(
 
 
 def standard_search_duration(actual_days: int) -> int:
-    """Return the standard portal duration to use as a fallback for pro-rating."""
+    """
+    Return the standard portal duration to use as a fallback for pro-rating.
+
+    7 and 14 nights are standard durations — no retry needed for these.
+    Non-standard durations (e.g. 5n, 10n) fall back to the nearest standard:
+      <  7 nights → retry at 7
+      >  7 and < 14 nights → retry at 14
+      >= 14 nights → no retry (already standard or longer)
+    """
     if actual_days < 7:
         return 7
+    if actual_days == 7:
+        return 7   # 7 is already standard — no retry
     if actual_days < 14:
         return 14
-    return actual_days  # 14+ days: no change needed
+    return actual_days  # 14+ nights: no change needed
 
 
 # ── Filtering ─────────────────────────────────────────────────────────────────
@@ -303,6 +369,7 @@ def standard_search_duration(actual_days: int) -> int:
 def filter_live_yachts(
     live_results: dict[str, dict],
     lead: dict,
+    budget_min_override: float | None = None,
     budget_max_override: float | None = None,
     size_range_override: tuple[float, float] | None = None,
     allow_sailing_and_cats: bool = False,
@@ -313,10 +380,11 @@ def filter_live_yachts(
     Args:
         live_results:        {yacht_id: live_data_dict} from live_search_all()
         lead:                Full lead JSON from the quiz
+        budget_min_override: If set, replaces the budget floor from the lead
         budget_max_override: If set, replaces the budget ceiling from the lead
         size_range_override: If set, replaces (min_ft, max_ft) from the lead;
                              pass (0, inf) to remove the size filter entirely
-        ignore_boat_type:    If True, accepts both monohulls and catamarans
+        allow_sailing_and_cats: If True, accepts both sailing yachts and catamarans
 
     Returns:
         [(yacht_id, live_data), ...] sorted cheapest first.
@@ -324,9 +392,6 @@ def filter_live_yachts(
     """
     answers = lead.get("answers") or {}
 
-    desired_kind: str | None = BOAT_TYPE_MAP.get(
-        (answers.get("boatType") or "any").strip().lower()
-    )
     size_str = (answers.get("size") or "").strip()
     if size_range_override is not None:
         min_ft, max_ft = size_range_override
@@ -336,21 +401,41 @@ def filter_live_yachts(
     lead_cabins           = int(answers.get("cabins") or 0)
     budget_str            = (answers.get("budget") or "").strip().lower()
     budget_min, budget_max = BUDGET_RANGES.get(budget_str, (0, float("inf")))
+    if budget_min_override is not None:
+        budget_min = budget_min_override
     if budget_max_override is not None:
         budget_max = budget_max_override
 
     matched: list[tuple[str, dict]] = []
 
+    boat_type_str = (answers.get("boatType") or "any").strip().lower()
+
     for yacht_id, data in live_results.items():
         specs = data.get("specs") or {}
+        yacht_kind = data.get("kind", "")
+
+        # ── Blacklisted supplier ───────────────────────────────────────────
+        if is_blacklisted(data):
+            continue
 
         # ── Boat type ──────────────────────────────────────────────────────
-        if allow_sailing_and_cats:
-            # Relaxed: accept sailing boats and catamarans, reject everything else (gulets, motorboats etc.)
-            if data.get("kind", "") not in ("Sail boat", "Catamaran"):
+        if allow_sailing_and_cats or boat_type_str in SAILING_AND_CATS_TYPES:
+            # "either" / "any" / relaxed step: accept sailing yachts and catamarans,
+            # reject everything else (gulets, motor yachts, etc.)
+            if yacht_kind not in ("Sail boat", "Catamaran"):
                 continue
-        elif desired_kind is not None and data.get("kind", "") != desired_kind:
-            continue
+        elif boat_type_str in MONOHULL_TYPES:
+            # Strictly monohull sailing yacht
+            if yacht_kind != "Sail boat":
+                continue
+        elif boat_type_str == "catamaran":
+            # Portal already filtered by kind=Catamaran, but double-check client-side
+            if yacht_kind != "Catamaran":
+                continue
+        else:
+            # Unknown boatType — default to sail + cats, exclude gulets/motor
+            if yacht_kind not in ("Sail boat", "Catamaran"):
+                continue
 
         # ── Cabins ─────────────────────────────────────────────────────────
         if lead_cabins:

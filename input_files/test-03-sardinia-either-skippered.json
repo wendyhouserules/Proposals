@@ -1,0 +1,43 @@
+{
+  "lead_id": "test-03-sardinia-either-skippered",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "beginner",
+    "country": "Italy",
+    "region": ["Sardinia"],
+    "boatType": "either",
+    "size": "40-50",
+    "crewServices": {
+      "provisioning": true
+    },
+    "guests": {
+      "adults": 4,
+      "children": 2
+    },
+    "cabins": 3,
+    "budget": "7-10k",
+    "dates": {
+      "start": "2026-08-01",
+      "end": "2026-08-08"
+    },
+    "contact": {
+      "firstName": "Laura",
+      "lastName": "Fontana",
+      "email": "laura.fontana@test.com",
+      "phone": "+393331234567"
+    }
+  },
+  "attribution": {
+    "referrer": "https://www.google.com/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:10:00.000Z",
+  "geo": {
+    "ip": "1.2.3.6",
+    "countryCode": "IT",
+    "source": "header"
+  }
+}

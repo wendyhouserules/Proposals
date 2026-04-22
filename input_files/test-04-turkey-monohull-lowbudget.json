@@ -1,0 +1,41 @@
+{
+  "lead_id": "test-04-turkey-monohull-lowbudget",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Turkey",
+    "region": ["Marmaris"],
+    "boatType": "monohull",
+    "size": "33-40",
+    "crewServices": {},
+    "guests": {
+      "adults": 2,
+      "children": 0
+    },
+    "cabins": 1,
+    "budget": "2-3k",
+    "dates": {
+      "start": "2026-09-12",
+      "end": "2026-09-19"
+    },
+    "contact": {
+      "firstName": "David",
+      "lastName": "Klein",
+      "email": "david.klein@test.com",
+      "phone": "+4915123456789"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:15:00.000Z",
+  "geo": {
+    "ip": "1.2.3.7",
+    "countryCode": "DE",
+    "source": "header"
+  }
+}

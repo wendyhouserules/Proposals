@@ -80,16 +80,25 @@ def _parse_guests(answers: dict) -> tuple[int, int]:
     return int(guests_raw or answers.get("adults") or 2), int(answers.get("children") or 0)
 
 
-# Base charter price ranges for each budget enum value (in EUR).
-# These are the CHARTER PRICE ceilings — the quiz labels shown to the client
-# are higher by the offset (skippered +€1.5k, catamaran +€3k, both +€4.5k).
+# Charter price ranges for each budget quiz label (in EUR).
+# Must stay in sync with BUDGET_RANGES in live_proposal_builder.py.
 _BUDGET_BASE: dict[str, tuple[float, float]] = {
-    "under-3k": (0,     3_000),
-    "3-5k":     (3_000, 5_000),
-    "5-8k":     (5_000, 8_000),
-    "8-12k":    (8_000, 12_000),
-    "12k+":     (12_000, float("inf")),
-    "any":      (0,     float("inf")),
+    "under-1k":     (0,       1_000),
+    "1-2k":         (1_000,   2_000),
+    "2-3k":         (2_000,   3_000),
+    "3-5k":         (3_000,   5_000),
+    "5-7k":         (5_000,   7_000),
+    "5-8k":         (5_000,   8_000),
+    "7-10k":        (7_000,  10_000),
+    "7.5k-9.5k":    (7_500,   9_500),
+    "€7.5k–€9.5k":  (7_500,   9_500),
+    "8-12k":        (8_000,  12_000),
+    "9.5k-12.5k":   (9_500,  12_500),
+    "€9.5k–€12.5k": (9_500,  12_500),
+    "10k+":         (10_000, float("inf")),
+    "12k+":         (12_000, float("inf")),
+    "12.5k+":       (12_500, float("inf")),
+    "any":          (0,      float("inf")),
 }
 
 
@@ -108,14 +117,12 @@ def _budget_offset_k(charter_type: str, boat_type: str) -> float:
 
 def _budget_label(budget_enum: str, charter_type: str, boat_type: str) -> str:
     """
-    Build a human-readable budget string for the AI prompt, showing both
-    the charter price range and the effective all-in estimate.
+    Build a human-readable budget string for the AI prompt.
 
-    Example: "€8k–€12k charter price (client's all-in expectation ~€9.5k–€13.5k
-              including skipper fee)"
+    Shows the charter price range only. The AI must use this range when
+    describing the budget to the client in the intro — not any all-in estimate.
     """
     base_min, base_max = _BUDGET_BASE.get(budget_enum.lower(), (0, float("inf")))
-    offset = _budget_offset_k(charter_type, boat_type)
 
     def _fmt(v: float) -> str:
         if v == float("inf"):
@@ -123,33 +130,14 @@ def _budget_label(budget_enum: str, charter_type: str, boat_type: str) -> str:
         k = v / 1_000
         return f"€{k:g}k"
 
-    charter_str = (
-        f"Under {_fmt(base_max)}" if base_min == 0 and base_max != float("inf")
-        else f"{_fmt(base_min)}–{_fmt(base_max)}" if base_max != float("inf")
-        else f"{_fmt(base_min)}+"
-    )
+    if base_min == 0 and base_max != float("inf"):
+        charter_str = f"Under {_fmt(base_max)}"
+    elif base_max != float("inf"):
+        charter_str = f"{_fmt(base_min)}–{_fmt(base_max)}"
+    else:
+        charter_str = f"{_fmt(base_min)}+"
 
-    if offset == 0:
-        return f"{charter_str} charter price"
-
-    # Show effective all-in range
-    eff_min = base_min + offset * 1_000
-    eff_max = base_max + offset * 1_000
-    eff_str = (
-        f"under ~€{(eff_max/1000):g}k" if base_min == 0 and base_max != float("inf")
-        else f"~€{eff_min/1000:g}k–€{eff_max/1000:g}k" if base_max != float("inf")
-        else f"~€{eff_min/1000:g}k+"
-    )
-    extras = []
-    if "skippered" in charter_type.lower():
-        extras.append("skipper fee")
-    if "catamaran" in boat_type.lower():
-        extras.append("catamaran premium")
-    extra_note = f" including {' + '.join(extras)}" if extras else ""
-    return (
-        f"{charter_str} charter price "
-        f"(client's all-in expectation {eff_str}{extra_note})"
-    )
+    return f"{charter_str} charter price (use this range when describing budget to client — do not invent other figures)"
 
 # ── Prompts ───────────────────────────────────────────────────────────────────
 
@@ -179,7 +167,7 @@ A client has submitted a yacht charter enquiry. Here are their requirements:
 {lead_summary}
 
 ## AVAILABLE YACHTS
-We searched {total_available} yachts confirmed available for these exact dates. \
+{availability_statement} \
 The {shortlist_count} best candidates for this client are listed below \
 (sorted cheapest first).
 
@@ -198,8 +186,14 @@ Fields reference:
 ## YOUR TASK
 
 1. Select 5–6 yachts that best match this client from the shortlist above.
-   Prioritise: correct cabin count → within budget (including mandatory extras) → \
-   newer build year → higher provider_rating → best comfort for their group.
+   BUDGET SPREAD — this is critical: do NOT just pick the cheapest yachts. \
+   The client has a budget range and wants to see options across it. Aim for: \
+   1–2 yachts at the lower end of their budget (good value options), \
+   1–2 in the middle, and 1–2 near the top of their range (premium options). \
+   A client with a €9.5k–€12.5k budget should see yachts priced across that \
+   full range, not several yachts all clustered at the bottom. \
+   Secondary priorities: correct cabin count → newer build year → \
+   higher provider_rating → best comfort for their group.
    Explain in the per-yacht notes WHY each yacht made the cut over the others you \
    did not select (e.g. "better value than the Oceanis 46 due to lower extras", \
    "newer build and higher provider_rating than the Bavaria 40").
@@ -220,13 +214,14 @@ Fields reference:
 
    Overview body (3-5 sentences):
    - Address them by FIRST NAME ONLY (never full name), followed by a comma
-   - State exactly how many yachts were confirmed available for their exact dates \
-     (use {total_available} — say "X yachts confirmed available")
+   - Use the availability statement from the AVAILABLE YACHTS section above \
+     to describe how many yachts were found — use the exact wording provided, \
+     do not paraphrase or invent a different number or timeframe
    - Explain the key filter criteria applied to narrow to this shortlist \
      (always mention: the yacht type, required cabin count, budget ceiling, and at least one other \
      factor actually used — e.g. yacht age, provider rating, skipper availability, \
      comfort features relevant to the client)
-   - If {total_available} > 15, note that there are more options available on request
+   - If the availability statement says more than 15 yachts were found, note that there are more options available on request
    - If the CLIENT REQUIREMENTS section contains a NOTE about availability or pro-rating, \
      weave that information naturally into this paragraph as if you are telling the client. \
      Do NOT copy the instruction text itself.
@@ -514,11 +509,12 @@ def select_yachts(
     ]
 
     n_total = total_available if total_available is not None else len(rows_with_prices)
+    availability_statement = f"We searched {n_total} yachts confirmed available for these exact dates."
 
     prompt = SELECTION_PROMPT_TEMPLATE.format(
         lead_summary=_lead_summary(lead),
         yacht_summaries=json.dumps(summaries, indent=2, ensure_ascii=False),
-        total_available=n_total,
+        availability_statement=availability_statement,
         shortlist_count=len(summaries),
     )
 
@@ -673,9 +669,11 @@ def select_yachts_from_live(
     model: str | None = None,
     max_shortlist: int = 25,
     total_available: int | None = None,
+    availability_statement: str | None = None,
     pro_rate_context: str | None = None,
     limited_avail_context: str | None = None,
     boat_type_context: str | None = None,
+    supplier_context: str | None = None,
 ) -> SelectionResult:
     """
     AI yacht selection for the live pipeline.
@@ -701,11 +699,18 @@ def select_yachts_from_live(
     if not filtered:
         return _fallback_result_live([], lead)
 
-    shortlist = filtered[:max_shortlist]
+    # Sample evenly across the price range so the AI sees cheap, mid, and
+    # top-end options — not just the 25 cheapest.
+    if len(filtered) > max_shortlist:
+        step = len(filtered) / max_shortlist
+        shortlist = [filtered[int(i * step)] for i in range(max_shortlist)]
+    else:
+        shortlist = filtered
 
     summaries = [_live_summary(yid, data) for yid, data in shortlist]
 
     n_total = total_available if total_available is not None else len(filtered)
+    avail_stmt = availability_statement or f"We searched {n_total} yachts confirmed available for these exact dates."
 
     lead_summary_str = _lead_summary(lead)
     if pro_rate_context:
@@ -714,11 +719,13 @@ def select_yachts_from_live(
         lead_summary_str += f"\n\n{limited_avail_context}"
     if boat_type_context:
         lead_summary_str += f"\n\n{boat_type_context}"
+    if supplier_context:
+        lead_summary_str += f"\n\n{supplier_context}"
 
     prompt = SELECTION_PROMPT_TEMPLATE.format(
         lead_summary=lead_summary_str,
         yacht_summaries=json.dumps(summaries, indent=2, ensure_ascii=False),
-        total_available=n_total,
+        availability_statement=avail_stmt,
         shortlist_count=len(summaries),
     )
 

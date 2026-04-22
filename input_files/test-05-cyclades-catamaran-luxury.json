@@ -1,0 +1,45 @@
+{
+  "lead_id": "test-05-cyclades-catamaran-luxury",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "some",
+    "country": "Greece",
+    "region": ["Cyclades"],
+    "boatType": "catamaran",
+    "size": "40-50",
+    "crewServices": {
+      "hostess": true,
+      "provisioning": true,
+      "chef": true
+    },
+    "guests": {
+      "adults": 8,
+      "children": 0
+    },
+    "cabins": 4,
+    "budget": "3-5k",
+    "dates": {
+      "start": "2026-07-18",
+      "end": "2026-07-25"
+    },
+    "contact": {
+      "firstName": "Emma",
+      "lastName": "Sanderson",
+      "email": "emma.sanderson@test.com",
+      "phone": "+447700900005"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+  },
+  "timestamp": "2026-04-22T09:20:00.000Z",
+  "geo": {
+    "ip": "1.2.3.8",
+    "countryCode": "GB",
+    "source": "header"
+  }
+}

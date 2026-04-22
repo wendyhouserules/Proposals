@@ -1,0 +1,41 @@
+{
+  "lead_id": "test-06-dodecanese-either-10night",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Greece",
+    "region": ["Dodecanese"],
+    "boatType": "either",
+    "size": "40-50",
+    "crewServices": {},
+    "guests": {
+      "adults": 6,
+      "children": 0
+    },
+    "cabins": 3,
+    "budget": "7.5k-9.5k",
+    "dates": {
+      "start": "2026-09-05",
+      "end": "2026-09-15"
+    },
+    "contact": {
+      "firstName": "Pieter",
+      "lastName": "Van der Berg",
+      "email": "pieter.vandenberg@test.com",
+      "phone": "+31612345678"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:25:00.000Z",
+  "geo": {
+    "ip": "1.2.3.9",
+    "countryCode": "NL",
+    "source": "header"
+  }
+}

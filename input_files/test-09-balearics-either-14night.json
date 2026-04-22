@@ -1,0 +1,44 @@
+{
+  "lead_id": "test-09-balearics-either-14night",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "some",
+    "country": "Spain",
+    "region": ["Balearic Islands"],
+    "boatType": "either",
+    "size": "40-50",
+    "crewServices": {
+      "hostess": true,
+      "provisioning": true
+    },
+    "guests": {
+      "adults": 8,
+      "children": 4
+    },
+    "cabins": 5,
+    "budget": "10k+",
+    "dates": {
+      "start": "2026-07-25",
+      "end": "2026-08-08"
+    },
+    "contact": {
+      "firstName": "Miguel",
+      "lastName": "Ruiz",
+      "email": "miguel.ruiz@test.com",
+      "phone": "+34612345678"
+    }
+  },
+  "attribution": {
+    "referrer": "https://www.google.com/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:40:00.000Z",
+  "geo": {
+    "ip": "1.2.3.12",
+    "countryCode": "ES",
+    "source": "header"
+  }
+}

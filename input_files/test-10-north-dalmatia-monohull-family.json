@@ -1,0 +1,44 @@
+{
+  "lead_id": "test-10-north-dalmatia-monohull-family",
+  "answers": {
+    "charterType": "skippered",
+    "experienceLevel": "none",
+    "country": "Croatia",
+    "region": ["North Dalmatia"],
+    "boatType": "monohull",
+    "size": "40-50",
+    "crewServices": {
+      "provisioning": true,
+      "hostess": true
+    },
+    "guests": {
+      "adults": 4,
+      "children": 4
+    },
+    "cabins": 4,
+    "budget": "5-8k",
+    "dates": {
+      "start": "2026-07-04",
+      "end": "2026-07-11"
+    },
+    "contact": {
+      "firstName": "Natalie",
+      "lastName": "Graham",
+      "email": "natalie.graham@test.com",
+      "phone": "+16175550100"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+  },
+  "timestamp": "2026-04-22T09:45:00.000Z",
+  "geo": {
+    "ip": "1.2.3.13",
+    "countryCode": "US",
+    "source": "header"
+  }
+}

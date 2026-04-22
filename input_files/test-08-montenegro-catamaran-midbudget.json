@@ -1,0 +1,41 @@
+{
+  "lead_id": "test-08-montenegro-catamaran-midbudget",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Montenegro",
+    "region": ["Montenegro"],
+    "boatType": "catamaran",
+    "size": "40-50",
+    "crewServices": {},
+    "guests": {
+      "adults": 6,
+      "children": 2
+    },
+    "cabins": 4,
+    "budget": "8-12k",
+    "dates": {
+      "start": "2026-08-22",
+      "end": "2026-08-29"
+    },
+    "contact": {
+      "firstName": "Ana",
+      "lastName": "Pereira",
+      "email": "ana.pereira@test.com",
+      "phone": "+351912345678"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:35:00.000Z",
+  "geo": {
+    "ip": "1.2.3.11",
+    "countryCode": "PT",
+    "source": "header"
+  }
+}

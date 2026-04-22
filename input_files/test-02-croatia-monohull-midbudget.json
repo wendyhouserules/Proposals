@@ -1,0 +1,41 @@
+{
+  "lead_id": "test-02-croatia-monohull-midbudget",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Croatia",
+    "region": ["Split & Central Dalmatia"],
+    "boatType": "monohull",
+    "size": "33-40",
+    "crewServices": {},
+    "guests": {
+      "adults": 4,
+      "children": 0
+    },
+    "cabins": 2,
+    "budget": "5-7k",
+    "dates": {
+      "start": "2026-06-20",
+      "end": "2026-06-27"
+    },
+    "contact": {
+      "firstName": "James",
+      "lastName": "Fletcher",
+      "email": "james.fletcher@test.com",
+      "phone": "+353871234567"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+  },
+  "timestamp": "2026-04-22T09:05:00.000Z",
+  "geo": {
+    "ip": "1.2.3.5",
+    "countryCode": "IE",
+    "source": "header"
+  }
+}

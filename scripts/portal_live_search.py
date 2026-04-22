@@ -495,6 +495,8 @@ def _parse_results(data: list | dict) -> dict[str, dict]:
             "details_url":      details_url,
             "is_golden_partner": bool(y.get("isGoldenPartner")),
             "is_silver_partner": bool(y.get("isSilverPartner")),
+            "service_id":       str(y.get("serviceId") or ""),
+            "company_name":     str(y.get("companyName") or y.get("operatorName") or y.get("fleetName") or ""),
             "raw":              y,
         }
 
@@ -534,6 +536,9 @@ def _parse_extras_list(raw) -> list[dict]:
 
 # ── Public API ─────────────────────────────────────────────────────────────────
 
+MAX_PAGES = 30  # hard cap: 30 × 50 = 1,500 yachts max per search
+
+
 def live_search_all(
     region: str,
     date_from: str,
@@ -542,28 +547,51 @@ def live_search_all(
     children: int = 0,
     seniors: int = 0,
     flexibility: str = "closest_day",
+    boat_kind: str = "",
     debug: bool = False,
 ) -> dict[str, dict]:
     """
     Fetch ALL pages of search results and merge into one pricing dict.
     Handles the portal's 50-per-page limit automatically.
+
+    boat_kind: portal filter_kind value e.g. "Catamaran", "Sail boat", or "" for all.
+               When set, also clears filter_service so catamaran/monohull providers
+               not in the pre-configured service list are included.
+
+    Termination logic:
+      - Page returns 0 results → done.
+      - Page adds 0 NEW yacht IDs (portal is cycling/repeating past real end) → done.
+      - Page returns < 10 results → last page (sparse tail).
+      - Hard cap of MAX_PAGES pages reached → stop to avoid runaway loops.
     """
     all_results: dict[str, dict] = {}
     page = 1
-    while True:
+    while page <= MAX_PAGES:
         page_results = live_search(
             region=region, date_from=date_from, duration=duration,
             adults=adults, children=children, seniors=seniors,
-            flexibility=flexibility, debug=debug, results_page=page,
+            flexibility=flexibility, boat_kind=boat_kind, debug=debug, results_page=page,
         )
         if not page_results:
             break
+
+        # Count how many yacht IDs on this page are genuinely new
+        new_count = sum(1 for k in page_results if k not in all_results)
         all_results.update(page_results)
-        # Portal returns 50 per page; if we got fewer, we're done
-        if len(page_results) < 50:
+
+        if new_count == 0:
+            # Portal is cycling — all results on this page already seen → done
+            print(f"[live_search_all] Page {page} added 0 new yachts (portal cycling). Stopping.")
             break
+        if len(page_results) < 10:
+            # Sparse last page
+            break
+
         page += 1
         time.sleep(0.5)  # be polite
+
+    if page > MAX_PAGES:
+        print(f"[live_search_all] WARNING: hit MAX_PAGES={MAX_PAGES} cap for {region}.")
 
     print(f"[live_search_all] {region} {date_from} → {len(all_results)} total yachts (across {page} page(s))")
     return all_results
@@ -577,6 +605,7 @@ def live_search(
     children: int = 0,
     seniors: int = 0,
     flexibility: str = "closest_day", # closest_day | in_week | in_month | on_day
+    boat_kind: str = "",              # "Catamaran", "Sail boat", or "" for all
     results_page: int = 1,
     debug: bool = False,
 ) -> dict[str, dict]:
@@ -610,7 +639,10 @@ def live_search(
         "action":                  "getResults",
         "filter_country":          cfg["filter_country"],
         "filter_region":           cfg["filter_region"],
-        "filter_service":          cfg["filter_service"],
+        # Service filter removed — we want all providers in the region, not just
+        # our pre-configured list. Supplier preference and exclusion is handled
+        # downstream via BLACKLISTED_SUPPLIERS / PREFERRED_SUPPLIERS in live_proposal_builder.py.
+        "filter_service":          "",
         "filter_base":             "",
         "filterlocationdistance":  "5",
         "filter_flexibility":      flexibility,
@@ -622,7 +654,7 @@ def live_search(
         "filter_duration":         str(duration),
         "filter_timeslot":         "",
         "filter_service_type":     "all",
-        "filter_kind":             "",
+        "filter_kind":             boat_kind,
         "filter_class":            "",
         "filter_mainsail":         "",
         "filter_genoa":            "",

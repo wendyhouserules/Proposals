@@ -1,0 +1,41 @@
+{
+  "lead_id": "test-01-ionian-catamaran-highbudget",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Greece",
+    "region": ["Ionian Islands"],
+    "boatType": "catamaran",
+    "size": "40-50",
+    "crewServices": {},
+    "guests": {
+      "adults": 6,
+      "children": 2
+    },
+    "cabins": 4,
+    "budget": "9.5k-12.5k",
+    "dates": {
+      "start": "2026-07-11",
+      "end": "2026-07-18"
+    },
+    "contact": {
+      "firstName": "Sophie",
+      "lastName": "Marchetti",
+      "email": "sophie.marchetti@test.com",
+      "phone": "+447700900001"
+    }
+  },
+  "attribution": {
+    "referrer": "https://sailscanner.ai/",
+    "landing_url": "https://quiz.sailscanner.ai/step/intro"
+  },
+  "device": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+  },
+  "timestamp": "2026-04-22T09:00:00.000Z",
+  "geo": {
+    "ip": "1.2.3.4",
+    "countryCode": "GB",
+    "source": "header"
+  }
+}

@@ -298,6 +298,11 @@ async def build_proposal(request: Request) -> dict:
         if not region_str or not start_iso:
             raise ValueError("Lead is missing region or start date")
 
+        # Map quiz boatType to portal filter_kind value
+        from live_proposal_builder import BOAT_TYPE_MAP, is_blacklisted, preferred_supplier_note
+        _boat_type_str = (answers.get("boatType") or "any").strip().lower()
+        _portal_kind = BOAT_TYPE_MAP.get(_boat_type_str) or ""  # "Catamaran", "Sail boat", or ""
+
         # Search with actual duration first
         print(f"Live search: {region_str} / {start_iso} / {duration_days} nights", flush=True)
         live_results = live_search_all(
@@ -307,6 +312,7 @@ async def build_proposal(request: Request) -> dict:
             adults=adults,
             children=children,
             flexibility="closest_day",
+            boat_kind=_portal_kind,
         )
         total_available      = len(live_results)
         original_total       = total_available  # remember count before any retry
@@ -321,20 +327,29 @@ async def build_proposal(request: Request) -> dict:
                 f"{std_days}-day duration + pro-rating ({duration_days}/{std_days})",
                 flush=True,
             )
-            live_results = live_search_all(
+            retry_results = live_search_all(
                 region=region_str,
                 date_from=start_iso,
                 duration=std_days,
                 adults=adults,
                 children=children,
                 flexibility="closest_day",
+                boat_kind=_portal_kind,
             )
-            total_available = len(live_results)
-            print(f"Retry returned {total_available} yachts", flush=True)
+            retry_total = len(retry_results)
+            print(f"Retry returned {retry_total} yachts", flush=True)
 
-            if total_available > 0:
-                live_results = pro_rate_live_results(live_results, duration_days, std_days)
-                pro_rated = True
+            if retry_total > total_available:
+                # Only use the retry if it found more yachts than the exact search
+                live_results    = pro_rate_live_results(retry_results, duration_days, std_days)
+                total_available = retry_total
+                pro_rated       = True
+            else:
+                print(
+                    f"Retry ({retry_total}) not better than exact search ({total_available}) "
+                    f"— keeping original results.",
+                    flush=True,
+                )
 
         if total_available == 0:
             run_log.append(f"Portal search: 0 yachts found for '{region_str}' on {start_iso}.")
@@ -363,7 +378,7 @@ async def build_proposal(request: Request) -> dict:
         # Parse original budget ceiling and size range from lead
         from live_proposal_builder import BUDGET_RANGES, _parse_size_range as _psr
         _budget_str = (answers.get("budget") or "").strip().lower()
-        _, _orig_bmax = BUDGET_RANGES.get(_budget_str, (0, float("inf")))
+        _orig_bmin, _orig_bmax = BUDGET_RANGES.get(_budget_str, (0, float("inf")))
         _size_str = (answers.get("size") or "").strip()
         _orig_smin, _orig_smax = _psr(_size_str)
 
@@ -372,58 +387,48 @@ async def build_proposal(request: Request) -> dict:
         relaxation_applied = ""
 
         if len(filtered) < _TARGET:
-            # Step 1: widen budget by €2k
+            # Step 1: widen size ±5ft, budget unchanged
+            _smin = max(0, _orig_smin - 5)
+            _smax = _orig_smax + 5 if _orig_smax != _INF else _INF
+            filtered = filter_live_yachts(live_results, lead,
+                size_range_override=(_smin, _smax))
+            print(f"Relaxation step 1 (size ±5ft): {len(filtered)} yachts", flush=True)
+            if len(filtered) >= _TARGET:
+                relaxation_applied = "size widened by ±5ft"
+
+        if len(filtered) < _TARGET:
+            # Step 2: budget ±2k, original size
+            _bmin = max(0, _orig_bmin - 2_000)
             _bmax = _orig_bmax + 2_000 if _orig_bmax != _INF else _INF
-            filtered = filter_live_yachts(live_results, lead, budget_max_override=_bmax)
-            print(f"Relaxation step 1 (budget +2k → {_bmax:,.0f}): {len(filtered)} yachts", flush=True)
+            filtered = filter_live_yachts(live_results, lead,
+                budget_min_override=_bmin, budget_max_override=_bmax)
+            print(f"Relaxation step 2 (budget ±2k → {_bmin:,.0f}-{_bmax:,.0f}): {len(filtered)} yachts", flush=True)
             if len(filtered) >= _TARGET:
                 relaxation_applied = "budget widened by €2k"
 
         if len(filtered) < _TARGET:
-            # Step 2: also widen size by ±5ft
-            _bmax = _orig_bmax + 2_000 if _orig_bmax != _INF else _INF
-            _smin = max(0, _orig_smin - 5)
-            _smax = _orig_smax + 5 if _orig_smax != _INF else _INF
-            filtered = filter_live_yachts(live_results, lead,
-                budget_max_override=_bmax,
-                size_range_override=(_smin, _smax))
-            print(f"Relaxation step 2 (size ±5ft): {len(filtered)} yachts", flush=True)
-            if len(filtered) >= _TARGET:
-                relaxation_applied = "budget widened by €2k, size ±5ft"
-
-        if len(filtered) < _TARGET:
-            # Step 3: widen budget by another €2k (total +4k), keep size ±5ft
-            _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
-            _smin = max(0, _orig_smin - 5)
-            _smax = _orig_smax + 5 if _orig_smax != _INF else _INF
-            filtered = filter_live_yachts(live_results, lead,
-                budget_max_override=_bmax,
-                size_range_override=(_smin, _smax))
-            print(f"Relaxation step 3 (budget +4k total): {len(filtered)} yachts", flush=True)
-            if len(filtered) >= _TARGET:
-                relaxation_applied = "budget widened by €4k, size ±5ft"
-
-        if len(filtered) < _TARGET:
-            # Step 4: remove size filter entirely, keep budget at +4k
+            # Step 3: budget ±4k, size removed
+            _bmin = max(0, _orig_bmin - 4_000)
             _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
             filtered = filter_live_yachts(live_results, lead,
-                budget_max_override=_bmax,
+                budget_min_override=_bmin, budget_max_override=_bmax,
                 size_range_override=(0, _INF))
-            print(f"Relaxation step 4 (size removed): {len(filtered)} yachts", flush=True)
+            print(f"Relaxation step 3 (budget ±4k, size removed): {len(filtered)} yachts", flush=True)
             if len(filtered) >= _TARGET:
                 relaxation_applied = "budget widened by €4k, size filter removed"
 
         boat_type_context = None
         if len(filtered) < _TARGET:
-            # Step 5: open to sailing boats AND catamarans (never gulets/motorboats)
+            # Step 4: budget ±4k, size removed, open to sail+cat
+            _bmin = max(0, _orig_bmin - 4_000)
             _bmax = _orig_bmax + 4_000 if _orig_bmax != _INF else _INF
             filtered = filter_live_yachts(live_results, lead,
-                budget_max_override=_bmax,
+                budget_min_override=_bmin, budget_max_override=_bmax,
                 size_range_override=(0, _INF),
                 allow_sailing_and_cats=True)
-            print(f"Relaxation step 5 (sail+cats, no size): {len(filtered)} yachts", flush=True)
+            print(f"Relaxation step 4 (budget ±4k, size removed, sail+cat): {len(filtered)} yachts", flush=True)
             if len(filtered) >= _TARGET:
-                relaxation_applied = "budget widened, size filter removed, opened to both sailing yachts and catamarans"
+                relaxation_applied = "budget widened by €4k, size filter removed, opened to both sailing yachts and catamarans"
 
                 # Detect preferred boat type and sort matching yachts to the top
                 _preferred_kind = (answers.get("boatType") or "").strip().lower()
@@ -525,12 +530,29 @@ async def build_proposal(request: Request) -> dict:
                 f"they would like more options to choose from."
             )
 
+        # Build the availability statement the AI uses in the intro.
+        # When pro-rated, the 60 yachts found are 7-night listings, not the
+        # client's exact 5-night duration — so we describe them accurately.
+        if pro_rated:
+            _avail_stmt = (
+                f"We found {original_total} yachts available for your exact "
+                f"{duration_days}-night dates. To give you a wider selection, we also "
+                f"searched {std_days}-night listings and found {total_available} yachts, "
+                f"with prices scaled to your duration."
+            )
+        else:
+            _avail_stmt = (
+                f"We found {total_available} yachts confirmed available for your exact dates."
+            )
+
         selection = select_yachts_from_live(
             filtered, lead,
             total_available=total_available,
+            availability_statement=_avail_stmt,
             pro_rate_context=pro_rate_context,
             limited_avail_context=limited_avail_context,
             boat_type_context=boat_type_context,
+            supplier_context=preferred_supplier_note() or None,
         )
         print(
             f"AI selected {len(selection.selected_ids)} yachts, "
@@ -607,11 +629,19 @@ async def build_proposal(request: Request) -> dict:
         run_log.append(f"Proposal URL:  {proposal_url}")
         _send_run_summary(lead_label, "ok", run_log)
 
+        # Price range of filtered set
+        _prices = sorted([d.get("charter_price") for _, d in filtered if d.get("charter_price")])
+        _price_range = f"€{_prices[0]:,.0f}–€{_prices[-1]:,.0f}" if _prices else ""
+
         return {
             "status": "ok",
             "proposal_url": proposal_url,
             "yachts_selected": len(yacht_data),
             "yachts_recommended": len([y for y in yacht_data if y.get("recommended")]),
+            "portal_total": total_available,
+            "filtered_count": len(filtered),
+            "relaxation_applied": relaxation_applied,
+            "filtered_price_range": _price_range,
         }
 
     except Exception as exc:
