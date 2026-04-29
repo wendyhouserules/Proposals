@@ -1,0 +1,37 @@
+{
+  "lead_id": "a3f1c804-9e2d-4b17-8c56-d07e2f3a91be",
+  "answers": {
+    "charterType": "bareboat",
+    "experienceLevel": "experienced",
+    "country": "Norway",
+    "region": [
+      "Norwegian Fjords"
+    ],
+    "boatType": "monohull",
+    "size": "40-46",
+    "crewServices": {},
+    "cabins": 3,
+    "budget": "any",
+    "dates": {
+      "start": "2027-07-10",
+      "end": "2027-07-17"
+    },
+    "contact": {
+      "name": "Luisa Fezzardini",
+      "email": "luisafezzardini@gmail.com",
+      "phone": "+39 335 7454690"
+    },
+    "notes": "Group of 2 boats required, each with 3 double cabins. Flexible on dates if July 10-17 is not available."
+  },
+  "attribution": {
+    "referrer": "direct-email",
+    "landing_url": ""
+  },
+  "device": {},
+  "timestamp": "2026-04-26T16:17:27.000Z",
+  "geo": {
+    "ip": "",
+    "countryCode": "IT",
+    "source": "email"
+  }
+}

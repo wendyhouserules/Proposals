@@ -41,6 +41,12 @@ except ImportError:
 
 DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
+# Fallback crew cost estimates (EUR/week) used when the portal lists a service
+# as "Price on request" with no numeric amount.  These are intentionally
+# conservative (mid-market Med rates) — the AI is told they are estimates.
+_SKIPPER_COST_FALLBACK: float = 1_400.0
+_CHEF_COST_FALLBACK:    float = 1_200.0
+
 
 # ── Lead parsing helpers ──────────────────────────────────────────────────────
 
@@ -211,6 +217,11 @@ Fields reference:
 - rack_price_eur: undiscounted list price (shows the saving)
 - active_discounts: named promotional discounts currently applied
 - mandatory_extras_approx_eur: approximate total of required extras per booking
+- crew_cost_est_eur: estimated cost of skipper/chef for the week (from portal where available, \
+  fixed estimate otherwise — see crew_cost_is_estimate flag)
+- crew_cost_is_estimate: true when crew_cost_est_eur is a fixed estimate rather than a quoted rate
+- all_in_approx_eur: charter + mandatory extras + crew costs combined — the realistic total \
+  the client should expect to pay; use this when assessing budget fit, NOT charter_price_eur alone
 - provider_rating: charter company quality score (0–5 scale)
 - skipper_available: whether a professional skipper can be arranged
 - comfort_equipment: onboard amenities list
@@ -590,7 +601,80 @@ def select_yachts(
 
 # ── Live-data variant ─────────────────────────────────────────────────────────
 
-def _live_summary(yacht_id: str, live_data: dict) -> dict:
+def _parse_extra_amount(item: dict) -> float | None:
+    """Parse a numeric EUR amount from an extras item dict, or return None."""
+    for key in ("amount_eur", "amount", "displayPrice"):
+        raw = str(item.get(key) or "")
+        cleaned = re.sub(r"[^\d.]", "", raw.replace(",", ""))
+        try:
+            val = float(cleaned)
+            if val > 0:
+                return val
+        except ValueError:
+            pass
+    return None
+
+
+def _crew_cost_estimate(lead: dict, live_data: dict) -> tuple[float, bool]:
+    """
+    Estimate the total crew cost (skipper + optional chef/hostess) for this lead.
+
+    Strategy:
+      1. Check the portal's optional_extras for a skipper/chef line with a real
+         numeric amount — use it if found (dynamic, per-yacht rate).
+      2. Fall back to module-level fixed estimates when the portal only says
+         "Price on request".
+
+    Returns:
+        (total_crew_eur, used_estimate) — total estimated EUR cost and whether
+        any fallback estimate was used (so the caller can label it accordingly).
+    """
+    answers       = lead.get("answers") or {}
+    charter_type  = (answers.get("charterType") or "").strip().lower()
+    crew_services = answers.get("crewServices") or {}
+
+    needs_skipper = charter_type == "skippered" or bool(crew_services.get("skipper"))
+    needs_chef    = bool(crew_services.get("chef"))
+
+    if not needs_skipper and not needs_chef:
+        return 0.0, False
+
+    opt_extras  = live_data.get("optional_extras") or []
+    total       = 0.0
+    used_estimate = False
+
+    if needs_skipper:
+        skipper_item = next(
+            (item for item in opt_extras
+             if any(kw in (item.get("label") or "").lower()
+                    for kw in ("skipper", "captain"))),
+            None,
+        )
+        amt = _parse_extra_amount(skipper_item) if skipper_item else None
+        if amt:
+            total += amt
+        else:
+            total += _SKIPPER_COST_FALLBACK
+            used_estimate = True
+
+    if needs_chef:
+        chef_item = next(
+            (item for item in opt_extras
+             if any(kw in (item.get("label") or "").lower()
+                    for kw in ("chef", "cook", "hostess"))),
+            None,
+        )
+        amt = _parse_extra_amount(chef_item) if chef_item else None
+        if amt:
+            total += amt
+        else:
+            total += _CHEF_COST_FALLBACK
+            used_estimate = True
+
+    return total, used_estimate
+
+
+def _live_summary(yacht_id: str, live_data: dict, lead: dict | None = None) -> dict:
     """
     Build a compact summary dict from a live search result entry.
     Used by select_yachts_from_live() — no CSV row needed.
@@ -610,7 +694,17 @@ def _live_summary(yacht_id: str, live_data: dict) -> dict:
             mand_total += float(cleaned)
         except ValueError:
             pass
-    all_in = round(charter + mand_total) if charter and mand_total else None
+    # Base all-in: charter + mandatory extras already priced in the portal
+    all_in = round(charter + mand_total) if charter else None
+
+    # Add crew cost estimate for skippered/crewed leads
+    crew_cost_est = 0.0
+    crew_est_is_fallback = False
+    if lead and charter:
+        crew_cost_est, crew_est_is_fallback = _crew_cost_estimate(lead, live_data)
+        if crew_cost_est > 0:
+            base = all_in if all_in is not None else round(charter)
+            all_in = round(base + crew_cost_est)
 
     # Provider rating from raw portal data
     provider_rating = None
@@ -654,6 +748,8 @@ def _live_summary(yacht_id: str, live_data: dict) -> dict:
         "rack_price_eur":               round(rack) if rack else None,
         "active_discounts":             discounts or None,
         "mandatory_extras_approx_eur":  round(mand_total) if mand_total else None,
+        "crew_cost_est_eur":            round(crew_cost_est) if crew_cost_est else None,
+        "crew_cost_is_estimate":        crew_est_is_fallback if crew_cost_est else None,
         "all_in_approx_eur":            all_in,
         "provider_rating":              provider_rating,
         "partner_status":               partner,
@@ -742,7 +838,7 @@ def select_yachts_from_live(
     else:
         shortlist = filtered
 
-    summaries = [_live_summary(yid, data) for yid, data in shortlist]
+    summaries = [_live_summary(yid, data, lead=lead) for yid, data in shortlist]
 
     n_total = total_available if total_available is not None else len(filtered)
     avail_stmt = availability_statement or f"We searched {n_total} yachts confirmed available for these exact dates."

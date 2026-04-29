@@ -165,14 +165,139 @@ def preferred_supplier_note() -> str:
     )
 
 REGION_COUNTRY: dict[str, str] = {
-    "Sardinia":         "Italy",
-    "Sicily":           "Italy",
-    "Marmaris":         "Turkey",
-    "Balearic Islands": "Spain",
-    "Croatia":          "Croatia",
-    "Greece":           "Greece",
-    "Montenegro":       "Montenegro",
-    "Turkish Aegean":   "Turkey",
+    # ── Greece ────────────────────────────────────────────────────────────────
+    "Ionian Islands":              "Greece",
+    "Ionian":                      "Greece",
+    "Corfu":                       "Greece",
+    "Lefkada":                     "Greece",
+    "Kefalonia":                   "Greece",
+    "Preveza":                     "Greece",
+    "Sporades":                    "Greece",
+    "Skiathos":                    "Greece",
+    "Chalkidiki":                  "Greece",
+    "Dodecanese":                  "Greece",
+    "Rhodes":                      "Greece",
+    "Kos":                         "Greece",
+    "Crete":                       "Greece",
+    "Cyclades":                    "Greece",
+    "Saronic Gulf":                "Greece",
+    "Athens":                      "Greece",
+    "Attica":                      "Greece",
+    "Northern Aegean":             "Greece",
+    "Kavala":                      "Greece",
+    "Thessaloniki":                "Greece",
+    "Peloponnese":                 "Greece",
+    "Kalamata":                    "Greece",
+    "Greece":                      "Greece",
+
+    # ── Croatia ───────────────────────────────────────────────────────────────
+    "Istria":                      "Croatia",
+    "Kvarner":                     "Croatia",
+    "Istria & Kvarner":            "Croatia",
+    "North Dalmatia":              "Croatia",
+    "Zadar Region":                "Croatia",
+    "Zadar":                       "Croatia",
+    "Biograd":                     "Croatia",
+    "Kornati & Šibenik":           "Croatia",
+    "Central Dalmatia":            "Croatia",
+    "Sibenik":                     "Croatia",
+    "Šibenik":                     "Croatia",
+    "Split & Central Dalmatia":    "Croatia",
+    "Split":                       "Croatia",
+    "Trogir":                      "Croatia",
+    "Makarska":                    "Croatia",
+    "Dubrovnik & South Dalmatia":  "Croatia",
+    "Dubrovnik":                   "Croatia",
+    "South Dalmatia":              "Croatia",
+    "Croatia":                     "Croatia",
+
+    # ── Italy ─────────────────────────────────────────────────────────────────
+    "Sardinia":                    "Italy",
+    "Sicily":                      "Italy",
+    "Tuscany":                     "Italy",
+    "Liguria":                     "Italy",
+    "Amalfi Coast":                "Italy",
+    "Naples":                      "Italy",
+    "Gulf of Naples":              "Italy",
+    "Aeolian Islands":             "Italy",
+    "Venice":                      "Italy",
+    "Adriatic":                    "Italy",
+    "Puglia":                      "Italy",
+    "Italy":                       "Italy",
+
+    # ── France ────────────────────────────────────────────────────────────────
+    "Corsica":                     "France",
+    "French Riviera (Côte d'Azur)":"France",
+
+    # ── Spain ─────────────────────────────────────────────────────────────────
+    "Balearic Islands":            "Spain",
+    "Ibiza":                       "Spain",
+    "Mallorca":                    "Spain",
+    "Majorca":                     "Spain",
+    "Barcelona":                   "Spain",
+    "Costa Brava":                 "Spain",
+    "Costa Blanca":                "Spain",
+    "Valencia":                    "Spain",
+    "Canary Islands":              "Spain",
+    "Tenerife":                    "Spain",
+    "Galicia":                     "Spain",
+    "Spain":                       "Spain",
+
+    # ── Turkey ────────────────────────────────────────────────────────────────
+    "Bodrum":                      "Turkey",
+    "Marmaris":                    "Turkey",
+    "Fethiye":                     "Turkey",
+    "Gocek":                       "Turkey",
+    "Göcek":                       "Turkey",
+    "Turquoise Coast":             "Turkey",
+    "Turkish Aegean":              "Turkey",
+    "Antalya":                     "Turkey",
+    "Istanbul":                    "Turkey",
+    "Turkey":                      "Turkey",
+
+    # ── Montenegro ────────────────────────────────────────────────────────────
+    "Montenegro":                  "Montenegro",
+    "Bay of Kotor":                "Montenegro",
+    "Budva Riviera":               "Montenegro",
+    "Kotor":                       "Montenegro",
+    "Tivat":                       "Montenegro",
+
+    # ── Portugal ──────────────────────────────────────────────────────────────
+    "Portugal":                    "Portugal",
+    "Lisbon":                      "Portugal",
+    "Algarve":                     "Portugal",
+    "Portimao":                    "Portugal",
+    "Azores":                      "Portugal",
+    "Madeira":                     "Portugal",
+
+    # ── French Polynesia ──────────────────────────────────────────────────────
+    "French Polynesia":            "French Polynesia",
+    "Bora Bora":                   "French Polynesia",
+    "Papeete":                     "French Polynesia",
+    "Tahiti":                      "French Polynesia",
+    "Raiatea":                     "French Polynesia",
+
+    # ── Bahamas ───────────────────────────────────────────────────────────────
+    "Bahamas":                     "Bahamas",
+    "Abacos":                      "Bahamas",
+    "Nassau":                      "Bahamas",
+    "Exumas":                      "Bahamas",
+    "Eleuthera":                   "Bahamas",
+
+    # ── Seychelles ────────────────────────────────────────────────────────────
+    "Seychelles":                  "Seychelles",
+
+    # ── Thailand ──────────────────────────────────────────────────────────────
+    "Thailand":                    "Thailand",
+    "Phuket":                      "Thailand",
+
+    # ── British Virgin Islands ────────────────────────────────────────────────
+    "British Virgin Islands":      "British Virgin Islands",
+    "BVI":                         "British Virgin Islands",
+    "Tortola":                     "British Virgin Islands",
+    "Virgin Gorda":                "British Virgin Islands",
+    "Jost Van Dyke":               "British Virgin Islands",
+    "Anegada":                     "British Virgin Islands",
 }
 
 # Keywords that identify navigation equipment (vs comfort equipment)

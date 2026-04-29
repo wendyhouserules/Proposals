@@ -1,0 +1,120 @@
+Return-Path: <luisafezzardini@gmail.com>
+Delivered-To: chris@sailscanner.ai
+Received: from gator4186.hostgator.com
+	by gator4186.hostgator.com with LMTP
+	id GDwTAo8e7mmUyAAAI689Mg
+	(envelope-from <luisafezzardini@gmail.com>)
+	for <chris@sailscanner.ai>; Sun, 26 Apr 2026 09:17:51 -0500
+Return-path: <luisafezzardini@gmail.com>
+Envelope-to: chris@sailscanner.ai
+Delivery-date: Sun, 26 Apr 2026 09:17:51 -0500
+Received: from mail-yx1-f42.google.com ([74.125.224.42]:57544)
+	by gator4186.hostgator.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.99.1)
+	(envelope-from <luisafezzardini@gmail.com>)
+	id 1wH0Iw-00000000TWu-3mIJ
+	for chris@sailscanner.ai;
+	Sun, 26 Apr 2026 09:17:50 -0500
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-651bc83e74aso7630133d50.2
+        for <chris@sailscanner.ai>; Sun, 26 Apr 2026 07:17:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777213060; cv=none;
+        d=google.com; s=arc-20240605;
+        b=bSqAZXNao9Rf39JEHgfA+cKmRLI10OeAI0HWGmAPQ7uWqEl+6it5puO2Djhx5JhO6h
+         kC525PmItCiBpNYOHcaWp8MpztbXMiJghi19s1Ch8DJBc9JaVC8jfDSU7E/Yky8ZlXXQ
+         hPWd+h7NT+3vSKhlj9aEu9rpfacVOw4PZWplgxFwcdDMPU+T+FQNZy5jL87pOgSDR2O+
+         yoMi/xuJBTEtrQp73XEcXj2RpQu9LfE7nFXVFC9SHUYydpxDyUqAdgrbupk7FqLMcQRc
+         WJfW+eIr0EzDClgQwfQludzdY/dOpqaoHoIvUwZgUop9bojJr4MxszhNYueSBDhtKsOf
+         L+pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=RCxAb6fvZt1wjQv6iQMsgqXt1fpa2jw3dBvDYGDHF8Y=;
+        fh=/KC/FpyU7z+mUsRLnd76rVKqO3L7OlAv0pwu9M1Y2pA=;
+        b=flt9FUQPqUs/sJ51rdt/snlyuvISqIc5DW1xHdQwVNCQ+vqjoeaaGQqo/1SIoPPpJ1
+         usk7Mx01Yfx34Ea3/R3LE89iwzhfAKduxfzXQjt60swB0hgO9J+H0QxuSXdunIayZoD2
+         S9ybrx2acENuvFEsRbNQMJVGuEP+M6PS6aJOcSNsU+BTKjoM93W9BiFXYFcZg/zVeedh
+         4ML2td0NiAuT6jpBW2kJkXFZjDWtPY0w9KalKpGi5ycVxdXQlEThB1CRxqOtAaSb8XtE
+         yZdJUjAC152fFsY8+f7SNU0wBIwo44U/6d2LFYfnxcuCmgIogLdPoW1yUrXrQGCbQ/a0
+         o6Ng==;
+        darn=sailscanner.ai
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777213060; x=1777817860; darn=sailscanner.ai;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=RCxAb6fvZt1wjQv6iQMsgqXt1fpa2jw3dBvDYGDHF8Y=;
+        b=EULfraoLkKP+XoYUexILMfeasi9aWLP97vKaXRTQef7W4ic/tMbEYXvOz+vgU4WQ4Y
+         A/9edt++X9StnCjU10I/nWs03H7wBAoKyXpo5Ey3K7QIcRb175OshTrlad/cqf2RIh+D
+         ATh+U04CWEwgmFV7XfQQs8ZB5uEh1FRpYWSSwHiYmBro3QiAoIm61TgumvsJef27L0oC
+         dw7ZL2lmqfe+snK8gIOWoRUPvVXWAeec41k7t5Y5miLo8x1DcCA5woX3W1tyW2ViaCQo
+         799VWPo5MZMFTc772vYpgpShQnsKd+Q9EKKZCDHzeJJy3JwuMfNyzYODdBzvfMci+0Iu
+         krjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777213060; x=1777817860;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RCxAb6fvZt1wjQv6iQMsgqXt1fpa2jw3dBvDYGDHF8Y=;
+        b=ljCpHh/uhS3vkmcJmcl9BfXHeoHtEvPrIkHkOWkmuQgikMioy+PIi0pz+7cQYjxaCy
+         QpLgyL37WFavqY93jJF2cKSQEU59H6tPzy61XJMM/Uf0dtFijpb0g+eAJRRnReFhc1l5
+         4/1VST9eFM4RC1TUQyzETx5ehxWK+e4s3r7Z8qujIile5Cu9QzJ6rwk0DCfG/B9+b3w7
+         r6xD0/WuSmSAz7xHcvYCNb6jsy2XQxkM7eixCE7L0VDhP25ou0Opg9R5IqtNCKCtildB
+         lcF/Tyy2fH+Ke6GKUs0/aZWv1vSJfm4EyxiYZJl0NuXwwMnFI0KgPgmP2jsDubwAfFE4
+         narQ==
+X-Gm-Message-State: AOJu0YznK7xoO2Sh07LVN2vm/XpprqLNootkNVA1OOa5AzRryZvnG3VE
+	IIKwyq7dS7tYZxwUU4NKSv5gkA01ihXolk1WoUKzOJ82LiU8p5jiN49QG585x3vz2lHWgDl9rmH
+	m/+x5MwzLk80pfLF1ngpfauwkiB8235Q480bA
+X-Gm-Gg: AeBDietawgz8zQwL7zWNmAarzGo8ENkehFMermHJ0RbN1zA2sQ/inxeyvg81wt//frA
+	Hvs8r4GkvCqHDM+JAv1Dthid87jsGkTjaQZ339PT8TMSy9IGvl7Gjrk5aOBDRSmzQ1LEB+9u8s4
+	vu9oeM/PQrm6h1U7YAxF+g5k0kuc5IStpYFcax4ycA4cnhbTO4/BAwNAwHUgBtV2gZa0ArIgnXG
+	xNakA3xZ8EyY7y2ZqgyAaG3me9HhU1Bb/z4zBOU0uHQV6mFtPXSIFJeUWw+RUKmaLqZWbz9HS1p
+	r+EDLtRBpC/55A8Qe01Ye6GK+tH1SV0Eqs5NKod2WLNTIDxO
+X-Received: by 2002:a53:d015:0:b0:653:35c:c60b with SMTP id
+ 956f58d0204a3-65310abd401mr30677885d50.54.1777213059938; Sun, 26 Apr 2026
+ 07:17:39 -0700 (PDT)
+MIME-Version: 1.0
+From: Luisa Fezzardini <luisafezzardini@gmail.com>
+Date: Sun, 26 Apr 2026 16:17:27 +0200
+X-Gm-Features: AVHnY4Is3EwDh-nqdHoxshlBgFA2PZZR9QVqIW2CaqaJGligKHRBDJkrUgvk19c
+Message-ID: <CAMN=51e_SWcdwPFPLGmtBrwJ75Z9VLq28gKwYA9QxCOxT1zO9g@mail.gmail.com>
+Subject: 2 Boats for a 2027 sailing in the Norwegian fjords
+To: chris@sailscanner.ai
+Content-Type: multipart/alternative; boundary="00000000000020bd5f06505da946"
+X-Spam-Status: No, score=1.9
+X-Spam-Score: 19
+X-Spam-Bar: +
+X-Spam-Flag: NO
+
+--00000000000020bd5f06505da946
+Content-Type: text/plain; charset="UTF-8"
+
+Good afternoon Chris, you helped me with a sailing plan in Sweden this year.
+For the next year we would like to organize a sailing in the Norwegian
+fjords, with two boats. It is very early, but last year we tried to
+organize around October-November and it was already too late, so we would
+like to play it in advance.
+Can you help? We are looking for a nice panoramic route in the fjords, with
+two sailboats with 3 double cabins each. Period: July, preferably 10-17
+(Saturday to Saturday) but we can accommodate other dates.
+Thank you for your help.
+
+-- 
+Luisa Fezzardini
+tel. 335 7454690
+
+--00000000000020bd5f06505da946
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Good afternoon Chris, you helped me with a sailing pl=
+an in Sweden this year.</div><div>For the next year we would like to organi=
+ze a sailing in the Norwegian fjords, with two boats. It is very early, but=
+ last year we tried to organize around October-November and it was already =
+too late, so we would like to play it in advance.</div><div>Can you help? W=
+e are looking for a nice panoramic route in the fjords, with two sailboats =
+with 3 double cabins each. Period: July, preferably 10-17 (Saturday to Satu=
+rday) but we can accommodate=C2=A0other dates.</div><div>Thank you for your=
+ help.</div><div><br></div><span class=3D"gmail_signature_prefix">-- </span=
+><br><div dir=3D"ltr" class=3D"gmail_signature" data-smartmail=3D"gmail_sig=
+nature"><div dir=3D"ltr"><div>Luisa Fezzardini</div><div>tel. 335 7454690</=
+div><div><br></div></div></div></div>
+
+--00000000000020bd5f06505da946--

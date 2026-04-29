@@ -1,0 +1,42 @@
+{
+    "lead_id": "aa13441e-885b-4b24-9367-91690d9c646c",
+    "answers": {
+      "charterType": "skippered",
+      "experienceLevel": "experienced",
+      "country": "Italy",
+      "region": "any",
+      "boatType": "either",
+      "size": "any",
+      "crewServices": {
+        "chef": true
+      },
+      "guests": {
+        "adults": 2,
+        "children": 0
+      },
+      "cabins": 2,
+      "budget": "€6.5k–€9.5k",
+      "dates": {
+        "start": "2026-06-27",
+        "end": "2026-07-04"
+      },
+      "contact": {
+        "firstName": "Pamela",
+        "lastName": "Penny Williams",
+        "email": "pamela@grgnc.com"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1"
+    },
+    "timestamp": "2026-04-29T00:48:13.402Z",
+    "geo": {
+      "ip": "153.66.95.157",
+      "countryCode": "US",
+      "source": "header"
+    }
+   }

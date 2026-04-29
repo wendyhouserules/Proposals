@@ -1,0 +1,44 @@
+{
+    "lead_id": "2251fe9c-7db9-4282-9837-ee32ba964da1",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "French Polynesia",
+      "boatType": "catamaran",
+      "size": "any",
+      "guests": {
+        "adults": 4,
+        "children": 4
+      },
+      "cabins": 4,
+      "yachtOptions": {
+        "airConditioning": true,
+        "generator": true,
+        "bowThruster": true,
+        "furlingMainsail": true
+      },
+      "budget": "€6k–€8k",
+      "dates": {
+        "start": "2026-11-07",
+        "end": "2026-11-14"
+      },
+      "contact": {
+        "firstName": "Simon",
+        "lastName": "Young",
+        "email": "simonyoung@hotmail.com",
+        "phone": "+61439854226"
+      }
+    },
+    "attribution": {
+      "referrer": "https://sailscanner.ai/",
+      "landing_url": "https://quiz.sailscanner.ai/step/country"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36"
+    },
+    "timestamp": "2026-04-27T05:38:29.664Z",
+    "geo": {
+      "ip": "1.124.26.45",
+      "countryCode": "AU",
+      "source": "header"
+    }
+   }

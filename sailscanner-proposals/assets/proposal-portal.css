@@ -1466,3 +1466,295 @@
 		font-size: 0.75rem;
 	}
 }
+
+/* ── How it Works: vertical numbered list ─────────────────────────────── */
+.ss-proposal-how-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.ss-proposal-how-timeline .ss-proposal-how-step {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	padding: 0.9rem 0;
+	border-bottom: 1px solid rgba(0,0,0,0.07);
+	text-align: left;
+	flex: none;
+	background: transparent;
+	border-left: none;
+	border-right: none;
+	border-top: none;
+	border-radius: 0;
+	box-shadow: none;
+	transition: none;
+}
+
+.ss-proposal-how-timeline .ss-proposal-how-step:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.ss-proposal-how-timeline .ss-proposal-how-step:hover {
+	transform: none;
+	box-shadow: none;
+}
+
+.ss-proposal-how-connector {
+	display: none;
+}
+
+.ss-proposal-how-num {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: #2B6CB0;
+	color: #fff;
+	font-size: 0.95rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	margin: 0.1rem 0 0;
+}
+
+.ss-proposal-how-step-text {
+	flex: 1;
+	min-width: 0;
+}
+
+/* ── Charter Insurance section ────────────────────────────────────────── */
+.ss-proposal-insurance-card {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.ss-proposal-insurance-partner {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.25rem;
+	padding-bottom: 1.25rem;
+	border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.ss-proposal-insurance-name {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: #12305c;
+	background: #EBF8FF;
+	border: 1px solid #BEE3F8;
+	border-radius: 8px;
+	padding: 0.35rem 0.85rem;
+}
+
+.ss-proposal-insurance-verified {
+	font-size: 0.78rem;
+	font-weight: 600;
+	padding: 0.25rem 0.65rem;
+	border-radius: 20px;
+	background: #FEFCBF;
+	border: 1px solid #ECC94B;
+	color: #744210;
+}
+
+.ss-proposal-insurance-intro {
+	margin: 0 0 1.25rem;
+	font-size: 0.9rem;
+	line-height: 1.6;
+	color: #374151;
+}
+
+.ss-proposal-insurance-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+}
+
+@media ( max-width: 580px ) {
+	.ss-proposal-insurance-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.ss-proposal-insurance-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	background: #F7FAFC;
+	border: 1px solid #E2E8F0;
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+}
+
+.ss-proposal-insurance-dot {
+	display: block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #2B6CB0;
+	flex-shrink: 0;
+	margin-top: 0.35rem;
+}
+
+.ss-proposal-insurance-item-title {
+	font-size: 0.88rem;
+	font-weight: 700;
+	color: #12305c;
+	margin: 0 0 0.2rem;
+}
+
+.ss-proposal-insurance-item-body {
+	font-size: 0.82rem;
+	color: #6B7280;
+	margin: 0;
+	line-height: 1.4;
+}
+
+.ss-proposal-insurance-note {
+	margin: 0.75rem 0 0;
+	font-size: 0.8rem;
+	opacity: 0.7;
+}
+
+/* ── Next Steps: action cards ─────────────────────────────────────────── */
+.ss-proposal-next-cards {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.75rem;
+	margin-bottom: 1.25rem;
+}
+
+@media ( max-width: 600px ) {
+	.ss-proposal-next-cards {
+		grid-template-columns: 1fr;
+	}
+}
+
+.ss-proposal-next-card {
+	background: #fff;
+	border: 1px solid rgba(0,0,0,0.08);
+	border-radius: 10px;
+	padding: 1rem 1rem 1.1rem;
+}
+
+.ss-proposal-next-num {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: #2B6CB0;
+	color: #fff;
+	font-size: 0.82rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0.65rem;
+}
+
+.ss-proposal-next-card-title {
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: #12305c;
+	margin: 0 0 0.3rem;
+}
+
+.ss-proposal-next-card-body {
+	font-size: 0.83rem;
+	color: #6B7280;
+	margin: 0;
+	line-height: 1.45;
+}
+
+.ss-proposal-next-cta {
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+/* ── Contact: avatar card ─────────────────────────────────────────────── */
+.ss-proposal-contact-inner {
+	display: flex;
+	gap: 1.25rem;
+	align-items: flex-start;
+}
+
+.ss-proposal-contact-avatar {
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: #2B6CB0;
+	color: #fff;
+	font-size: 1rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.ss-proposal-contact-body {
+	flex: 1;
+}
+
+.ss-proposal-contact-name {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #12305c;
+	margin: 0 0 0.15rem;
+}
+
+.ss-proposal-contact-role {
+	font-size: 0.85rem;
+	color: #6B7280;
+	margin: 0 0 0.75rem;
+}
+
+.ss-proposal-contact-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	background: #F0FFF4;
+	border: 1px solid #9AE6B4;
+	border-radius: 20px;
+	font-size: 0.78rem;
+	color: #276749;
+	font-weight: 600;
+	padding: 0.2rem 0.65rem;
+	margin-bottom: 0.9rem;
+}
+
+.ss-proposal-contact-dot {
+	display: block;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #38A169;
+	flex-shrink: 0;
+}
+
+.ss-proposal-contact-btns {
+	display: flex;
+	gap: 0.65rem;
+	flex-wrap: wrap;
+	margin-bottom: 0.75rem;
+}
+
+.ss-proposal-contact-avail {
+	font-size: 0.8rem;
+	color: #9CA3AF;
+	margin: 0;
+}
+
+@media ( max-width: 480px ) {
+	.ss-proposal-contact-inner {
+		flex-direction: column;
+	}
+}

@@ -261,10 +261,16 @@ async def build_proposal(request: Request) -> dict:
         f"{contact.get('firstName', '')} {contact.get('lastName', '')}".strip()
         or contact.get("name", "Unknown")
     )
+    # ── Region resolution ─────────────────────────────────────────────────────
+    # Some quiz paths send "any" when no sub-region was selected, or skip the
+    # region step entirely (Seychelles, Thailand). In both cases fall back to
+    # the country name. REGION_CONFIG has country-level entries (Italy, Greece,
+    # Croatia, Spain, Turkey, France) with empty filter_region so the portal
+    # returns the full country fleet — not a single default region.
     region_raw = answers.get("region") or ""
     region_str = (region_raw[0] if isinstance(region_raw, list) else region_raw).strip()
-    # Some destinations (Seychelles, Thailand) skip the region step — fall back to country
-    if not region_str:
+    # Treat "any" the same as empty — fall back to country
+    if not region_str or region_str.lower() == "any":
         region_str = (answers.get("country") or "").strip()
 
     lead_label = (
@@ -304,6 +310,7 @@ async def build_proposal(request: Request) -> dict:
         _portal_kind = BOAT_TYPE_MAP.get(_boat_type_str) or ""  # "Catamaran", "Sail boat", or ""
 
         # Search with actual duration first
+        lead_cabins = int(answers.get("cabins") or 0)
         print(f"Live search: {region_str} / {start_iso} / {duration_days} nights", flush=True)
         live_results = live_search_all(
             region=region_str,
@@ -313,6 +320,7 @@ async def build_proposal(request: Request) -> dict:
             children=children,
             flexibility="closest_day",
             boat_kind=_portal_kind,
+            min_cabins=lead_cabins,
         )
         total_available      = len(live_results)
         original_total       = total_available  # remember count before any retry
@@ -335,6 +343,7 @@ async def build_proposal(request: Request) -> dict:
                 children=children,
                 flexibility="closest_day",
                 boat_kind=_portal_kind,
+                min_cabins=lead_cabins,
             )
             retry_total = len(retry_results)
             print(f"Retry returned {retry_total} yachts", flush=True)

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SailScanner Proposals
  * Description: Tokenized proposal pages for SailScanner (ss_proposal and ss_proposal_yacht CPTs, /proposals/{token}/, REST proposal endpoints). Optional: sailscanner-rest-endpoints-extended for HMAC on sailscanner/v1.
- * Version:     1.0.0
+ * Version:     1.0.2
  * Author:      SailScanner
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SAILSCANNER_PROPOSALS_VERSION', '1.0.0' );
+define( 'SAILSCANNER_PROPOSALS_VERSION', '1.0.2' );
 define( 'SAILSCANNER_PROPOSALS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SAILSCANNER_PROPOSALS_URL', plugin_dir_url( __FILE__ ) );
 

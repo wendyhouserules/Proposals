@@ -232,6 +232,7 @@ get_header();
 						</li>
 						<?php endif; ?>
 						<li><a href="#how-it-works" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">settings</span><?php esc_html_e( 'How it Works', 'sailscanner-proposals' ); ?></a></li>
+						<li><a href="#charter-insurance" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">shield</span><?php esc_html_e( 'Charter Insurance', 'sailscanner-proposals' ); ?></a></li>
 						<li><a href="#next-steps" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">check_circle</span><?php esc_html_e( 'Next Steps', 'sailscanner-proposals' ); ?></a></li>
 						<li><a href="#contact" class="ss-proposal-nav-link"><span class="material-symbols-outlined ss-proposal-nav-icon" aria-hidden="true">mail</span><?php esc_html_e( 'Contact', 'sailscanner-proposals' ); ?></a></li>
 					</ul>
@@ -548,67 +549,154 @@ get_header();
 
 			<section class="ss-proposal-section" id="how-it-works">
 				<h2 class="ss-proposal-h2"><?php esc_html_e( 'How it Works', 'sailscanner-proposals' ); ?></h2>
-				<div class="ss-proposal-how-grid">
+				<div class="ss-proposal-how-timeline">
 					<div class="ss-proposal-how-step">
-						<span class="material-symbols-outlined ss-proposal-how-icon" aria-hidden="true">calendar_month</span>
-						<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Tell us your dates & preferences', 'sailscanner-proposals' ); ?></h3>
-						<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Share your preferred dates, group size, and any special requirements. We find the best yachts and itineraries for you.', 'sailscanner-proposals' ); ?></p>
+						<div class="ss-proposal-how-num" aria-hidden="true">1</div>
+						<div class="ss-proposal-how-step-text">
+							<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Tell us your dates & preferences', 'sailscanner-proposals' ); ?></h3>
+							<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Share your preferred dates, group size, and any special requirements. We find the best yachts and itineraries for you.', 'sailscanner-proposals' ); ?></p>
+						</div>
 					</div>
 					<div class="ss-proposal-how-step">
-						<span class="material-symbols-outlined ss-proposal-how-icon" aria-hidden="true">demography</span>
-						<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Receive your custom quote', 'sailscanner-proposals' ); ?></h3>
-						<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Get personalised options with our lowest price guarantee. No obligation, completely free.', 'sailscanner-proposals' ); ?></p>
+						<div class="ss-proposal-how-num" aria-hidden="true">2</div>
+						<div class="ss-proposal-how-step-text">
+							<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Receive your custom quote', 'sailscanner-proposals' ); ?></h3>
+							<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Get personalised options with our lowest price guarantee. No obligation, completely free.', 'sailscanner-proposals' ); ?></p>
+						</div>
 					</div>
 					<div class="ss-proposal-how-step">
-						<span class="material-symbols-outlined ss-proposal-how-icon" aria-hidden="true">inventory</span>
-						<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Book & confirm', 'sailscanner-proposals' ); ?></h3>
-						<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Once you are happy with your selection, we handle paperwork and confirm your booking with the charter company.', 'sailscanner-proposals' ); ?></p>
+						<div class="ss-proposal-how-num" aria-hidden="true">3</div>
+						<div class="ss-proposal-how-step-text">
+							<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Book & confirm', 'sailscanner-proposals' ); ?></h3>
+							<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Once you are happy with your selection, we handle paperwork and confirm your booking with the charter company.', 'sailscanner-proposals' ); ?></p>
+						</div>
 					</div>
 					<div class="ss-proposal-how-step">
-						<span class="material-symbols-outlined ss-proposal-how-icon" aria-hidden="true">support_agent</span>
-						<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Pre-charter support', 'sailscanner-proposals' ); ?></h3>
-						<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Receive details about your yacht, marina, provisioning and our recommended itinerary.', 'sailscanner-proposals' ); ?></p>
+						<div class="ss-proposal-how-num" aria-hidden="true">4</div>
+						<div class="ss-proposal-how-step-text">
+							<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Pre-charter support', 'sailscanner-proposals' ); ?></h3>
+							<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Receive details about your yacht, marina, provisioning and our recommended itinerary.', 'sailscanner-proposals' ); ?></p>
+						</div>
 					</div>
 					<div class="ss-proposal-how-step">
-						<span class="material-symbols-outlined ss-proposal-how-icon" aria-hidden="true">sailing</span>
-						<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Sail away', 'sailscanner-proposals' ); ?></h3>
-						<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Arrive at the marina, complete check-in and set sail. We are here if you need anything.', 'sailscanner-proposals' ); ?></p>
+						<div class="ss-proposal-how-num" aria-hidden="true">5</div>
+						<div class="ss-proposal-how-step-text">
+							<h3 class="ss-proposal-how-step-title"><?php esc_html_e( 'Sail away', 'sailscanner-proposals' ); ?></h3>
+							<p class="ss-proposal-how-step-summary"><?php esc_html_e( 'Arrive at the marina, complete check-in and set sail. We are here if you need anything.', 'sailscanner-proposals' ); ?></p>
+						</div>
 					</div>
+				</div>
+			</section>
+			<hr class="ss-proposal-section-hr" />
+
+			<section class="ss-proposal-section" id="charter-insurance">
+				<h2 class="ss-proposal-h2"><?php esc_html_e( 'Charter Insurance', 'sailscanner-proposals' ); ?></h2>
+				<div class="ss-proposal-content ss-proposal-card ss-proposal-insurance-card">
+					<div class="ss-proposal-insurance-partner">
+						<span class="ss-proposal-insurance-name"><?php esc_html_e( 'Topsail Insurance', 'sailscanner-proposals' ); ?></span>
+						<span class="ss-proposal-insurance-verified"><?php esc_html_e( '✓ Verified partner', 'sailscanner-proposals' ); ?></span>
+					</div>
+					<p class="ss-proposal-insurance-intro"><?php esc_html_e( "A charter holiday is a significant investment, and the unexpected can ruin it. Topsail specialise in charter travel insurance, giving you and your crew complete peace of mind from the moment you book to the moment you return.", 'sailscanner-proposals' ); ?></p>
+					<div class="ss-proposal-insurance-grid">
+						<div class="ss-proposal-insurance-item">
+							<span class="ss-proposal-insurance-dot" aria-hidden="true"></span>
+							<div>
+								<p class="ss-proposal-insurance-item-title"><?php esc_html_e( 'Trip cancellation & curtailment', 'sailscanner-proposals' ); ?></p>
+								<p class="ss-proposal-insurance-item-body"><?php esc_html_e( 'Protect your deposit and full charter costs if plans change before or during your trip.', 'sailscanner-proposals' ); ?></p>
+							</div>
+						</div>
+						<div class="ss-proposal-insurance-item">
+							<span class="ss-proposal-insurance-dot" aria-hidden="true"></span>
+							<div>
+								<p class="ss-proposal-insurance-item-title"><?php esc_html_e( 'Emergency medical & repatriation', 'sailscanner-proposals' ); ?></p>
+								<p class="ss-proposal-insurance-item-body"><?php esc_html_e( 'Comprehensive cover for accidents and illness at sea, including repatriation home.', 'sailscanner-proposals' ); ?></p>
+							</div>
+						</div>
+						<div class="ss-proposal-insurance-item">
+							<span class="ss-proposal-insurance-dot" aria-hidden="true"></span>
+							<div>
+								<p class="ss-proposal-insurance-item-title"><?php esc_html_e( 'Baggage & personal property', 'sailscanner-proposals' ); ?></p>
+								<p class="ss-proposal-insurance-item-body"><?php esc_html_e( 'Cover for lost, stolen or damaged luggage, electronics and valuables.', 'sailscanner-proposals' ); ?></p>
+							</div>
+						</div>
+						<div class="ss-proposal-insurance-item">
+							<span class="ss-proposal-insurance-dot" aria-hidden="true"></span>
+							<div>
+								<p class="ss-proposal-insurance-item-title"><?php esc_html_e( 'Legal expenses & liability', 'sailscanner-proposals' ); ?></p>
+								<p class="ss-proposal-insurance-item-body"><?php esc_html_e( 'Protection against third-party claims and unexpected legal costs during your charter.', 'sailscanner-proposals' ); ?></p>
+							</div>
+						</div>
+					</div>
+					<a href="https://www.topsailinsurance.com/travel-insurance/charter-travel-insurance" class="ss-proposal-btn ss-proposal-btn-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get a free quote from Topsail', 'sailscanner-proposals' ); ?></a>
+					<p class="ss-proposal-insurance-note ss-proposal-muted"><?php esc_html_e( 'Topsail Insurance is a SailScanner verified partner. Charter insurance is strongly recommended for all bookings.', 'sailscanner-proposals' ); ?></p>
 				</div>
 			</section>
 			<hr class="ss-proposal-section-hr" />
 
 			<section class="ss-proposal-section" id="next-steps">
 				<h2 class="ss-proposal-h2"><?php esc_html_e( 'Next Steps', 'sailscanner-proposals' ); ?></h2>
-				<div class="ss-proposal-content ss-proposal-card">
-					<ul class="ss-proposal-next-steps">
-						<li><?php esc_html_e( 'Review your yacht selection and view details.', 'sailscanner-proposals' ); ?></li>
-						<li><?php esc_html_e( 'Contact us via WhatsApp or email with any questions.', 'sailscanner-proposals' ); ?></li>
-						<li><?php esc_html_e( 'Confirm your preferred option and dates.', 'sailscanner-proposals' ); ?></li>
-					</ul>
-					<?php if ( $notes_html ) : ?>
-						<div class="ss-proposal-notes-inline"><?php echo wp_kses_post( $notes_html ); ?></div>
+				<div class="ss-proposal-next-cards">
+					<div class="ss-proposal-next-card">
+						<div class="ss-proposal-next-num" aria-hidden="true">1</div>
+						<h3 class="ss-proposal-next-card-title"><?php esc_html_e( 'Browse your shortlist', 'sailscanner-proposals' ); ?></h3>
+						<p class="ss-proposal-next-card-body"><?php esc_html_e( "Review the yachts we've selected, compare specs and pricing, and note your favourites.", 'sailscanner-proposals' ); ?></p>
+					</div>
+					<div class="ss-proposal-next-card">
+						<div class="ss-proposal-next-num" aria-hidden="true">2</div>
+						<h3 class="ss-proposal-next-card-title"><?php esc_html_e( 'Ask us anything', 'sailscanner-proposals' ); ?></h3>
+						<p class="ss-proposal-next-card-body"><?php esc_html_e( 'Got questions? Message us on WhatsApp. We reply fast, usually within the hour.', 'sailscanner-proposals' ); ?></p>
+					</div>
+					<div class="ss-proposal-next-card">
+						<div class="ss-proposal-next-num" aria-hidden="true">3</div>
+						<h3 class="ss-proposal-next-card-title"><?php esc_html_e( 'Reserve your yacht', 'sailscanner-proposals' ); ?></h3>
+						<p class="ss-proposal-next-card-body"><?php esc_html_e( "Ready to proceed? We'll hold your preferred yacht while you finalise your decision.", 'sailscanner-proposals' ); ?></p>
+					</div>
+				</div>
+				<div class="ss-proposal-next-cta">
+					<?php if ( $contact_wa ) : ?>
+						<?php
+						$wa_ns_link = SS_Proposal_Helpers::whatsapp_url( $contact_wa, __( 'Hi, I have a question about my charter proposal.', 'sailscanner-proposals' ) );
+						?>
+						<a href="<?php echo esc_url( $wa_ns_link ); ?>" class="ss-proposal-btn ss-proposal-btn-whatsapp" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Chat on WhatsApp', 'sailscanner-proposals' ); ?></a>
+					<?php endif; ?>
+					<?php if ( $contact_email ) : ?>
+						<a href="mailto:<?php echo esc_attr( $contact_email ); ?>" class="ss-proposal-btn ss-proposal-btn-outline"><?php esc_html_e( 'Email us', 'sailscanner-proposals' ); ?></a>
 					<?php endif; ?>
 				</div>
+				<p class="ss-proposal-muted"><?php esc_html_e( 'Prices shown are live rates for your exact dates. Contact us to hold a yacht and lock in your booking.', 'sailscanner-proposals' ); ?></p>
 			</section>
 			<hr class="ss-proposal-section-hr" />
 
 			<section class="ss-proposal-section" id="contact">
 				<h2 class="ss-proposal-h2"><?php esc_html_e( 'Contact', 'sailscanner-proposals' ); ?></h2>
 				<div class="ss-proposal-content ss-proposal-card">
-					<?php if ( $contact_wa ) : ?>
-						<?php
-						$wa_generic = __( 'Hi, I have a question about my charter proposal.', 'sailscanner-proposals' );
-						$wa_link = SS_Proposal_Helpers::whatsapp_url( $contact_wa, $wa_generic );
-						?>
-						<p><a href="<?php echo esc_url( $wa_link ); ?>" class="ss-proposal-btn ss-proposal-btn-whatsapp" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Chat on WhatsApp', 'sailscanner-proposals' ); ?></a></p>
-					<?php endif; ?>
-					<?php if ( $contact_email ) : ?>
-						<p><a href="mailto:<?php echo esc_attr( $contact_email ); ?>" class="ss-proposal-link"><?php echo esc_html( $contact_email ); ?></a></p>
-					<?php endif; ?>
-					<?php if ( ! $contact_wa && ! $contact_email ) : ?>
-						<p class="ss-proposal-muted"><?php esc_html_e( 'Contact details will be provided by your charter advisor.', 'sailscanner-proposals' ); ?></p>
-					<?php endif; ?>
+					<div class="ss-proposal-contact-inner">
+						<div class="ss-proposal-contact-avatar" aria-hidden="true">SS</div>
+						<div class="ss-proposal-contact-body">
+							<p class="ss-proposal-contact-name"><?php esc_html_e( 'SailScanner Team', 'sailscanner-proposals' ); ?></p>
+							<p class="ss-proposal-contact-role"><?php esc_html_e( 'Charter specialists · Based in UK', 'sailscanner-proposals' ); ?></p>
+							<div class="ss-proposal-contact-status">
+								<span class="ss-proposal-contact-dot" aria-hidden="true"></span>
+								<?php esc_html_e( 'Usually replies within 1 hour', 'sailscanner-proposals' ); ?>
+							</div>
+							<div class="ss-proposal-contact-btns">
+								<?php if ( $contact_wa ) : ?>
+									<?php
+									$wa_generic = __( 'Hi, I have a question about my charter proposal.', 'sailscanner-proposals' );
+									$wa_link    = SS_Proposal_Helpers::whatsapp_url( $contact_wa, $wa_generic );
+									?>
+									<a href="<?php echo esc_url( $wa_link ); ?>" class="ss-proposal-btn ss-proposal-btn-whatsapp" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Chat on WhatsApp', 'sailscanner-proposals' ); ?></a>
+								<?php endif; ?>
+								<?php if ( $contact_email ) : ?>
+									<a href="mailto:<?php echo esc_attr( $contact_email ); ?>" class="ss-proposal-btn ss-proposal-btn-outline"><?php esc_html_e( 'Email us', 'sailscanner-proposals' ); ?></a>
+								<?php endif; ?>
+								<?php if ( ! $contact_wa && ! $contact_email ) : ?>
+									<p class="ss-proposal-muted"><?php esc_html_e( 'Contact details will be provided by your charter advisor.', 'sailscanner-proposals' ); ?></p>
+								<?php endif; ?>
+							</div>
+							<p class="ss-proposal-contact-avail"><?php esc_html_e( 'Available Mon–Fri 9am–6pm · Weekends during peak season', 'sailscanner-proposals' ); ?><?php if ( $contact_email ) : ?> · <a href="mailto:<?php echo esc_attr( $contact_email ); ?>" class="ss-proposal-link"><?php echo esc_html( $contact_email ); ?></a><?php endif; ?></p>
+						</div>
+					</div>
 				</div>
 			</section>
 		</main>

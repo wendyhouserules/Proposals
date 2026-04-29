@@ -220,6 +220,16 @@ REGION_CONFIG: dict[str, dict] = {
     "Kotor":            _rc("ME", "6", "5456,665"),
     "Tivat":            _rc("ME", "6", "4715,4834,6766,7563,7622,7938"),
 
+    # ── Country-level entries (region = "any") ────────────────────────────────
+    # Used when the quiz sends region:"any" — searches the full country fleet.
+    # Empty filter_region tells the portal not to narrow by sub-region.
+    "Italy":            {"filter_country": "IT", "filter_region": "", "filter_service": ""},
+    "Greece":           {"filter_country": "GR", "filter_region": "", "filter_service": ""},
+    "Croatia":          {"filter_country": "HR", "filter_region": "", "filter_service": ""},
+    "Spain":            {"filter_country": "ES", "filter_region": "", "filter_service": ""},
+    "Turkey":           {"filter_country": "TR", "filter_region": "", "filter_service": ""},
+    "France":           {"filter_country": "IT", "filter_region": "15", "filter_service": ""},  # Corsica + Riviera circuit
+
     # ── Portugal ──────────────────────────────────────────────────────────────
     # (No region ID probe was needed — country-level search works for PT)
     "Portugal":         {"filter_country": "PT", "filter_region": "", "filter_service": "2219,2256,2257,4432,5158,5901,7542,7731"},
@@ -230,13 +240,14 @@ REGION_CONFIG: dict[str, dict] = {
     "Madeira":          {"filter_country": "PT", "filter_region": "", "filter_service": "5901"},
 
     # ── French Polynesia ──────────────────────────────────────────────────────
-    # Region 32 — Bora Bora, Papeete (Tahiti), Raiatea
-    # Discovered 2026-04-21 via inline probe (country code PF confirmed, 108 yachts)
-    "French Polynesia":  _rc("PF", "32", "6487,6745"),
-    "Bora Bora":         _rc("PF", "32", "6487,6745"),
-    "Papeete":           _rc("PF", "32", "6487,6745"),
-    "Tahiti":            _rc("PF", "32", "6487,6745"),
-    "Raiatea":           _rc("PF", "32", "6487,6745"),
+    # French Polynesia — country-level search (no region filter).
+    # filter_region=32 was too restrictive, limiting to 1 provider (2 boats).
+    # Empty region returns the full PF fleet across all providers/bases.
+    "French Polynesia":  {"filter_country": "PF", "filter_region": "", "filter_service": ""},
+    "Bora Bora":         {"filter_country": "PF", "filter_region": "", "filter_service": ""},
+    "Papeete":           {"filter_country": "PF", "filter_region": "", "filter_service": ""},
+    "Tahiti":            {"filter_country": "PF", "filter_region": "", "filter_service": ""},
+    "Raiatea":           {"filter_country": "PF", "filter_region": "", "filter_service": ""},
 
     # ── Bahamas ───────────────────────────────────────────────────────────────
     # Region 28 covers the whole Bahamas fleet (Marsh Harbour/Abacos + Nassau).
@@ -548,31 +559,40 @@ def live_search_all(
     seniors: int = 0,
     flexibility: str = "closest_day",
     boat_kind: str = "",
+    min_cabins: int = 0,
     debug: bool = False,
 ) -> dict[str, dict]:
     """
     Fetch ALL pages of search results and merge into one pricing dict.
     Handles the portal's 50-per-page limit automatically.
 
-    boat_kind: portal filter_kind value e.g. "Catamaran", "Sail boat", or "" for all.
-               When set, also clears filter_service so catamaran/monohull providers
-               not in the pre-configured service list are included.
+    boat_kind:  portal filter_kind value e.g. "Catamaran", "Sail boat", or "" for all.
+    min_cabins: passed as filter_cabins=N-2000 to the portal. Supplying the lead's
+                minimum cabin requirement here prevents low-cabin boats from filling
+                the 50-per-page limit and crowding out boats that actually match.
 
-    Termination logic:
-      - Page returns 0 results → done.
-      - Page adds 0 NEW yacht IDs (portal is cycling/repeating past real end) → done.
-      - Page returns < 10 results → last page (sparse tail).
+    Termination logic (based on raw portal entry count, not deduplicated IDs):
+      - Page returns 0 raw entries → done.
+      - Page adds 0 new yacht IDs AND raw_count < 50 → sparse last page of all repeats → done.
+      - Page adds 0 new yacht IDs AND raw_count >= 50 → portal is cycling past real end → done.
+      - Page returns < 50 raw entries → last page (sparse tail, fewer than a full page) → done.
       - Hard cap of MAX_PAGES pages reached → stop to avoid runaway loops.
+
+    Note: raw_count (pre-dedup entry count) is used rather than len(page_results) (unique
+    yacht count) because the portal packs ~50 raw entries per page but many entries share
+    the same yachtId across different availability windows. Using len(page_results) < 10
+    would incorrectly terminate on page 1 when only 2 unique yachts exist across 50 entries.
     """
     all_results: dict[str, dict] = {}
     page = 1
     while page <= MAX_PAGES:
-        page_results = live_search(
+        page_results, raw_count = live_search(
             region=region, date_from=date_from, duration=duration,
             adults=adults, children=children, seniors=seniors,
-            flexibility=flexibility, boat_kind=boat_kind, debug=debug, results_page=page,
+            flexibility=flexibility, boat_kind=boat_kind, min_cabins=min_cabins,
+            debug=debug, results_page=page,
         )
-        if not page_results:
+        if raw_count == 0:
             break
 
         # Count how many yacht IDs on this page are genuinely new
@@ -580,11 +600,11 @@ def live_search_all(
         all_results.update(page_results)
 
         if new_count == 0:
-            # Portal is cycling — all results on this page already seen → done
+            # All results on this page already seen — portal is cycling or at real end
             print(f"[live_search_all] Page {page} added 0 new yachts (portal cycling). Stopping.")
             break
-        if len(page_results) < 10:
-            # Sparse last page
+        if raw_count < 50:
+            # Fewer raw entries than a full page → this is the last page
             break
 
         page += 1
@@ -606,23 +626,25 @@ def live_search(
     seniors: int = 0,
     flexibility: str = "closest_day", # closest_day | in_week | in_month | on_day
     boat_kind: str = "",              # "Catamaran", "Sail boat", or "" for all
+    min_cabins: int = 0,              # portal filter_cabins lower bound
     results_page: int = 1,
     debug: bool = False,
-) -> dict[str, dict]:
+) -> tuple[dict[str, dict], int]:
     """
     Fetch live pricing for all available yachts matching the given criteria.
 
     Returns:
-        dict keyed by yacht_id (str) → {rack_price, charter_price, discount_pct,
-                                         discount_label, mandatory_extras,
-                                         optional_extras, deposit, date_from, date_to}
+        (results, raw_count) where:
+          results   — dict keyed by yacht_id (str) → pricing dict (deduplicated)
+          raw_count — number of raw entries in the portal's results array (pre-dedup),
+                      used by live_search_all() for reliable pagination termination
 
-    Returns an empty dict on error (caller should fall back to CSV prices).
+    Returns ({}, 0) on error (caller should fall back to CSV prices).
     """
     cfg = REGION_CONFIG.get(region)
     if not cfg:
         print(f"WARNING: Unknown region '{region}'. Known: {list(REGION_CONFIG)}", file=sys.stderr)
-        return {}
+        return {}, 0
 
     if not cfg.get("filter_region") and not cfg.get("filter_service"):
         print(f"WARNING: Region '{region}' has no region ID or service IDs configured — "
@@ -630,7 +652,7 @@ def live_search(
 
     if not _ensure_logged_in():
         print("ERROR: Cannot authenticate with portal — falling back to CSV prices.", file=sys.stderr)
-        return {}
+        return {}, 0
 
     payload = {
         "view":                    "SearchResult2",
@@ -659,7 +681,7 @@ def live_search(
         "filter_mainsail":         "",
         "filter_genoa":            "",
         "filter_length_ft":        "0-2000",
-        "filter_cabins":           "0-2000",
+        "filter_cabins":           f"{max(0, min_cabins)}-2000",
         "filter_berths":           "0-2000",
         "filter_heads":            "0-2000",
         "filter_price":            "0-10001000",
@@ -692,7 +714,7 @@ def live_search(
         resp.raise_for_status()
     except requests.RequestException as exc:
         print(f"ERROR: Portal search request failed: {exc}", file=sys.stderr)
-        return {}
+        return {}, 0
 
     # Response should be JSON
     try:
@@ -704,16 +726,17 @@ def live_search(
         if debug:
             Path("portal_search_raw_response.html").write_text(resp.text, encoding="utf-8")
             print("[debug] Full response saved to portal_search_raw_response.html")
-        return {}
+        return {}, 0
 
     if debug:
         raw_path = Path("portal_search_raw_response.json")
         raw_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"[debug] Raw JSON response saved to {raw_path}")
 
+    raw_count = len(data.get("results", [])) if isinstance(data, dict) else 0
     parsed = _parse_results(data)
-    print(f"[live_search] {region} {date_from} {duration}n → {len(parsed)} yachts with live pricing")
-    return parsed
+    print(f"[live_search] {region} {date_from} {duration}n → {raw_count} raw entries → {len(parsed)} unique yachts")
+    return parsed, raw_count
 
 
 # ── CLI test ──────────────────────────────────────────────────────────────────
@@ -729,7 +752,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug",       action="store_true",   help="Save raw JSON response to disk")
     args = parser.parse_args()
 
-    results = live_search(
+    results, raw_count = live_search(
         region=args.region,
         date_from=args.date,
         duration=args.duration,
@@ -740,7 +763,7 @@ if __name__ == "__main__":
     )
 
     if not results:
-        print("\nNo results returned (see errors above).")
+        print(f"\nNo results returned (raw_count={raw_count}; see errors above).")
         sys.exit(1)
 
     print(f"\n{'='*60}")
