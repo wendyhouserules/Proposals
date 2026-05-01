@@ -66,7 +66,7 @@ except ImportError:
 from portal_live_search import live_search_all
 from live_proposal_builder import (
     filter_live_yachts, fetch_yacht_photos, live_yacht_to_ss_data,
-    pro_rate_live_results, standard_search_duration,
+    pro_rate_live_results, standard_search_duration, get_itinerary_url,
 )
 from build_proposal_from_csv import inject_crew_services
 from proposal_import import create_proposal
@@ -612,11 +612,17 @@ async def build_proposal(request: Request) -> dict:
         if not WP_USER or not WP_PASSWORD:
             raise RuntimeError("WordPress credentials not set in .env")
 
+        itinerary_url = get_itinerary_url(
+            answers.get("region"),
+            answers.get("country"),
+        )
+
         result = create_proposal(
             yacht_data,
             auth=(WP_USER, WP_PASSWORD),
             intro_html=selection.intro_html,
             itinerary_html="",
+            itinerary_link_url=itinerary_url,
             notes_html=selection.notes_html,
             contact_whatsapp=CONTACT_WHATSAPP,
             contact_email=CONTACT_EMAIL,

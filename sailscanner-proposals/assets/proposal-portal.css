@@ -491,6 +491,7 @@
 	font-size: 0.9rem;
 	border: 2px solid transparent;
 	cursor: pointer;
+	text-align: center;
 }
 
 .ss-proposal-btn:focus {
@@ -1467,7 +1468,7 @@
 	}
 }
 
-/* ── How it Works: vertical numbered list ─────────────────────────────── */
+/* ── How it Works: vertical numbered timeline ─────────────────────────── */
 .ss-proposal-how-timeline {
 	display: flex;
 	flex-direction: column;
@@ -1475,24 +1476,30 @@
 }
 
 .ss-proposal-how-timeline .ss-proposal-how-step {
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 0.9rem 0;
-	border-bottom: 1px solid rgba(0,0,0,0.07);
-	text-align: left;
-	flex: none;
+	display: grid;
+	grid-template-columns: 44px 1fr;
+	gap: 0 1rem;
+	padding: 0 0 1.75rem 0;
+	position: relative;
 	background: transparent;
-	border-left: none;
-	border-right: none;
-	border-top: none;
+	border: none;
 	border-radius: 0;
 	box-shadow: none;
 	transition: none;
 }
 
+/* Vertical connector line between steps */
+.ss-proposal-how-timeline .ss-proposal-how-step:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	left: 21px;
+	top: 44px;
+	bottom: 0;
+	width: 2px;
+	background: #dde5f0;
+}
+
 .ss-proposal-how-timeline .ss-proposal-how-step:last-child {
-	border-bottom: none;
 	padding-bottom: 0;
 }
 
@@ -1501,28 +1508,83 @@
 	box-shadow: none;
 }
 
-.ss-proposal-how-connector {
-	display: none;
-}
-
 .ss-proposal-how-num {
-	width: 36px;
-	height: 36px;
+	width: 44px;
+	height: 44px;
 	border-radius: 50%;
-	background: #2B6CB0;
+	background: #12305c;
 	color: #fff;
-	font-size: 0.95rem;
+	font-size: 1rem;
 	font-weight: 700;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	margin: 0.1rem 0 0;
+	position: relative;
+	z-index: 1;
+}
+
+.ss-proposal-how-num--icon {
+	background: #0d9488;
+}
+
+.ss-proposal-how-num--icon .material-symbols-outlined {
+	font-size: 1.2rem;
 }
 
 .ss-proposal-how-step-text {
 	flex: 1;
 	min-width: 0;
+	padding-top: 0.55rem;
+}
+
+/* "Live pricing & availability" badge */
+.ss-proposal-how-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	border-radius: 20px;
+	padding: 0.2rem 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #1d4ed8;
+	margin-bottom: 0.4rem;
+}
+
+.ss-proposal-how-badge .material-symbols-outlined {
+	font-size: 0.85rem;
+}
+
+/* "No cost · No obligation" / "Booking confirmed" tag */
+.ss-proposal-how-tag {
+	display: inline-block;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 6px;
+	padding: 0.15rem 0.5rem;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: #15803d;
+	margin-top: 0.4rem;
+}
+
+@media ( max-width: 480px ) {
+	.ss-proposal-how-timeline .ss-proposal-how-step {
+		grid-template-columns: 38px 1fr;
+	}
+
+	.ss-proposal-how-num {
+		width: 38px;
+		height: 38px;
+		font-size: 0.9rem;
+	}
+
+	.ss-proposal-how-timeline .ss-proposal-how-step:not(:last-child)::after {
+		left: 18px;
+		top: 38px;
+	}
 }
 
 /* ── Charter Insurance section ────────────────────────────────────────── */
@@ -1618,8 +1680,9 @@
 
 .ss-proposal-insurance-note {
 	margin: 0.75rem 0 0;
-	font-size: 0.8rem;
+	font-size: 0.75rem;
 	opacity: 0.7;
+	text-align: center;
 }
 
 /* ── Next Steps: action cards ─────────────────────────────────────────── */
@@ -1637,10 +1700,17 @@
 }
 
 .ss-proposal-next-card {
-	background: #fff;
+	background: #FFFFFF;
 	border: 1px solid rgba(0,0,0,0.08);
 	border-radius: 10px;
 	padding: 1rem 1rem 1.1rem;
+	box-shadow: 0px 0px 30px 3px rgba(0, 0, 0, 0.17);
+    transition: 0.3s;
+}
+
+.ss-proposal-next-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.2);
 }
 
 .ss-proposal-next-num {

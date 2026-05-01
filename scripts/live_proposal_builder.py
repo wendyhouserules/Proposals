@@ -52,13 +52,16 @@ BUDGET_RANGES: dict[str, tuple[float, float]] = {
 
     # ── Bareboat · Monohull / Either (no offset) ─────────────────────────────
     "under-3k":          (0,       3_000),
+    "under €3k":         (0,       3_000),
     "3-5k":              (3_000,   5_000),
     "5-8k":              (5_000,   8_000),
     "8-12k":             (8_000,  12_000),
     "12k+":              (12_000, float("inf")),
+    "€12k+":             (12_000, float("inf")),
 
     # ── Skippered · Monohull / Either (+€1.5k offset) ─────────────────────────
     "under-4.5k":        (0,       4_500),
+    "under €4.5k":       (0,       4_500),
     "4.5k-6.5k":         (4_500,   6_500),
     "€4.5k–€6.5k":       (4_500,   6_500),
     "6.5k-9.5k":         (6_500,   9_500),
@@ -66,9 +69,11 @@ BUDGET_RANGES: dict[str, tuple[float, float]] = {
     "9.5k-13.5k":        (9_500,  13_500),
     "€9.5k–€13.5k":      (9_500,  13_500),
     "13.5k+":            (13_500, float("inf")),
+    "€13.5k+":           (13_500, float("inf")),
 
     # ── Bareboat · Catamaran (+€3k offset) ────────────────────────────────────
     "under-6k":          (0,       6_000),
+    "under €6k":         (0,       6_000),
     "6k-8k":             (6_000,   8_000),
     "€6k–€8k":           (6_000,   8_000),
     "8k-11k":            (8_000,  11_000),
@@ -76,9 +81,11 @@ BUDGET_RANGES: dict[str, tuple[float, float]] = {
     "11k-15k":           (11_000, 15_000),
     "€11k–€15k":         (11_000, 15_000),
     "15k+":              (15_000, float("inf")),
+    "€15k+":             (15_000, float("inf")),
 
     # ── Skippered · Catamaran (+€4.5k offset) ─────────────────────────────────
     "under-7.5k":        (0,       7_500),
+    "under €7.5k":       (0,       7_500),
     "7.5k-9.5k":         (7_500,   9_500),
     "€7.5k–€9.5k":       (7_500,   9_500),
     "9.5k-12.5k":        (9_500,  12_500),
@@ -86,6 +93,7 @@ BUDGET_RANGES: dict[str, tuple[float, float]] = {
     "12.5k-16.5k":       (12_500, 16_500),
     "€12.5k–€16.5k":     (12_500, 16_500),
     "16.5k+":            (16_500, float("inf")),
+    "€16.5k+":           (16_500, float("inf")),
 
     # ── Catch-all ─────────────────────────────────────────────────────────────
     "any":               (0,      float("inf")),
@@ -119,6 +127,110 @@ SAILING_AND_CATS_TYPES = {"either", "any"}
 
 # Quiz boatType values that mean strictly monohull sailing yacht
 MONOHULL_TYPES = {"monohull", "sailboat", "sail"}
+
+# ── Region → Itinerary URL map ────────────────────────────────────────────────
+# Keys are lowercased region or country names (matching lead JSON answers.region /
+# answers.country and REGION_CONFIG keys in portal_live_search.py).
+# Only regions with a live itinerary page are included — absent = no link shown.
+# Region is tried first (more specific), then country as fallback.
+REGION_ITINERARY_MAP: dict[str, str] = {
+    # ── Greece ────────────────────────────────────────────────────────────────
+    "ionian islands":                "https://sailscanner.ai/itinerary/lefkas-7-day-sailing-itinerary-lefkada-meganisi-ithaca-kefalonia-astakos-kastos/",
+    "ionian":                        "https://sailscanner.ai/itinerary/lefkas-7-day-sailing-itinerary-lefkada-meganisi-ithaca-kefalonia-astakos-kastos/",
+    "corfu":                         "https://sailscanner.ai/itinerary/corfu-7-day-sailing-itinerary-gouvia-paxos-antipaxos-parga-syvota/",
+    "lefkada":                       "https://sailscanner.ai/itinerary/lefkas-7-day-sailing-itinerary-lefkada-meganisi-ithaca-kefalonia-astakos-kastos/",
+    "kefalonia":                     "https://sailscanner.ai/itinerary/lefkas-7-day-sailing-itinerary-lefkada-meganisi-ithaca-kefalonia-astakos-kastos/",
+    "preveza":                       "https://sailscanner.ai/itinerary/lefkas-7-day-sailing-itinerary-lefkada-meganisi-ithaca-kefalonia-astakos-kastos/",
+    "dodecanese":                    "https://sailscanner.ai/itinerary/7-day-kos-sailing-itinerary/",
+    "kos":                           "https://sailscanner.ai/itinerary/7-day-kos-sailing-itinerary/",
+    # ── Italy ─────────────────────────────────────────────────────────────────
+    "italy":                         "https://sailscanner.ai/itinerary/sardinia-7-night-sailing-itinerary-costa-smeralda-la-maddalena-bonifacio/",
+    "sardinia":                      "https://sailscanner.ai/itinerary/sardinia-7-night-sailing-itinerary-costa-smeralda-la-maddalena-bonifacio/",
+    "sicily":                        "https://sailscanner.ai/itinerary/7-day-aeolian-islands-sailing-itinerary/",
+    "corsica":                       "https://sailscanner.ai/itinerary/ajaccio-round-trip-7-day-sailing-itinerary-on-corsicas-west-coast/",
+    "french riviera (côte d'azur)":  "https://sailscanner.ai/itinerary/cote-dazur-port-pin-rolland-7-day-sailing-itinerary/",
+    "aeolian islands":               "https://sailscanner.ai/itinerary/7-day-aeolian-islands-sailing-itinerary/",
+    # ── Croatia ───────────────────────────────────────────────────────────────
+    "croatia":                       "https://sailscanner.ai/itinerary/trogir-7-day-dalmatia-sailing-itinerary/",
+    "kornati & šibenik":             "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-sibenik-via-skradin-krka-the-sibenik-archipelago/",
+    "central dalmatia":              "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-sibenik-via-skradin-krka-the-sibenik-archipelago/",
+    "sibenik":                       "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-sibenik-via-skradin-krka-the-sibenik-archipelago/",
+    "šibenik":                       "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-sibenik-via-skradin-krka-the-sibenik-archipelago/",
+    "split & central dalmatia":      "https://sailscanner.ai/itinerary/trogir-7-day-dalmatia-sailing-itinerary/",
+    "split":                         "https://sailscanner.ai/itinerary/trogir-7-day-dalmatia-sailing-itinerary/",
+    "trogir":                        "https://sailscanner.ai/itinerary/trogir-7-day-dalmatia-sailing-itinerary/",
+    "makarska":                      "https://sailscanner.ai/itinerary/trogir-7-day-dalmatia-sailing-itinerary/",
+    "dubrovnik & south dalmatia":    "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-lopud-to-komolac-dubrovnik/",
+    "dubrovnik":                     "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-lopud-to-komolac-dubrovnik/",
+    "south dalmatia":                "https://sailscanner.ai/itinerary/7-day-croatia-sailing-itinerary-from-lopud-to-komolac-dubrovnik/",
+    # ── Spain ─────────────────────────────────────────────────────────────────
+    "spain":                         "https://sailscanner.ai/itinerary/palma-balearic-islands-7-day-mallorca-sailing-itinerary-via-andratx-soller-formentor-the-east-coast-and-cabrera/",
+    "balearic islands":              "https://sailscanner.ai/itinerary/palma-balearic-islands-7-day-mallorca-sailing-itinerary-via-andratx-soller-formentor-the-east-coast-and-cabrera/",
+    "ibiza":                         "https://sailscanner.ai/itinerary/palma-balearic-islands-7-day-mallorca-sailing-itinerary-via-andratx-soller-formentor-the-east-coast-and-cabrera/",
+    "mallorca":                      "https://sailscanner.ai/itinerary/palma-balearic-islands-7-day-mallorca-sailing-itinerary-via-andratx-soller-formentor-the-east-coast-and-cabrera/",
+    "majorca":                       "https://sailscanner.ai/itinerary/palma-balearic-islands-7-day-mallorca-sailing-itinerary-via-andratx-soller-formentor-the-east-coast-and-cabrera/",
+    # ── Turkey ────────────────────────────────────────────────────────────────
+    "turkey":                        "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    "marmaris":                      "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    "fethiye":                       "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    "gocek":                         "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    "göcek":                         "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    "turquoise coast":               "https://sailscanner.ai/itinerary/turkey-7-day-sailing-itinerary-from-merdivenli-koyu-kapi-creek-to-fethiye/",
+    # ── France ────────────────────────────────────────────────────────────────
+    "france":                        "https://sailscanner.ai/itinerary/cote-dazur-port-pin-rolland-7-day-sailing-itinerary/",
+    # ── Portugal ──────────────────────────────────────────────────────────────
+    "portugal":                      "https://sailscanner.ai/itinerary/madeira-and-porto-santo-8-day-sailing-itinerary-from-quinta-do-lorde/",
+    "azores":                        "https://sailscanner.ai/itinerary/7-day-azores-sailing-itinerary-from-velas-to-horta/",
+    "madeira":                       "https://sailscanner.ai/itinerary/madeira-and-porto-santo-8-day-sailing-itinerary-from-quinta-do-lorde/",
+    # ── French Polynesia ──────────────────────────────────────────────────────
+    "french polynesia":              "https://sailscanner.ai/itinerary/7-day-tahiti-sailing-itinerary-raiatea-huahine-tahaa-bora-bora-maupiti/",
+    "bora bora":                     "https://sailscanner.ai/itinerary/7-day-tahiti-sailing-itinerary-raiatea-huahine-tahaa-bora-bora-maupiti/",
+    "papeete":                       "https://sailscanner.ai/itinerary/7-day-tahiti-sailing-itinerary-raiatea-huahine-tahaa-bora-bora-maupiti/",
+    "tahiti":                        "https://sailscanner.ai/itinerary/7-day-tahiti-sailing-itinerary-raiatea-huahine-tahaa-bora-bora-maupiti/",
+    "raiatea":                       "https://sailscanner.ai/itinerary/7-day-tahiti-sailing-itinerary-raiatea-huahine-tahaa-bora-bora-maupiti/",
+    # ── Bahamas ───────────────────────────────────────────────────────────────
+    "bahamas":                       "https://sailscanner.ai/itinerary/abacos-7-day-sailing-itinerary-marsh-harbour-loop-via-elbow-cay-to-lynyard-cay/",
+    "abacos":                        "https://sailscanner.ai/itinerary/abacos-7-day-sailing-itinerary-marsh-harbour-loop-via-elbow-cay-to-lynyard-cay/",
+    "nassau":                        "https://sailscanner.ai/itinerary/7-day-bahamas-sailing-itinerary-from-elbow-cay-hope-town-to-marsh-harbor/",
+    "exumas":                        "https://sailscanner.ai/itinerary/7-day-bahamas-sailing-itinerary-from-elbow-cay-hope-town-to-marsh-harbor/",
+    "eleuthera":                     "https://sailscanner.ai/itinerary/7-day-bahamas-sailing-itinerary-from-elbow-cay-hope-town-to-marsh-harbor/",
+    # ── Seychelles ────────────────────────────────────────────────────────────
+    "seychelles":                    "https://sailscanner.ai/itinerary/seychelles-7-day-sailing-itinerary-praslin-la-digue-felicite-fregate-mahe-victoria-saint-anne/",
+    # ── Thailand ──────────────────────────────────────────────────────────────
+    "thailand":                      "https://sailscanner.ai/itinerary/thailand-7-day-sailing-itinerary-phuket-phang-nga-krabi-phi-phi-racha/",
+    "phuket":                        "https://sailscanner.ai/itinerary/thailand-7-day-sailing-itinerary-phuket-phang-nga-krabi-phi-phi-racha/",
+    # ── British Virgin Islands ────────────────────────────────────────────────
+    "british virgin islands":        "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+    "bvi":                           "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+    "tortola":                       "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+    "virgin gorda":                  "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+    "jost van dyke":                 "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+    "anegada":                       "https://sailscanner.ai/itinerary/7-day-bvi-sailing-itinerary-from-the-baths-to-hodges-creek/",
+}
+
+
+def get_itinerary_url(region: str | list | None, country: str | None = None) -> str:
+    """
+    Return the best-matching SailScanner itinerary URL for a lead's location.
+
+    Tries the region first (most specific), then falls back to country.
+    Region may be a string or a list (quiz sends lists for multi-region leads).
+    Returns an empty string if no itinerary exists for the location.
+    """
+    candidates: list[str] = []
+    if isinstance(region, list):
+        candidates.extend(r.strip() for r in region if r)
+    elif region:
+        candidates.append(region.strip())
+    if country:
+        candidates.append(country.strip())
+
+    for candidate in candidates:
+        url = REGION_ITINERARY_MAP.get(candidate.lower(), "")
+        if url:
+            return url
+    return ""
+
 
 # ── Supplier lists ─────────────────────────────────────────────────────────────
 # Matching is case-insensitive substring against company_name or base fields.

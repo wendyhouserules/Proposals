@@ -121,10 +121,18 @@ class SS_Proposal_REST_Core {
 					update_post_meta( $post_id, $key, (bool) $value ? '1' : '0' );
 					return true;
 				}
-				if ( in_array( $key, [ 'ss_itinerary_link_url', 'ss_itinerary_link_image' ], true ) ) {
-					update_post_meta( $post_id, $key, esc_url_raw( is_string( $value ) ? $value : '' ) );
-					return true;
+			if ( in_array( $key, [ 'ss_itinerary_link_url', 'ss_itinerary_link_image' ], true ) ) {
+				$sanitized = esc_url_raw( is_string( $value ) ? $value : '' );
+				$old_url   = get_post_meta( $post_id, $key, true );
+				update_post_meta( $post_id, $key, $sanitized );
+				// When the itinerary URL is set (or changed) via REST, auto-fetch metadata
+				// (title, image, summary, days, distance, region) from the same-site WP post
+				// so the proposal template can render the full itinerary card.
+				if ( $key === 'ss_itinerary_link_url' && $sanitized && $sanitized !== $old_url ) {
+					SS_Proposal_CPT::fetch_and_save_itinerary_meta( $post_id, $sanitized );
 				}
+				return true;
+			}
 					if ( in_array( $key, [ 'ss_itinerary_link_title', 'ss_itinerary_link_summary' ], true ) ) {
 						update_post_meta( $post_id, $key, sanitize_text_field( is_string( $value ) ? $value : '' ) );
 						return true;

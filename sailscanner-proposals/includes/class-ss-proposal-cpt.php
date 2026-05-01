@@ -1095,46 +1095,7 @@ class SS_Proposal_CPT {
 
 		// Auto-fetch from same-site WP post when URL is new or changed.
 		if ( $new_url !== $old_url ) {
-			$itin_post_id = url_to_postid( $new_url );
-			if ( $itin_post_id ) {
-				$fetched_title   = get_the_title( $itin_post_id );
-				$fetched_excerpt = get_the_excerpt( $itin_post_id );
-				$fetched_image   = get_the_post_thumbnail_url( $itin_post_id, 'large' );
-				if ( ! $fetched_image ) {
-					$fetched_image = get_the_post_thumbnail_url( $itin_post_id, 'full' );
-				}
-
-				// Try common naming conventions for days/distance/region on the itinerary post.
-				$fetched_days = '';
-				foreach ( [ 'days', '_ss_days', 'duration_days', '_duration_days', 'sail_days', 'ss_days', '_days' ] as $k ) {
-					$v = get_post_meta( $itin_post_id, $k, true );
-					if ( $v ) { $fetched_days = (string) $v; break; }
-				}
-				$fetched_dist = '';
-				foreach ( [ 'distance_nm', '_ss_distance_nm', 'total_nm', '_total_nm', 'distance', '_distance', 'ss_distance_nm' ] as $k ) {
-					$v = get_post_meta( $itin_post_id, $k, true );
-					if ( $v ) { $fetched_dist = (string) $v . ( strpos( (string) $v, 'NM' ) === false ? ' NM' : '' ); break; }
-				}
-				$fetched_region = '';
-				foreach ( [ 'region', '_ss_region', '_region', 'destination_region', 'ss_region', 'area' ] as $k ) {
-					$v = get_post_meta( $itin_post_id, $k, true );
-					if ( $v ) { $fetched_region = (string) $v; break; }
-				}
-				// Fallback: try the first assigned category/tag name as region.
-				if ( ! $fetched_region ) {
-					$terms = get_the_terms( $itin_post_id, 'itinerary_region' ) ?: get_the_terms( $itin_post_id, 'destination' ) ?: get_the_terms( $itin_post_id, 'category' );
-					if ( $terms && ! is_wp_error( $terms ) ) {
-						$fetched_region = $terms[0]->name;
-					}
-				}
-
-				if ( $fetched_title )   update_post_meta( $post_id, 'ss_itinerary_link_title',   sanitize_text_field( $fetched_title ) );
-				if ( $fetched_excerpt ) update_post_meta( $post_id, 'ss_itinerary_link_summary',  sanitize_textarea_field( $fetched_excerpt ) );
-				if ( $fetched_image )   update_post_meta( $post_id, 'ss_itinerary_link_image',    esc_url_raw( $fetched_image ) );
-				if ( $fetched_days )    update_post_meta( $post_id, 'ss_itinerary_link_days',     sanitize_text_field( $fetched_days ) );
-				if ( $fetched_dist )    update_post_meta( $post_id, 'ss_itinerary_link_distance', sanitize_text_field( $fetched_dist ) );
-				if ( $fetched_region )  update_post_meta( $post_id, 'ss_itinerary_link_region',   sanitize_text_field( $fetched_region ) );
-			}
+			self::fetch_and_save_itinerary_meta( $post_id, $new_url );
 		}
 
 		// Apply manual overrides (non-empty fields take priority over auto-fetched values).
@@ -1147,5 +1108,56 @@ class SS_Proposal_CPT {
 		if ( $manual_dist !== '' )    update_post_meta( $post_id, 'ss_itinerary_link_distance', $manual_dist );
 		if ( $manual_region !== '' )  update_post_meta( $post_id, 'ss_itinerary_link_region',   $manual_region );
 		if ( $manual_summary !== '' ) update_post_meta( $post_id, 'ss_itinerary_link_summary',  $manual_summary );
+	}
+
+	/**
+	 * Fetch itinerary metadata from a same-site WP post by URL and save to proposal meta.
+	 * Called both from the admin save_post hook and from the REST update_callback so that
+	 * proposals built via the API get the full itinerary card (title, image, summary, etc.).
+	 *
+	 * @param int    $post_id   The ss_proposal post ID to save meta on.
+	 * @param string $url       The itinerary page URL to look up.
+	 */
+	public static function fetch_and_save_itinerary_meta( int $post_id, string $url ): void {
+		$itin_post_id = url_to_postid( $url );
+		if ( ! $itin_post_id ) {
+			return;
+		}
+
+		$fetched_title   = get_the_title( $itin_post_id );
+		$fetched_excerpt = get_the_excerpt( $itin_post_id );
+		$fetched_image   = get_the_post_thumbnail_url( $itin_post_id, 'large' );
+		if ( ! $fetched_image ) {
+			$fetched_image = get_the_post_thumbnail_url( $itin_post_id, 'full' );
+		}
+
+		$fetched_days = '';
+		foreach ( [ 'days', '_ss_days', 'duration_days', '_duration_days', 'sail_days', 'ss_days', '_days' ] as $k ) {
+			$v = get_post_meta( $itin_post_id, $k, true );
+			if ( $v ) { $fetched_days = (string) $v; break; }
+		}
+		$fetched_dist = '';
+		foreach ( [ 'distance_nm', '_ss_distance_nm', 'total_nm', '_total_nm', 'distance', '_distance', 'ss_distance_nm' ] as $k ) {
+			$v = get_post_meta( $itin_post_id, $k, true );
+			if ( $v ) { $fetched_dist = (string) $v . ( strpos( (string) $v, 'NM' ) === false ? ' NM' : '' ); break; }
+		}
+		$fetched_region = '';
+		foreach ( [ 'region', '_ss_region', '_region', 'destination_region', 'ss_region', 'area' ] as $k ) {
+			$v = get_post_meta( $itin_post_id, $k, true );
+			if ( $v ) { $fetched_region = (string) $v; break; }
+		}
+		if ( ! $fetched_region ) {
+			$terms = get_the_terms( $itin_post_id, 'itinerary_region' ) ?: get_the_terms( $itin_post_id, 'destination' ) ?: get_the_terms( $itin_post_id, 'category' );
+			if ( $terms && ! is_wp_error( $terms ) ) {
+				$fetched_region = $terms[0]->name;
+			}
+		}
+
+		if ( $fetched_title )   update_post_meta( $post_id, 'ss_itinerary_link_title',   sanitize_text_field( $fetched_title ) );
+		if ( $fetched_excerpt ) update_post_meta( $post_id, 'ss_itinerary_link_summary',  sanitize_textarea_field( $fetched_excerpt ) );
+		if ( $fetched_image )   update_post_meta( $post_id, 'ss_itinerary_link_image',    esc_url_raw( $fetched_image ) );
+		if ( $fetched_days )    update_post_meta( $post_id, 'ss_itinerary_link_days',     sanitize_text_field( $fetched_days ) );
+		if ( $fetched_dist )    update_post_meta( $post_id, 'ss_itinerary_link_distance', sanitize_text_field( $fetched_dist ) );
+		if ( $fetched_region )  update_post_meta( $post_id, 'ss_itinerary_link_region',   sanitize_text_field( $fetched_region ) );
 	}
 }

@@ -100,6 +100,7 @@ def create_proposal(
     auth: tuple[str, str],
     intro_html: str = "",
     itinerary_html: str = "",
+    itinerary_link_url: str = "",
     notes_html: str = "",
     contact_whatsapp: str = "",
     contact_email: str = "",
@@ -117,6 +118,8 @@ def create_proposal(
         "ss_contact_whatsapp": contact_whatsapp,
         "ss_contact_email": contact_email,
     }
+    if itinerary_link_url:
+        body["ss_itinerary_link_url"] = itinerary_link_url
     if requirements is not None:
         body["ss_requirements_json"] = (
             requirements if isinstance(requirements, dict) else json.loads(str(requirements))
@@ -164,6 +167,7 @@ def main() -> None:
     proposal_payload = {
         "intro_html": data.get("intro_html", ""),
         "itinerary_html": data.get("itinerary_html", ""),
+        "itinerary_link_url": data.get("ss_itinerary_link_url", ""),
         "notes_html": data.get("notes_html", ""),
         "contact_whatsapp": data.get("contact_whatsapp", ""),
         "contact_email": data.get("contact_email", ""),

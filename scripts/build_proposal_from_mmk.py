@@ -31,6 +31,8 @@ if str(_examples) not in sys.path:
 if str(_script_dir) not in sys.path:
     sys.path.insert(0, str(_script_dir))
 
+from live_proposal_builder import get_itinerary_url
+
 
 def _format_money(m: Any) -> str:
     """Format Money-like object (has .format()) for display; else return empty string."""
@@ -873,6 +875,15 @@ def main() -> None:
             "<p>This proposal is valid for 14 days. Contact us to confirm availability and secure your booking.</p>"
         )
 
+    # Look up itinerary URL from lead's region/country
+    _itinerary_url = ""
+    if lead_data:
+        _answers = lead_data.get("answers") or {}
+        _itinerary_url = get_itinerary_url(
+            _answers.get("region"),
+            _answers.get("country"),
+        )
+
     payload: dict[str, Any] = {
         "yachts": yacht_data,
         "intro_html": intro_html,
@@ -883,6 +894,8 @@ def main() -> None:
         "requirements": {},
         "group_by_base": args.group_by_base,
     }
+    if _itinerary_url:
+        payload["ss_itinerary_link_url"] = _itinerary_url
     if lead_data:
         payload["lead"] = lead_data
 

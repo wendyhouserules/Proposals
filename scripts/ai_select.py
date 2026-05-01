@@ -93,13 +93,16 @@ _BUDGET_BASE: dict[str, tuple[float, float]] = {
 
     # ── Bareboat · Monohull / Either (no offset) ─────────────────────────────
     "under-3k":          (0,       3_000),
+    "under €3k":         (0,       3_000),
     "3-5k":              (3_000,   5_000),
     "5-8k":              (5_000,   8_000),
     "8-12k":             (8_000,  12_000),
     "12k+":              (12_000, float("inf")),
+    "€12k+":             (12_000, float("inf")),
 
     # ── Skippered · Monohull / Either (+€1.5k offset) ─────────────────────────
     "under-4.5k":        (0,       4_500),
+    "under €4.5k":       (0,       4_500),
     "4.5k-6.5k":         (4_500,   6_500),
     "€4.5k–€6.5k":       (4_500,   6_500),
     "6.5k-9.5k":         (6_500,   9_500),
@@ -107,9 +110,11 @@ _BUDGET_BASE: dict[str, tuple[float, float]] = {
     "9.5k-13.5k":        (9_500,  13_500),
     "€9.5k–€13.5k":      (9_500,  13_500),
     "13.5k+":            (13_500, float("inf")),
+    "€13.5k+":           (13_500, float("inf")),
 
     # ── Bareboat · Catamaran (+€3k offset) ────────────────────────────────────
     "under-6k":          (0,       6_000),
+    "under €6k":         (0,       6_000),
     "6k-8k":             (6_000,   8_000),
     "€6k–€8k":           (6_000,   8_000),
     "8k-11k":            (8_000,  11_000),
@@ -117,9 +122,11 @@ _BUDGET_BASE: dict[str, tuple[float, float]] = {
     "11k-15k":           (11_000, 15_000),
     "€11k–€15k":         (11_000, 15_000),
     "15k+":              (15_000, float("inf")),
+    "€15k+":             (15_000, float("inf")),
 
     # ── Skippered · Catamaran (+€4.5k offset) ─────────────────────────────────
     "under-7.5k":        (0,       7_500),
+    "under €7.5k":       (0,       7_500),
     "7.5k-9.5k":         (7_500,   9_500),
     "€7.5k–€9.5k":       (7_500,   9_500),
     "9.5k-12.5k":        (9_500,  12_500),
@@ -127,6 +134,7 @@ _BUDGET_BASE: dict[str, tuple[float, float]] = {
     "12.5k-16.5k":       (12_500, 16_500),
     "€12.5k–€16.5k":     (12_500, 16_500),
     "16.5k+":            (16_500, float("inf")),
+    "€16.5k+":           (16_500, float("inf")),
 
     # ── Catch-all ─────────────────────────────────────────────────────────────
     "any":               (0,      float("inf")),
@@ -172,11 +180,15 @@ def _budget_label(budget_enum: str, charter_type: str, boat_type: str) -> str:
         return f"€{k:g}k"
 
     if base_min == 0 and base_max != float("inf"):
-        charter_str = f"Under {_fmt(base_max)}"
+        # "up to €3k" reads more naturally than "Under €3k" or "€0k–€3k"
+        charter_str = f"up to {_fmt(base_max)}"
     elif base_max != float("inf"):
         charter_str = f"{_fmt(base_min)}–{_fmt(base_max)}"
-    else:
+    elif base_min > 0:
         charter_str = f"{_fmt(base_min)}+"
+    else:
+        # Genuinely unknown budget — keep it vague rather than saying €0k+
+        charter_str = "flexible"
 
     return f"{charter_str} charter price (use this range when describing budget to client — do not invent other figures)"
 

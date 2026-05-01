@@ -1,0 +1,44 @@
+{
+    "lead_id": "bc887855-94af-4c8b-9e6e-9091cc4f4fee",
+    "answers": {
+      "charterType": "bareboat",
+      "country": "Greece",
+      "region": [
+        "Saronic Gulf"
+      ],
+      "boatType": "monohull",
+      "size": "33-40",
+      "guests": {
+        "adults": 2,
+        "children": 0
+      },
+      "cabins": 3,
+      "yachtOptions": {
+        "furlingMainsail": true
+      },
+      "budget": "Under €3k",
+      "dates": {
+        "start": "2026-05-09",
+        "end": "2026-05-16"
+      },
+      "contact": {
+        "firstName": "John",
+        "lastName": "Hennessy",
+        "email": "johnnyhjazz@yahoo.com",
+        "phone": "+447506685437"
+      }
+    },
+    "attribution": {
+      "referrer": "",
+      "landing_url": "https://quiz.sailscanner.ai/step/intro"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/29.0 Chrome/136.0.0.0 Mobile Safari/537.36"
+    },
+    "timestamp": "2026-04-30T07:59:04.044Z",
+    "geo": {
+      "ip": "82.132.217.230",
+      "countryCode": "GB",
+      "source": "header"
+    }
+   }
